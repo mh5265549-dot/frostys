@@ -272,8 +272,8 @@ export const STORE_INFO = {
   address: "8B Commercial, Green City, Lahore, Pakistan",
   city: "Lahore, Pakistan",
   area: "Green City Commercial",
-  phone: "+92 300 1234567",
-  whatsapp: "+923001234567",
+  phone: "+92 325 4826051",
+  whatsapp: "923254826051",
   operatingHours: "Monday to Sunday, 4:00 PM – 2:00 AM",
   hoursStart: 16, // 4:00 PM
   hoursEnd: 2,    // 2:00 AM
