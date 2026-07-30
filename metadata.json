@@ -1,0 +1,6 @@
+{
+  "name": "Frosty's",
+  "description": "Vibrant, modern single-page website for Frosty's - Lahore's favorite late-night ice cream & dessert parlor in Green City.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
