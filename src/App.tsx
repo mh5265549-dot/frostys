@@ -8,7 +8,7 @@ import { AboutSection } from './components/AboutSection';
 import { LocationHoursSection } from './components/LocationHoursSection';
 import { ReviewsSection } from './components/ReviewsSection';
 import { Footer } from './components/Footer';
-import { ItemDetailModal } from './components/ItemDetailModal';
+import { ItemDetailModal, CustomizationDetails } from './components/ItemDetailModal';
 import { OrderModal } from './components/OrderModal';
 import { CallModal } from './components/CallModal';
 import { InventoryManagerModal } from './components/InventoryManagerModal';
@@ -150,11 +150,11 @@ export default function App() {
     }, 3500);
   };
 
-  // Add Item to Cart
+  // Add Item to Cart with optional Customizations
   const handleAddToCart = (
     item: MenuItem,
     quantity: number = 1,
-    instructions: string = ''
+    customization?: CustomizationDetails
   ) => {
     const itemStock = inventory[item.id] ?? 15;
     if (itemStock <= 0) {
@@ -162,9 +162,20 @@ export default function App() {
       return;
     }
 
+    const selectedSyrups = customization?.selectedSyrups || [];
+    const selectedToppings = customization?.selectedToppings || [];
+    const customInstructions = customization?.instructions || '';
+    const extraCharges = customization?.extraCharges || 0;
+    const unitPrice = item.price + extraCharges;
+
+    // Unique cart item identifier
+    const cartItemId = `${item.id}_${selectedSyrups.join('-')}_${selectedToppings
+      .map((t) => t.name)
+      .join('-')}_${customInstructions}`;
+
     setCart((prev) => {
       const existingIndex = prev.findIndex(
-        (ci) => ci.menuItem.id === item.id
+        (ci) => ci.cartItemId === cartItemId
       );
 
       if (existingIndex > -1) {
@@ -173,16 +184,22 @@ export default function App() {
         updated[existingIndex] = {
           ...updated[existingIndex],
           quantity: newQty,
-          totalPrice: newQty * item.price,
+          totalPrice: newQty * unitPrice,
         };
         return updated;
       } else {
         return [
           ...prev,
           {
+            cartItemId,
             menuItem: item,
             quantity: Math.min(itemStock, quantity),
-            totalPrice: Math.min(itemStock, quantity) * item.price,
+            selectedSyrups,
+            selectedToppings,
+            customInstructions,
+            extraCharges,
+            unitPrice,
+            totalPrice: Math.min(itemStock, quantity) * unitPrice,
           },
         ];
       }
@@ -192,13 +209,12 @@ export default function App() {
   };
 
   // Update Item Quantity in Cart
-  const handleUpdateQuantity = (id: string, delta: number) => {
-    const itemStock = inventory[id] ?? 15;
-
+  const handleUpdateQuantity = (idKey: string, delta: number) => {
     setCart((prev) => {
       return prev
         .map((ci) => {
-          if (ci.menuItem.id === id) {
+          if (ci.cartItemId === idKey || ci.menuItem.id === idKey) {
+            const itemStock = inventory[ci.menuItem.id] ?? 15;
             const newQty = ci.quantity + delta;
             if (newQty <= 0) return null;
             if (newQty > itemStock) {
@@ -208,7 +224,7 @@ export default function App() {
             return {
               ...ci,
               quantity: newQty,
-              totalPrice: newQty * ci.menuItem.price,
+              totalPrice: newQty * ci.unitPrice,
             };
           }
           return ci;
@@ -218,8 +234,8 @@ export default function App() {
   };
 
   // Remove Item
-  const handleRemoveItem = (id: string) => {
-    setCart((prev) => prev.filter((ci) => ci.menuItem.id !== id));
+  const handleRemoveItem = (idKey: string) => {
+    setCart((prev) => prev.filter((ci) => ci.cartItemId !== idKey && ci.menuItem.id !== idKey));
   };
 
   // Clear Cart

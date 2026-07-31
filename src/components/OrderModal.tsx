@@ -76,6 +76,23 @@ export const OrderModal: React.FC<OrderModalProps> = ({
     cart.forEach((item, idx) => {
       const unitText = item.menuItem.unit ? ` (${item.menuItem.unit})` : '';
       msg += `${idx + 1}. ${item.menuItem.name}${unitText} x${item.quantity} - Rs. ${item.totalPrice}\n`;
+
+      const customizationLines: string[] = [];
+      if (item.selectedSyrups && item.selectedSyrups.length > 0) {
+        customizationLines.push(`   • Syrups: ${item.selectedSyrups.join(', ')}`);
+      }
+      if (item.selectedToppings && item.selectedToppings.length > 0) {
+        const toppingsStr = item.selectedToppings
+          .map((t) => (t.price > 0 ? `${t.name} (+Rs.${t.price})` : t.name))
+          .join(', ');
+        customizationLines.push(`   • Toppings: ${toppingsStr}`);
+      }
+      if (item.customInstructions) {
+        customizationLines.push(`   • Note: ${item.customInstructions}`);
+      }
+      if (customizationLines.length > 0) {
+        msg += customizationLines.join('\n') + '\n';
+      }
     });
 
     msg += `\n*TOTAL AMOUNT:* Rs. ${subtotal}\n\n`;
@@ -92,13 +109,31 @@ export const OrderModal: React.FC<OrderModalProps> = ({
         customerPhone,
         address: addressOrTable,
         orderType,
-        items: cart.map((ci) => ({
-          id: ci.menuItem.id,
-          name: ci.menuItem.name,
-          quantity: ci.quantity,
-          price: ci.menuItem.price,
-          unit: ci.menuItem.unit,
-        })),
+        items: cart.map((ci) => {
+          const parts: string[] = [];
+          if (ci.selectedSyrups && ci.selectedSyrups.length > 0) {
+            parts.push(`Syrups: ${ci.selectedSyrups.join(', ')}`);
+          }
+          if (ci.selectedToppings && ci.selectedToppings.length > 0) {
+            parts.push(
+              `Toppings: ${ci.selectedToppings
+                .map((t) => (t.price > 0 ? `${t.name} (+Rs.${t.price})` : t.name))
+                .join(', ')}`
+            );
+          }
+          if (ci.customInstructions) {
+            parts.push(`Note: ${ci.customInstructions}`);
+          }
+
+          return {
+            id: ci.menuItem.id,
+            name: ci.menuItem.name,
+            quantity: ci.quantity,
+            price: ci.unitPrice,
+            unit: ci.menuItem.unit,
+            customizationsText: parts.join(' | '),
+          };
+        }),
         totalAmount: subtotal,
         notes,
       });
@@ -212,65 +247,97 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                 </p>
               </div>
             ) : (
-              <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
-                {cart.map((item) => (
-                  <div
-                    key={item.menuItem.id}
-                    className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 flex items-center justify-between gap-3"
-                  >
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={item.menuItem.image}
-                        alt={item.menuItem.name}
-                        referrerPolicy="no-referrer"
-                        className="w-12 h-12 rounded-xl object-cover shrink-0"
-                      />
-                      <div>
-                        <h4 className="font-heading font-bold text-sm text-[#2D1B18]">
-                          {item.menuItem.name}
-                        </h4>
-                        <span className="text-xs text-stone-500 font-medium">
-                          Rs. {item.menuItem.price} each
+              <div className="space-y-2.5 max-h-64 overflow-y-auto pr-1">
+                {cart.map((item) => {
+                  const itemId = item.cartItemId || item.menuItem.id;
+                  return (
+                    <div
+                      key={itemId}
+                      className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 flex items-start justify-between gap-3"
+                    >
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <img
+                          src={item.menuItem.image}
+                          alt={item.menuItem.name}
+                          referrerPolicy="no-referrer"
+                          className="w-12 h-12 rounded-xl object-cover shrink-0 mt-0.5"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <h4 className="font-heading font-bold text-sm text-[#2D1B18] truncate">
+                            {item.menuItem.name}
+                          </h4>
+                          <span className="text-xs text-stone-500 font-medium block">
+                            Rs. {item.unitPrice} each
+                          </span>
+
+                          {/* Render Syrups */}
+                          {item.selectedSyrups && item.selectedSyrups.length > 0 && (
+                            <div className="text-[11px] text-amber-900 font-semibold mt-1">
+                              <span>🍯 Syrups: </span>
+                              <span className="text-stone-700 font-normal">
+                                {item.selectedSyrups.join(', ')}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Render Toppings */}
+                          {item.selectedToppings && item.selectedToppings.length > 0 && (
+                            <div className="text-[11px] text-amber-900 font-semibold mt-0.5">
+                              <span>🍪 Toppings: </span>
+                              <span className="text-stone-700 font-normal">
+                                {item.selectedToppings
+                                  .map((t) => (t.price > 0 ? `${t.name} (+Rs.${t.price})` : t.name))
+                                  .join(', ')}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Render Instructions */}
+                          {item.customInstructions && (
+                            <div className="text-[11px] text-stone-500 italic mt-0.5">
+                              Note: {item.customInstructions}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2.5 shrink-0">
+                        {/* Quantity Controls */}
+                        <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-xl border border-stone-200">
+                          <button
+                            type="button"
+                            onClick={() => onUpdateQuantity(itemId, -1)}
+                            className="w-6 h-6 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold flex items-center justify-center"
+                          >
+                            -
+                          </button>
+                          <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => onUpdateQuantity(itemId, 1)}
+                            className="w-6 h-6 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold flex items-center justify-center"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        {/* Total */}
+                        <span className="font-heading font-black text-sm text-[#2D1B18] w-16 text-right">
+                          Rs. {item.totalPrice}
                         </span>
-                      </div>
-                    </div>
 
-                    <div className="flex items-center gap-3">
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-2 bg-white px-2 py-1 rounded-xl border border-stone-200">
+                        {/* Delete */}
                         <button
                           type="button"
-                          onClick={() => onUpdateQuantity(item.menuItem.id, -1)}
-                          className="w-6 h-6 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold flex items-center justify-center"
+                          onClick={() => onRemoveItem(itemId)}
+                          className="text-stone-400 hover:text-[#E63956] text-xs p-1"
                         >
-                          -
-                        </button>
-                        <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
-                        <button
-                          type="button"
-                          onClick={() => onUpdateQuantity(item.menuItem.id, 1)}
-                          className="w-6 h-6 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold flex items-center justify-center"
-                        >
-                          +
+                          <i className="fa-solid fa-trash-can"></i>
                         </button>
                       </div>
-
-                      {/* Total */}
-                      <span className="font-heading font-black text-sm text-[#2D1B18] w-16 text-right">
-                        Rs. {item.totalPrice}
-                      </span>
-
-                      {/* Delete */}
-                      <button
-                        type="button"
-                        onClick={() => onRemoveItem(item.menuItem.id)}
-                        className="text-stone-400 hover:text-[#E63956] text-xs p-1"
-                      >
-                        <i className="fa-solid fa-trash-can"></i>
-                      </button>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

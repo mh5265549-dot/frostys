@@ -791,13 +791,20 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                                 </span>
                                 <ul className="space-y-1 bg-[#2D1B18] p-2.5 rounded-xl border border-[#52332E]">
                                   {order.items.map((it, idx) => (
-                                    <li key={idx} className="flex justify-between">
-                                      <span>
-                                        {it.quantity}x {it.name}
-                                      </span>
-                                      <span className="text-amber-400 font-bold">
-                                        Rs. {it.price * it.quantity}
-                                      </span>
+                                    <li key={idx} className="space-y-0.5 border-b border-[#3D2522] last:border-0 pb-1.5 last:pb-0">
+                                      <div className="flex justify-between">
+                                        <span className="font-semibold text-stone-200">
+                                          {it.quantity}x {it.name}
+                                        </span>
+                                        <span className="text-amber-400 font-bold">
+                                          Rs. {it.price * it.quantity}
+                                        </span>
+                                      </div>
+                                      {it.customizationsText && (
+                                        <p className="text-[10px] text-amber-200/80 font-mono pl-3">
+                                          ↳ {it.customizationsText}
+                                        </p>
+                                      )}
                                     </li>
                                   ))}
                                 </ul>

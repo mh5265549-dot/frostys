@@ -281,12 +281,12 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                         </button>
                       ) : (
                         <button
-                          onClick={() => onAddToCart(item)}
+                          onClick={() => onSelectItem(item)}
                           id={`btn-add-${item.id}`}
                           className="px-4 py-2.5 rounded-xl bg-[#2D1B18] hover:bg-[#FF4B72] text-white font-bold text-xs transition-colors shadow-sm flex items-center gap-1.5"
                         >
-                          <i className="fa-solid fa-plus text-[10px]"></i>
-                          <span>Add</span>
+                          <i className="fa-solid fa-wand-magic-sparkles text-[10px] text-amber-300"></i>
+                          <span>Customize & Add</span>
                         </button>
                       )}
                     </div>

@@ -26,9 +26,14 @@ export interface Category {
 }
 
 export interface CartItem {
+  cartItemId: string;
   menuItem: MenuItem;
   quantity: number;
-  selectedOptions?: { [key: string]: string };
+  selectedSyrups?: string[];
+  selectedToppings?: { name: string; price: number }[];
+  customInstructions?: string;
+  extraCharges?: number;
+  unitPrice: number;
   totalPrice: number;
 }
 
@@ -45,6 +50,7 @@ export interface OrderRecord {
     quantity: number;
     price: number;
     unit?: string;
+    customizationsText?: string;
   }[];
   totalAmount: number;
   status: 'Received (WhatsApp)' | 'Confirmed' | 'Preparing' | 'Completed' | 'Cancelled';
