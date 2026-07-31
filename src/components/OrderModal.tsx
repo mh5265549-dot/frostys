@@ -9,6 +9,15 @@ interface OrderModalProps {
   onUpdateQuantity: (id: string, delta: number) => void;
   onRemoveItem: (id: string) => void;
   onClearCart: () => void;
+  onOrderSubmitted?: (orderData: {
+    customerName: string;
+    customerPhone: string;
+    address?: string;
+    orderType: 'delivery' | 'takeaway' | 'dinein';
+    items: { id: string; name: string; quantity: number; price: number; unit?: string }[];
+    totalAmount: number;
+    notes?: string;
+  }) => void;
 }
 
 export const OrderModal: React.FC<OrderModalProps> = ({
@@ -18,6 +27,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
   onUpdateQuantity,
   onRemoveItem,
   onClearCart,
+  onOrderSubmitted,
 }) => {
   if (!isOpen) return null;
 
@@ -75,7 +85,27 @@ export const OrderModal: React.FC<OrderModalProps> = ({
     const encodedMsg = encodeURIComponent(msg);
     const whatsappUrl = `https://wa.me/${STORE_INFO.whatsapp}?text=${encodedMsg}`;
 
+    // Log order in history and deduct stock
+    if (onOrderSubmitted) {
+      onOrderSubmitted({
+        customerName,
+        customerPhone,
+        address: addressOrTable,
+        orderType,
+        items: cart.map((ci) => ({
+          id: ci.menuItem.id,
+          name: ci.menuItem.name,
+          quantity: ci.quantity,
+          price: ci.menuItem.price,
+          unit: ci.menuItem.unit,
+        })),
+        totalAmount: subtotal,
+        notes,
+      });
+    }
+
     window.open(whatsappUrl, '_blank');
+    onClose();
   };
 
   return (
@@ -178,7 +208,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                 <i className="fa-solid fa-basket-shopping text-3xl text-stone-300"></i>
                 <p className="text-sm font-semibold text-stone-600">Your cart is currently empty</p>
                 <p className="text-xs text-stone-400">
-                  Select fresh groceries, dairy, snacks, cold drinks or signature desserts from the catalog to build your order!
+                  Select signature sundaes, thick shakes, warm Belgian waffles, or gelato scoops from our dessert menu to build your order!
                 </p>
               </div>
             ) : (

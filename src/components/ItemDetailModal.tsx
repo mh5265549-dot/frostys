@@ -3,21 +3,27 @@ import { MenuItem } from '../types';
 
 interface ItemDetailModalProps {
   item: MenuItem | null;
+  stock?: number;
   onClose: () => void;
   onAddToCart: (item: MenuItem, quantity: number, instructions: string) => void;
 }
 
 export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   item,
+  stock = 15,
   onClose,
   onAddToCart,
 }) => {
   if (!item) return null;
 
+  const availableStock = stock ?? 15;
+  const isSoldOut = availableStock <= 0;
+
   const [quantity, setQuantity] = useState(1);
   const [instructions, setInstructions] = useState('');
 
   const handleAdd = () => {
+    if (isSoldOut) return;
     onAddToCart(item, quantity, instructions);
     onClose();
   };
@@ -100,22 +106,36 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             />
           </div>
 
-          {/* Quantity Controls */}
+          {/* Quantity Controls & Stock Info */}
           <div className="flex items-center justify-between pt-3 border-t border-stone-100">
-            <span className="text-xs font-bold text-stone-700 uppercase tracking-wider">
-              Select Quantity
-            </span>
+            <div>
+              <span className="text-xs font-bold text-stone-700 uppercase tracking-wider block">
+                Select Quantity
+              </span>
+              <span
+                className={`text-[11px] font-bold ${
+                  isSoldOut ? 'text-rose-600' : 'text-emerald-600'
+                }`}
+              >
+                {isSoldOut ? 'Currently Sold Out' : 'Freshly Prepared & Available'}
+              </span>
+            </div>
+
             <div className="flex items-center gap-3 bg-stone-100 p-1.5 rounded-xl border border-stone-200">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="w-8 h-8 rounded-lg bg-white text-stone-800 font-bold hover:bg-stone-200 flex items-center justify-center transition-colors shadow-sm"
+                disabled={isSoldOut || quantity <= 1}
+                className="w-8 h-8 rounded-lg bg-white text-stone-800 font-bold hover:bg-stone-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors shadow-sm"
               >
                 <i className="fa-solid fa-minus text-xs"></i>
               </button>
-              <span className="font-bold text-base px-2 text-[#2D1B18]">{quantity}</span>
+              <span className="font-bold text-base px-2 text-[#2D1B18]">
+                {isSoldOut ? 0 : quantity}
+              </span>
               <button
-                onClick={() => setQuantity(quantity + 1)}
-                className="w-8 h-8 rounded-lg bg-white text-stone-800 font-bold hover:bg-stone-200 flex items-center justify-center transition-colors shadow-sm"
+                onClick={() => setQuantity(Math.min(availableStock, quantity + 1))}
+                disabled={isSoldOut || quantity >= availableStock}
+                className="w-8 h-8 rounded-lg bg-white text-stone-800 font-bold hover:bg-stone-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors shadow-sm"
               >
                 <i className="fa-solid fa-plus text-xs"></i>
               </button>
@@ -125,13 +145,23 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
 
         {/* Modal Action Footer */}
         <div className="p-4 bg-stone-50 border-t border-stone-200 flex items-center gap-3">
-          <button
-            onClick={handleAdd}
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#FF4B72] to-[#E63956] hover:from-[#E63956] hover:to-[#C92A43] text-white font-bold text-sm shadow-lg flex items-center justify-center gap-2"
-          >
-            <i className="fa-solid fa-bag-shopping"></i>
-            <span>Add to Order (Rs. {item.price * quantity})</span>
-          </button>
+          {isSoldOut ? (
+            <button
+              disabled
+              className="w-full py-3.5 rounded-2xl bg-stone-200 text-stone-500 font-bold text-sm cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <i className="fa-solid fa-ban"></i>
+              <span>Out of Stock</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleAdd}
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#FF4B72] to-[#E63956] hover:from-[#E63956] hover:to-[#C92A43] text-white font-bold text-sm shadow-lg flex items-center justify-center gap-2"
+            >
+              <i className="fa-solid fa-bag-shopping"></i>
+              <span>Add to Order (Rs. {item.price * quantity})</span>
+            </button>
+          )}
         </div>
 
       </div>

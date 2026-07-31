@@ -6,12 +6,22 @@ interface NavbarProps {
   cartCount: number;
   onOpenOrderModal: () => void;
   onOpenCallModal: () => void;
+  onOpenInventoryModal: () => void;
+  onOpenOrderHistoryModal: () => void;
+  onOpenAdminModal?: () => void;
+  lowStockCount?: number;
+  ordersCount?: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   cartCount,
   onOpenOrderModal,
   onOpenCallModal,
+  onOpenInventoryModal,
+  onOpenOrderHistoryModal,
+  onOpenAdminModal,
+  lowStockCount = 0,
+  ordersCount = 0,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -87,7 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Right Action Area */}
-          <div className="hidden sm:flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2.5">
             {/* Live Open Badge */}
             <div
               className={`hidden lg:flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full border ${
@@ -105,6 +115,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>{status.statusText}</span>
             </div>
 
+            {/* Admin / Owner Portal Button */}
+            {onOpenAdminModal && (
+              <button
+                onClick={onOpenAdminModal}
+                id="btn-admin-nav"
+                className="p-2.5 rounded-xl bg-gradient-to-r from-amber-600/30 to-amber-500/20 hover:from-amber-600/50 hover:to-amber-500/40 text-amber-200 hover:text-amber-100 transition-all duration-200 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                title="Owner Admin Portal (PIN Protected)"
+              >
+                <i className="fa-solid fa-lock text-amber-400"></i>
+                <span className="hidden xl:inline">Owner Portal</span>
+              </button>
+            )}
+
             {/* Quick Call Button */}
             <button
               onClick={onOpenCallModal}
@@ -120,7 +143,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onOpenOrderModal}
               id="btn-order-now-nav"
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF4B72] to-[#E63956] hover:from-[#E63956] hover:to-[#C92A43] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FF4B72] to-[#E63956] hover:from-[#E63956] hover:to-[#C92A43] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0"
             >
               <i className="fa-solid fa-bag-shopping"></i>
               <span>Order Now</span>
@@ -191,7 +214,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             ))}
           </div>
 
-          <div className="flex items-center gap-2 pt-2">
+          {onOpenAdminModal && (
+            <div className="pt-2 border-t border-[#3D2522]">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenAdminModal();
+                }}
+                className="w-full px-3 py-2.5 rounded-xl bg-amber-950/40 text-amber-200 text-xs font-bold hover:bg-amber-950/60 flex items-center justify-center gap-2 border border-amber-800/40"
+              >
+                <i className="fa-solid fa-lock text-amber-400"></i>
+                <span>Owner Admin Portal</span>
+              </button>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 pt-1">
             <button
               onClick={() => {
                 setMobileMenuOpen(false);

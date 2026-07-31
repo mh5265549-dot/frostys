@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { MenuItem, CartItem } from './types';
+import React, { useState, useEffect } from 'react';
+import { MenuItem, CartItem, OrderRecord } from './types';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { TrustSection } from './components/TrustSection';
@@ -11,22 +11,143 @@ import { Footer } from './components/Footer';
 import { ItemDetailModal } from './components/ItemDetailModal';
 import { OrderModal } from './components/OrderModal';
 import { CallModal } from './components/CallModal';
+import { InventoryManagerModal } from './components/InventoryManagerModal';
+import { OrderHistoryModal } from './components/OrderHistoryModal';
+import { AdminDashboardModal } from './components/AdminDashboardModal';
 import { FloatingCartBar } from './components/FloatingCartBar';
+import {
+  getStoredInventory,
+  saveInventory,
+  deductStockFromOrder,
+  countLowStockItems,
+} from './utils/inventory';
+import {
+  getStoredOrderHistory,
+  saveNewOrderRecord,
+  updateOrderStatus,
+} from './utils/orderHistory';
+import {
+  getStoredMenuItems,
+  updateSingleMenuItem,
+  resetMenuCatalogToDefault,
+} from './utils/menuStore';
 
 export default function App() {
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(() => getStoredMenuItems());
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
+  const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false);
+  const [isOrderHistoryModalOpen, setIsOrderHistoryModalOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
+
+  // Persistent Inventory & Order History State
+  const [inventory, setInventory] = useState<{ [itemId: string]: number }>(() =>
+    getStoredInventory()
+  );
+  const [orderHistory, setOrderHistory] = useState<OrderRecord[]>(() =>
+    getStoredOrderHistory()
+  );
+
+  // Sync menu updates
+  const handleUpdateMenuItem = (updatedItem: MenuItem) => {
+    const newCatalog = updateSingleMenuItem(updatedItem);
+    setMenuItems(newCatalog);
+    triggerToast(`Updated ${updatedItem.name} in menu catalog!`);
+  };
+
+  // Reset menu catalog
+  const handleResetMenuCatalog = () => {
+    const defaultCatalog = resetMenuCatalogToDefault();
+    setMenuItems(defaultCatalog);
+    triggerToast('Reset menu items back to default catalog!');
+  };
+
+  // Sync inventory changes
+  const handleUpdateStock = (itemId: string, newStock: number) => {
+    const updated = { ...inventory, [itemId]: newStock };
+    setInventory(updated);
+    saveInventory(updated);
+  };
+
+  // Sync order status changes
+  const handleUpdateOrderStatus = (
+    orderId: string,
+    newStatus: OrderRecord['status']
+  ) => {
+    const updated = updateOrderStatus(orderId, newStatus);
+    setOrderHistory(updated);
+  };
+
+  // Handle WhatsApp order submission - deduct stock & store order log
+  const handleOrderSubmitted = (orderData: {
+    customerName: string;
+    customerPhone: string;
+    address?: string;
+    orderType: 'delivery' | 'takeaway' | 'dinein';
+    items: { id: string; name: string; quantity: number; price: number; unit?: string }[];
+    totalAmount: number;
+    notes?: string;
+  }) => {
+    // 1. Save new order record to local storage
+    const newRecord = saveNewOrderRecord({
+      customerName: orderData.customerName,
+      customerPhone: orderData.customerPhone,
+      address: orderData.address,
+      orderType: orderData.orderType,
+      items: orderData.items,
+      totalAmount: orderData.totalAmount,
+      notes: orderData.notes,
+      status: 'Received (WhatsApp)',
+    });
+
+    setOrderHistory((prev) => [newRecord, ...prev]);
+
+    // 2. Automatically decrement stock quantities
+    const updatedInventory = deductStockFromOrder(
+      orderData.items.map((i) => ({ id: i.id, quantity: i.quantity }))
+    );
+    setInventory(updatedInventory);
+
+    // 3. Clear active cart
+    setCart([]);
+
+    // 4. Show success notification
+    triggerToast(`🎉 Order #${newRecord.id} sent on WhatsApp! Inventory stock updated.`);
+  };
+
+  // Re-order past order items
+  const handleReorder = (order: OrderRecord) => {
+    let readdedCount = 0;
+    order.items.forEach((item) => {
+      const menuItem = menuItems.find((m) => m.id === item.id);
+      if (menuItem) {
+        const availableStock = inventory[menuItem.id] ?? 15;
+        if (availableStock > 0) {
+          handleAddToCart(menuItem, item.quantity);
+          readdedCount++;
+        }
+      }
+    });
+
+    if (readdedCount > 0) {
+      triggerToast(`Re-added items from Order #${order.id} to your cart!`);
+      setIsOrderHistoryModalOpen(false);
+      setIsOrderModalOpen(true);
+    } else {
+      alert('Sorry, the items from this past order are currently out of stock.');
+    }
+  };
 
   // Show Toast
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage(null);
-    }, 3000);
+    }, 3500);
   };
 
   // Add Item to Cart
@@ -35,6 +156,12 @@ export default function App() {
     quantity: number = 1,
     instructions: string = ''
   ) => {
+    const itemStock = inventory[item.id] ?? 15;
+    if (itemStock <= 0) {
+      alert(`Sorry, ${item.name} is currently out of stock!`);
+      return;
+    }
+
     setCart((prev) => {
       const existingIndex = prev.findIndex(
         (ci) => ci.menuItem.id === item.id
@@ -42,7 +169,7 @@ export default function App() {
 
       if (existingIndex > -1) {
         const updated = [...prev];
-        const newQty = updated[existingIndex].quantity + quantity;
+        const newQty = Math.min(itemStock, updated[existingIndex].quantity + quantity);
         updated[existingIndex] = {
           ...updated[existingIndex],
           quantity: newQty,
@@ -54,8 +181,8 @@ export default function App() {
           ...prev,
           {
             menuItem: item,
-            quantity,
-            totalPrice: quantity * item.price,
+            quantity: Math.min(itemStock, quantity),
+            totalPrice: Math.min(itemStock, quantity) * item.price,
           },
         ];
       }
@@ -66,12 +193,18 @@ export default function App() {
 
   // Update Item Quantity in Cart
   const handleUpdateQuantity = (id: string, delta: number) => {
+    const itemStock = inventory[id] ?? 15;
+
     setCart((prev) => {
       return prev
         .map((ci) => {
           if (ci.menuItem.id === id) {
             const newQty = ci.quantity + delta;
             if (newQty <= 0) return null;
+            if (newQty > itemStock) {
+              triggerToast(`Only ${itemStock} units available in stock!`);
+              return ci;
+            }
             return {
               ...ci,
               quantity: newQty,
@@ -95,14 +228,15 @@ export default function App() {
   };
 
   const cartTotalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const lowStockCount = countLowStockItems(inventory);
 
   return (
     <div className="min-h-screen bg-[#FFFDF7] text-[#2D1B18] font-sans antialiased selection:bg-[#FF4B72] selection:text-white flex flex-col">
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-20 sm:bottom-8 right-4 z-50 bg-[#2D1B18] text-white px-5 py-3 rounded-2xl shadow-2xl border border-[#FF4B72] flex items-center gap-3 animate-slideUp">
-          <i className="fa-solid fa-circle-check text-[#38D39F] text-lg"></i>
+        <div className="fixed bottom-20 sm:bottom-8 right-4 z-50 bg-[#2D1B18] text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-[#FF4B72] flex items-center gap-3 animate-slideUp max-w-sm">
+          <i className="fa-solid fa-circle-check text-[#38D39F] text-xl"></i>
           <span className="text-xs sm:text-sm font-bold text-amber-50">{toastMessage}</span>
         </div>
       )}
@@ -112,6 +246,11 @@ export default function App() {
         cartCount={cartTotalCount}
         onOpenOrderModal={() => setIsOrderModalOpen(true)}
         onOpenCallModal={() => setIsCallModalOpen(true)}
+        onOpenInventoryModal={() => setIsInventoryModalOpen(true)}
+        onOpenOrderHistoryModal={() => setIsOrderHistoryModalOpen(true)}
+        onOpenAdminModal={() => setIsAdminModalOpen(true)}
+        lowStockCount={lowStockCount}
+        ordersCount={orderHistory.length}
       />
 
       <main className="flex-1">
@@ -129,10 +268,12 @@ export default function App() {
 
         {/* Product Catalog & Category Tabs Section */}
         <MenuSection
+          items={menuItems}
           onSelectItem={(item) => setSelectedItem(item)}
           onAddToCart={(item) => handleAddToCart(item, 1)}
           searchQuery={globalSearchQuery}
           onSearchChange={(query) => setGlobalSearchQuery(query)}
+          inventory={inventory}
         />
 
         {/* About Section */}
@@ -148,7 +289,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer onOpenAdminModal={() => setIsAdminModalOpen(true)} />
 
       {/* Floating Interactive Cart Bar / Drawer Trigger */}
       <FloatingCartBar
@@ -159,6 +300,7 @@ export default function App() {
       {/* Item Details Modal */}
       <ItemDetailModal
         item={selectedItem}
+        stock={selectedItem ? inventory[selectedItem.id] : 15}
         onClose={() => setSelectedItem(null)}
         onAddToCart={handleAddToCart}
       />
@@ -171,12 +313,43 @@ export default function App() {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
         onClearCart={handleClearCart}
+        onOrderSubmitted={handleOrderSubmitted}
       />
 
       {/* Call / Contact Modal */}
       <CallModal
         isOpen={isCallModalOpen}
         onClose={() => setIsCallModalOpen(false)}
+      />
+
+      {/* Stock & Inventory Manager Modal */}
+      <InventoryManagerModal
+        isOpen={isInventoryModalOpen}
+        onClose={() => setIsInventoryModalOpen(false)}
+        inventory={inventory}
+        onUpdateStock={handleUpdateStock}
+      />
+
+      {/* Order History & Past Orders Modal */}
+      <OrderHistoryModal
+        isOpen={isOrderHistoryModalOpen}
+        onClose={() => setIsOrderHistoryModalOpen(false)}
+        orders={orderHistory}
+        onUpdateStatus={handleUpdateOrderStatus}
+        onReorder={handleReorder}
+      />
+
+      {/* Secure Owner Admin Dashboard Modal */}
+      <AdminDashboardModal
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+        menuItems={menuItems}
+        onUpdateMenuItem={handleUpdateMenuItem}
+        onResetMenu={handleResetMenuCatalog}
+        inventory={inventory}
+        onUpdateStock={handleUpdateStock}
+        orders={orderHistory}
+        onUpdateOrderStatus={handleUpdateOrderStatus}
       />
 
     </div>

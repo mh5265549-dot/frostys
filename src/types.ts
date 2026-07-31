@@ -10,6 +10,7 @@ export interface MenuItem {
   rating?: number;
   calories?: string;
   unit?: string;
+  stock?: number;
   tags?: string[];
   customizations?: {
     name: string;
@@ -29,6 +30,25 @@ export interface CartItem {
   quantity: number;
   selectedOptions?: { [key: string]: string };
   totalPrice: number;
+}
+
+export interface OrderRecord {
+  id: string;
+  timestamp: string;
+  customerName: string;
+  customerPhone: string;
+  address?: string;
+  orderType: 'delivery' | 'takeaway' | 'dinein';
+  items: {
+    id: string;
+    name: string;
+    quantity: number;
+    price: number;
+    unit?: string;
+  }[];
+  totalAmount: number;
+  status: 'Received (WhatsApp)' | 'Confirmed' | 'Preparing' | 'Completed' | 'Cancelled';
+  notes?: string;
 }
 
 export interface Review {

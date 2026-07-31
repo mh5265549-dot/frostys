@@ -1,7 +1,11 @@
 import React from 'react';
 import { STORE_INFO } from '../data/menuData';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onOpenAdminModal?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenAdminModal }) => {
   return (
     <footer className="bg-[#1F110E] text-white pt-16 pb-8 border-t border-[#3D2522]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -122,8 +126,18 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Disclaimer & Copyright */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-amber-200/50">
-          <p>
-            © {new Date().getFullYear()} Frosty's Ice Cream & Dessert Parlor. All rights reserved.
+          <p className="flex items-center gap-3">
+            <span>© {new Date().getFullYear()} Frosty's Ice Cream & Dessert Parlor.</span>
+            {onOpenAdminModal && (
+              <button
+                onClick={onOpenAdminModal}
+                className="text-amber-400/80 hover:text-amber-300 font-bold underline flex items-center gap-1 transition-colors"
+                title="Owner Admin Panel Login"
+              >
+                <i className="fa-solid fa-lock text-[10px]"></i>
+                <span>Owner Portal</span>
+              </button>
+            )}
           </p>
           <p className="text-center sm:text-right">
             Disclaimer: All desserts prepared fresh daily at 8B Commercial, Green City, Lahore, Pakistan.

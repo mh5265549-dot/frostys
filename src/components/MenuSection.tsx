@@ -3,17 +3,21 @@ import { MenuItem, Category } from '../types';
 import { CATEGORIES, MENU_ITEMS } from '../data/menuData';
 
 interface MenuSectionProps {
+  items?: MenuItem[];
   onSelectItem: (item: MenuItem) => void;
   onAddToCart: (item: MenuItem) => void;
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
+  inventory?: { [itemId: string]: number };
 }
 
 export const MenuSection: React.FC<MenuSectionProps> = ({
+  items = MENU_ITEMS,
   onSelectItem,
   onAddToCart,
   searchQuery: externalSearchQuery = '',
   onSearchChange,
+  inventory = {},
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<Category['id']>('all');
   const [internalSearchQuery, setInternalSearchQuery] = useState('');
@@ -40,7 +44,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
 
   const tagsList = ['Milk', 'Rice', 'Oil', 'Tea', 'Snack', 'Nutella', 'Lotus', 'Oreo', 'Chocolate', 'Sundae'];
 
-  const filteredItems = MENU_ITEMS.filter((item) => {
+  const filteredItems = items.filter((item) => {
     // Category match
     const matchesCategory =
       selectedCategory === 'all' || item.category === selectedCategory;
@@ -164,101 +168,133 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-            {filteredItems.map((item) => (
-              <div
-                key={item.id}
-                className="group bg-white rounded-2xl border border-stone-200/90 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between hover:-translate-y-1"
-              >
-                <div>
-                  {/* Item Image & Badge Container */}
-                  <div className="relative h-48 overflow-hidden bg-stone-100 cursor-pointer" onClick={() => onSelectItem(item)}>
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    
-                    {/* Badge */}
-                    {item.badge && (
-                      <span className="absolute top-3 left-3 bg-[#FF4B72] text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow-md uppercase tracking-wider">
-                        {item.badge}
-                      </span>
-                    )}
+            {filteredItems.map((item) => {
+              const itemStock = inventory[item.id] ?? 15;
+              const isSoldOut = itemStock === 0;
+              const isLowStock = itemStock > 0 && itemStock <= 5;
 
-                    {/* Rating */}
-                    {item.rating && (
-                      <span className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-md text-amber-300 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-md">
-                        <i className="fa-solid fa-star text-amber-400"></i>
-                        <span className="text-white">{item.rating}</span>
-                      </span>
-                    )}
-                  </div>
+              return (
+                <div
+                  key={item.id}
+                  className={`group bg-white rounded-2xl border shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between hover:-translate-y-1 ${
+                    isSoldOut ? 'border-rose-200 opacity-90' : 'border-stone-200/90'
+                  }`}
+                >
+                  <div>
+                    {/* Item Image & Badge Container */}
+                    <div
+                      className="relative h-48 overflow-hidden bg-stone-100 cursor-pointer"
+                      onClick={() => onSelectItem(item)}
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        referrerPolicy="no-referrer"
+                        className={`w-full h-full object-cover transition-transform duration-500 ${
+                          isSoldOut ? 'grayscale scale-100' : 'group-hover:scale-105'
+                        }`}
+                      />
 
-                  {/* Card Details */}
-                  <div className="p-5 space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3
-                        onClick={() => onSelectItem(item)}
-                        className="font-heading font-bold text-lg text-[#2D1B18] group-hover:text-[#E63956] transition-colors cursor-pointer line-clamp-1"
-                      >
-                        {item.name}
-                      </h3>
+                      {/* Sold Out Overlay */}
+                      {isSoldOut && (
+                        <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[2px] flex items-center justify-center">
+                          <span className="bg-rose-600 text-white font-black text-xs px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-lg border border-rose-400">
+                            <i className="fa-solid fa-ban mr-1.5"></i> Out of Stock
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Badge */}
+                      {!isSoldOut && item.badge && (
+                        <span className="absolute top-3 left-3 bg-[#FF4B72] text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow-md uppercase tracking-wider">
+                          {item.badge}
+                        </span>
+                      )}
+
+                      {/* Rating */}
+                      {!isSoldOut && item.rating && (
+                        <span className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-md text-amber-300 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-md">
+                          <i className="fa-solid fa-star text-amber-400"></i>
+                          <span className="text-white">{item.rating}</span>
+                        </span>
+                      )}
                     </div>
 
-                    <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">
-                      {item.description}
-                    </p>
-
-                    {/* Tags */}
-                    {item.tags && (
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {item.tags.map((t) => (
-                          <span
-                            key={t}
-                            className="text-[10px] font-semibold bg-stone-100 text-stone-600 px-2 py-0.5 rounded-md"
-                          >
-                            #{t}
-                          </span>
-                        ))}
+                    {/* Card Details */}
+                    <div className="p-5 space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3
+                          onClick={() => onSelectItem(item)}
+                          className="font-heading font-bold text-lg text-[#2D1B18] group-hover:text-[#E63956] transition-colors cursor-pointer line-clamp-1"
+                        >
+                          {item.name}
+                        </h3>
                       </div>
-                    )}
+
+                      <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">
+                        {item.description}
+                      </p>
+
+                      {/* Tags */}
+                      {item.tags && (
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {item.tags.map((t) => (
+                            <span
+                              key={t}
+                              className="text-[10px] font-semibold bg-stone-100 text-stone-600 px-2 py-0.5 rounded-md"
+                            >
+                              #{t}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
+
+                  {/* Footer Price & Add Button */}
+                  <div className="p-5 pt-0 mt-auto border-t border-stone-100 flex items-center justify-between gap-3">
+                    <div>
+                      <span className="text-[11px] text-stone-400 font-semibold block">
+                        {item.unit ? item.unit : 'Price'}
+                      </span>
+                      <span className="font-heading font-black text-xl text-[#2D1B18]">
+                        Rs. {item.price}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => onSelectItem(item)}
+                        className="p-2.5 rounded-xl text-stone-500 hover:text-[#2D1B18] hover:bg-stone-100 text-xs font-semibold"
+                        title="View Details"
+                      >
+                        <i className="fa-solid fa-eye"></i>
+                      </button>
+
+                      {isSoldOut ? (
+                        <button
+                          disabled
+                          className="px-3.5 py-2.5 rounded-xl bg-stone-200 text-stone-500 font-bold text-xs cursor-not-allowed flex items-center gap-1.5"
+                        >
+                          <i className="fa-solid fa-ban text-[10px]"></i>
+                          <span>Sold Out</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => onAddToCart(item)}
+                          id={`btn-add-${item.id}`}
+                          className="px-4 py-2.5 rounded-xl bg-[#2D1B18] hover:bg-[#FF4B72] text-white font-bold text-xs transition-colors shadow-sm flex items-center gap-1.5"
+                        >
+                          <i className="fa-solid fa-plus text-[10px]"></i>
+                          <span>Add</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
                 </div>
-
-                {/* Footer Price & Add Button */}
-                <div className="p-5 pt-0 mt-auto border-t border-stone-100 flex items-center justify-between gap-3">
-                  <div>
-                    <span className="text-[11px] text-stone-400 font-semibold block">
-                      {item.unit ? item.unit : 'Price'}
-                    </span>
-                    <span className="font-heading font-black text-xl text-[#2D1B18]">
-                      Rs. {item.price}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => onSelectItem(item)}
-                      className="p-2.5 rounded-xl text-stone-500 hover:text-[#2D1B18] hover:bg-stone-100 text-xs font-semibold"
-                      title="View Details"
-                    >
-                      <i className="fa-solid fa-eye"></i>
-                    </button>
-
-                    <button
-                      onClick={() => onAddToCart(item)}
-                      id={`btn-add-${item.id}`}
-                      className="px-4 py-2.5 rounded-xl bg-[#2D1B18] hover:bg-[#FF4B72] text-white font-bold text-xs transition-colors shadow-sm flex items-center gap-1.5"
-                    >
-                      <i className="fa-solid fa-plus text-[10px]"></i>
-                      <span>Add</span>
-                    </button>
-                  </div>
-                </div>
-
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
