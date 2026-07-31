@@ -1,7 +1,7 @@
 export interface MenuItem {
   id: string;
   name: string;
-  category: 'sundaes' | 'shakes' | 'waffles' | 'scoops';
+  category: 'sundaes' | 'shakes' | 'waffles' | 'scoops' | 'brownies' | 'combos';
   price: number; // In PKR
   description: string;
   image: string;
@@ -9,6 +9,7 @@ export interface MenuItem {
   badge?: string;
   rating?: number;
   calories?: string;
+  unit?: string;
   tags?: string[];
   customizations?: {
     name: string;
@@ -17,7 +18,7 @@ export interface MenuItem {
 }
 
 export interface Category {
-  id: 'all' | 'sundaes' | 'shakes' | 'waffles' | 'scoops';
+  id: 'all' | 'sundaes' | 'shakes' | 'waffles' | 'scoops' | 'brownies' | 'combos';
   name: string;
   icon: string;
   description: string;

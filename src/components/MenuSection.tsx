@@ -5,17 +5,40 @@ import { CATEGORIES, MENU_ITEMS } from '../data/menuData';
 interface MenuSectionProps {
   onSelectItem: (item: MenuItem) => void;
   onAddToCart: (item: MenuItem) => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
 export const MenuSection: React.FC<MenuSectionProps> = ({
   onSelectItem,
   onAddToCart,
+  searchQuery: externalSearchQuery = '',
+  onSearchChange,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<Category['id']>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [internalSearchQuery, setInternalSearchQuery] = useState('');
   const [activeTag, setActiveTag] = useState<string | null>(null);
 
-  const tagsList = ['Nutella', 'Lotus', 'Chocolate', 'Waffle', 'Oreo', 'Fruity'];
+  const searchQuery = externalSearchQuery || internalSearchQuery;
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (onSearchChange) {
+      onSearchChange(value);
+    } else {
+      setInternalSearchQuery(value);
+    }
+  };
+
+  const handleClearSearch = () => {
+    if (onSearchChange) {
+      onSearchChange('');
+    } else {
+      setInternalSearchQuery('');
+    }
+  };
+
+  const tagsList = ['Milk', 'Rice', 'Oil', 'Tea', 'Snack', 'Nutella', 'Lotus', 'Oreo', 'Chocolate', 'Sundae'];
 
   const filteredItems = MENU_ITEMS.filter((item) => {
     // Category match
@@ -29,43 +52,43 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
       item.tags?.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
 
     // Active tag match
-    const matchesTag = !activeTag || item.tags?.includes(activeTag);
+    const matchesTag = !activeTag || item.tags?.some((t) => t.toLowerCase() === activeTag.toLowerCase());
 
     return matchesCategory && matchesSearch && matchesTag;
   });
 
   return (
-    <section id="menu" className="py-20 bg-[#FFFDF7] text-[#2D1B18] relative">
+    <section id="menu" className="py-16 bg-[#FFFDF7] text-[#2D1B18] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-12">
+        <div className="text-center max-w-3xl mx-auto space-y-3 mb-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FF4B72]/10 border border-[#FF4B72]/20 text-[#E63956] text-xs font-bold uppercase tracking-wider">
             <i className="fa-solid fa-ice-cream"></i>
-            <span>Mouth-Watering Delights</span>
+            <span>Late-Night Artisanal Desserts & Treats</span>
           </div>
           <h2 className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#2D1B18] tracking-tight">
             Frosty's Dessert Menu
           </h2>
-          <p className="text-base text-stone-600 leading-relaxed font-normal">
-            Handcrafted with premium Belgian chocolate, rich dairy cream, and authentic imported spreads. All items made fresh to order in Green City, Lahore!
+          <p className="text-sm sm:text-base text-stone-600 leading-relaxed font-normal">
+            Handcrafted with 100% pure dairy cream, Belgian chocolate, and authentic imported spreads. Made fresh to order in Green City, Lahore!
           </p>
         </div>
 
         {/* Search & Tag Filter Bar */}
-        <div className="max-w-2xl mx-auto mb-8 space-y-4">
+        <div className="max-w-2xl mx-auto mb-8 space-y-3">
           <div className="relative">
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search Oreo, Nutella Shake, Lotus Waffle, Scoops..."
-              className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-white border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#FF4B72] focus:border-transparent shadow-sm text-sm font-medium"
+              onChange={handleSearchInputChange}
+              placeholder="Search Oreo, Nutella Shake, Lotus Waffle, Lava Brownie, Scoops..."
+              className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-white border border-stone-300 text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#FF4B72] focus:border-transparent shadow-sm text-sm font-semibold"
             />
             <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-stone-400"></i>
             {searchQuery && (
               <button
-                onClick={() => setSearchQuery('')}
+                onClick={handleClearSearch}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 text-sm"
               >
                 <i className="fa-solid fa-xmark"></i>
@@ -76,7 +99,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
           {/* Quick Filter Tags */}
           <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-medium">
             <span className="text-stone-500 font-semibold mr-1">Popular Flavour Tags:</span>
-            {tagsList.map((tag) => (
+            {['Oreo', 'Nutella', 'Lotus', 'Chocolate', 'Waffle', 'Brownie', 'Sundae', 'Ferrero', 'Combo'].map((tag) => (
               <button
                 key={tag}
                 onClick={() => setActiveTag(activeTag === tag ? null : tag)}
@@ -130,7 +153,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
             </p>
             <button
               onClick={() => {
-                setSearchQuery('');
+                handleClearSearch();
                 setActiveTag(null);
                 setSelectedCategory('all');
               }}
@@ -206,7 +229,9 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                 {/* Footer Price & Add Button */}
                 <div className="p-5 pt-0 mt-auto border-t border-stone-100 flex items-center justify-between gap-3">
                   <div>
-                    <span className="text-xs text-stone-400 font-semibold block">Price</span>
+                    <span className="text-[11px] text-stone-400 font-semibold block">
+                      {item.unit ? item.unit : 'Price'}
+                    </span>
                     <span className="font-heading font-black text-xl text-[#2D1B18]">
                       Rs. {item.price}
                     </span>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MenuItem, CartItem } from './types';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
+import { TrustSection } from './components/TrustSection';
 import { MenuSection } from './components/MenuSection';
 import { AboutSection } from './components/AboutSection';
 import { LocationHoursSection } from './components/LocationHoursSection';
@@ -10,6 +11,7 @@ import { Footer } from './components/Footer';
 import { ItemDetailModal } from './components/ItemDetailModal';
 import { OrderModal } from './components/OrderModal';
 import { CallModal } from './components/CallModal';
+import { FloatingCartBar } from './components/FloatingCartBar';
 
 export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -17,6 +19,7 @@ export default function App() {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [globalSearchQuery, setGlobalSearchQuery] = useState('');
 
   // Show Toast
   const triggerToast = (msg: string) => {
@@ -92,7 +95,6 @@ export default function App() {
   };
 
   const cartTotalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const cartTotalPrice = cart.reduce((sum, item) => sum + item.totalPrice, 0);
 
   return (
     <div className="min-h-screen bg-[#FFFDF7] text-[#2D1B18] font-sans antialiased selection:bg-[#FF4B72] selection:text-white flex flex-col">
@@ -100,7 +102,7 @@ export default function App() {
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-20 sm:bottom-8 right-4 z-50 bg-[#2D1B18] text-white px-5 py-3 rounded-2xl shadow-2xl border border-[#FF4B72] flex items-center gap-3 animate-slideUp">
-          <i className="fa-solid fa-[#FF4B72] fa-circle-check text-[#FF4B72] text-lg"></i>
+          <i className="fa-solid fa-circle-check text-[#38D39F] text-lg"></i>
           <span className="text-xs sm:text-sm font-bold text-amber-50">{toastMessage}</span>
         </div>
       )}
@@ -112,17 +114,25 @@ export default function App() {
         onOpenCallModal={() => setIsCallModalOpen(true)}
       />
 
-      {/* Hero Section */}
       <main className="flex-1">
+        {/* Mobile-First Hero Section with Search Bar */}
         <Hero
           onOpenOrderModal={() => setIsOrderModalOpen(true)}
           onOpenCallModal={() => setIsCallModalOpen(true)}
+          searchQuery={globalSearchQuery}
+          onSearchChange={(query) => setGlobalSearchQuery(query)}
+          onQuickSearch={(term) => setGlobalSearchQuery(term)}
         />
 
-        {/* Menu Section */}
+        {/* Local Trust Elements Section */}
+        <TrustSection />
+
+        {/* Product Catalog & Category Tabs Section */}
         <MenuSection
           onSelectItem={(item) => setSelectedItem(item)}
           onAddToCart={(item) => handleAddToCart(item, 1)}
+          searchQuery={globalSearchQuery}
+          onSearchChange={(query) => setGlobalSearchQuery(query)}
         />
 
         {/* About Section */}
@@ -140,23 +150,11 @@ export default function App() {
       {/* Footer */}
       <Footer />
 
-      {/* Mobile Sticky Order Bar (Visible when items in cart) */}
-      {cartTotalCount > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#2D1B18]/95 backdrop-blur-md border-t border-[#3D2522] p-3 shadow-2xl sm:hidden">
-          <button
-            onClick={() => setIsOrderModalOpen(true)}
-            className="w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-[#FF4B72] to-[#E63956] text-white font-bold text-sm shadow-lg flex items-center justify-between"
-          >
-            <div className="flex items-center gap-2">
-              <span className="bg-white text-[#E63956] font-extrabold text-xs px-2 py-0.5 rounded-full">
-                {cartTotalCount}
-              </span>
-              <span>View Order</span>
-            </div>
-            <span className="font-black">Rs. {cartTotalPrice} →</span>
-          </button>
-        </div>
-      )}
+      {/* Floating Interactive Cart Bar / Drawer Trigger */}
+      <FloatingCartBar
+        cart={cart}
+        onOpenOrderModal={() => setIsOrderModalOpen(true)}
+      />
 
       {/* Item Details Modal */}
       <ItemDetailModal
@@ -165,7 +163,7 @@ export default function App() {
         onAddToCart={handleAddToCart}
       />
 
-      {/* Order / Cart Modal */}
+      {/* Order / Cart Modal with Free WhatsApp Checkout */}
       <OrderModal
         isOpen={isOrderModalOpen}
         onClose={() => setIsOrderModalOpen(false)}

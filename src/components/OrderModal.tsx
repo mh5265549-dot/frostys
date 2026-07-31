@@ -43,13 +43,13 @@ export const OrderModal: React.FC<OrderModalProps> = ({
     }
 
     // Build WhatsApp message string
-    let msg = `🍦 *NEW DESSERT ORDER - FROSTY'S GREEN CITY* 🍦\n\n`;
+    let msg = `🍦 *NEW DESSERT ORDER - FROSTY'S ICE CREAM & DESSERTS* 🍦\n\n`;
     msg += `*Order Type:* ${
       orderType === 'takeaway'
         ? 'Takeaway / Pickup at Store'
         : orderType === 'dinein'
         ? 'Dine-In'
-        : 'Home Delivery (Lahore)'
+        : 'Home Delivery (Green City, Lahore)'
     }\n`;
     msg += `*Customer Name:* ${customerName}\n`;
     msg += `*Phone:* ${customerPhone}\n`;
@@ -64,7 +64,8 @@ export const OrderModal: React.FC<OrderModalProps> = ({
 
     msg += `\n*ORDER ITEMS:*\n`;
     cart.forEach((item, idx) => {
-      msg += `${idx + 1}. ${item.menuItem.name} x${item.quantity} - Rs. ${item.totalPrice}\n`;
+      const unitText = item.menuItem.unit ? ` (${item.menuItem.unit})` : '';
+      msg += `${idx + 1}. ${item.menuItem.name}${unitText} x${item.quantity} - Rs. ${item.totalPrice}\n`;
     });
 
     msg += `\n*TOTAL AMOUNT:* Rs. ${subtotal}\n\n`;
@@ -174,10 +175,10 @@ export const OrderModal: React.FC<OrderModalProps> = ({
 
             {cart.length === 0 ? (
               <div className="p-8 text-center bg-stone-50 rounded-2xl border border-dashed border-stone-300 space-y-2">
-                <i className="fa-solid fa-ice-cream text-3xl text-stone-300"></i>
+                <i className="fa-solid fa-basket-shopping text-3xl text-stone-300"></i>
                 <p className="text-sm font-semibold text-stone-600">Your cart is currently empty</p>
                 <p className="text-xs text-stone-400">
-                  Select your favorite sundaes, shakes, or waffles from the menu to build your order!
+                  Select fresh groceries, dairy, snacks, cold drinks or signature desserts from the catalog to build your order!
                 </p>
               </div>
             ) : (
