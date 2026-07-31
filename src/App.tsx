@@ -162,14 +162,17 @@ export default function App() {
       return;
     }
 
+    const selectedVariant = customization?.selectedVariant;
+    const selectedFlavors = customization?.selectedFlavors || [];
+    const selectedSodas = customization?.selectedSodas || [];
     const selectedSyrups = customization?.selectedSyrups || [];
     const selectedToppings = customization?.selectedToppings || [];
     const customInstructions = customization?.instructions || '';
     const extraCharges = customization?.extraCharges || 0;
-    const unitPrice = item.price + extraCharges;
+    const unitPrice = customization?.unitPrice || (item.price + extraCharges);
 
     // Unique cart item identifier
-    const cartItemId = `${item.id}_${selectedSyrups.join('-')}_${selectedToppings
+    const cartItemId = `${item.id}_${selectedVariant?.name || ''}_${selectedFlavors.join('-')}_${selectedSodas.join('-')}_${selectedSyrups.join('-')}_${selectedToppings
       .map((t) => t.name)
       .join('-')}_${customInstructions}`;
 
@@ -194,6 +197,9 @@ export default function App() {
             cartItemId,
             menuItem: item,
             quantity: Math.min(itemStock, quantity),
+            selectedVariant,
+            selectedFlavors,
+            selectedSodas,
             selectedSyrups,
             selectedToppings,
             customInstructions,
@@ -205,7 +211,8 @@ export default function App() {
       }
     });
 
-    triggerToast(`Added ${quantity}x ${item.name} to your order!`);
+    const nameToDisplay = selectedVariant ? `${item.name} (${selectedVariant.name})` : item.name;
+    triggerToast(`Added ${quantity}x ${nameToDisplay} to your order!`);
   };
 
   // Update Item Quantity in Cart

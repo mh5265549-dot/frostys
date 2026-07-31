@@ -86,7 +86,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
               type="text"
               value={searchQuery}
               onChange={handleSearchInputChange}
-              placeholder="Search Oreo, Nutella Shake, Lotus Waffle, Lava Brownie, Scoops..."
+              placeholder="Search Ice Cream Scoops, Banana Split, Kulfi, Cold Coffee, Soda Chillers..."
               className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-white border border-stone-300 text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#FF4B72] focus:border-transparent shadow-sm text-sm font-semibold"
             />
             <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-stone-400"></i>
@@ -102,8 +102,8 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
 
           {/* Quick Filter Tags */}
           <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-medium">
-            <span className="text-stone-500 font-semibold mr-1">Popular Flavour Tags:</span>
-            {['Oreo', 'Nutella', 'Lotus', 'Chocolate', 'Waffle', 'Brownie', 'Sundae', 'Ferrero', 'Combo'].map((tag) => (
+            <span className="text-stone-500 font-semibold mr-1">Popular Category Tags:</span>
+            {['Scoops', 'Banana Split', 'Sundae', 'Kulfi', 'Iced Coffee', 'Latte', 'Frappe', 'Soda Chiller', 'Milkshake', 'Deal'].map((tag) => (
               <button
                 key={tag}
                 onClick={() => setActiveTag(activeTag === tag ? null : tag)}
@@ -135,15 +135,46 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
               onClick={() => setSelectedCategory(cat.id)}
               className={`shrink-0 px-5 py-3 rounded-2xl text-sm font-bold transition-all duration-200 flex items-center gap-2.5 ${
                 selectedCategory === cat.id
-                  ? 'bg-[#2D1B18] text-[#FFFDF7] shadow-lg shadow-[#2D1B18]/20 scale-105'
+                  ? 'bg-[#2D1B18] text-[#FFFDF7] shadow-lg shadow-[#2D1B18]/20 scale-105 ring-2 ring-[#FF4B72]/50'
                   : 'bg-white text-stone-700 hover:bg-stone-100 border border-stone-200'
               }`}
             >
               <i className={`${cat.icon} ${selectedCategory === cat.id ? 'text-[#FF4B72]' : 'text-stone-400'}`}></i>
               <span>{cat.name}</span>
+              {cat.id === 'deals' && (
+                <span className="bg-[#FF4B72] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
+                  HOT
+                </span>
+              )}
             </button>
           ))}
         </div>
+
+        {/* Promotional Banner for Deals Category */}
+        {selectedCategory === 'deals' && (
+          <div className="mb-10 bg-gradient-to-r from-[#2D1B18] via-[#3B172C] to-[#2D1B18] text-white rounded-3xl p-6 sm:p-8 border-2 border-amber-400/60 shadow-2xl relative overflow-hidden">
+            <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="space-y-2 text-center md:text-left">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-extrabold uppercase tracking-wider border border-amber-400/40">
+                  <i className="fa-solid fa-gift text-amber-400"></i>
+                  <span>Exclusive Promotional Combo Deals</span>
+                </div>
+                <h3 className="font-heading font-black text-2xl sm:text-3xl lg:text-4xl text-white">
+                  Special Ice Cream & Soda Combos
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-300 max-w-xl leading-relaxed">
+                  Enjoy our top artisanal ice cream scoops combined with refreshing chilled sodas at unbeatable prices! Select your custom ice cream & soda flavors before ordering on WhatsApp.
+                </p>
+              </div>
+              <div className="shrink-0 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 text-center shadow-inner">
+                <span className="text-xs text-amber-300 font-bold block uppercase tracking-wider">Save Up To</span>
+                <span className="font-heading font-black text-3xl text-amber-400">200 PKR</span>
+                <span className="text-[10px] text-stone-300 block">per promotional deal</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Menu Items Grid */}
         {filteredItems.length === 0 ? (
@@ -167,11 +198,129 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 lg:gap-8">
             {filteredItems.map((item) => {
               const itemStock = inventory[item.id] ?? 15;
               const isSoldOut = itemStock === 0;
-              const isLowStock = itemStock > 0 && itemStock <= 5;
+              const isDeal = item.category === 'deals' || !!item.originalPrice;
+
+              if (isDeal) {
+                return (
+                  <div
+                    key={item.id}
+                    className={`group relative bg-gradient-to-br from-[#2D1B18] via-[#211120] to-[#361328] rounded-3xl border-2 border-amber-400/80 shadow-xl hover:shadow-2xl hover:border-amber-300 transition-all duration-300 overflow-hidden flex flex-col justify-between hover:-translate-y-1.5 ring-2 ring-amber-400/20 text-white ${
+                      isSoldOut ? 'opacity-80 border-stone-600' : ''
+                    }`}
+                  >
+                    {/* Top Banner Accent Ribbon */}
+                    <div className="bg-gradient-to-r from-amber-500 via-rose-500 to-amber-500 text-[#2D1B18] px-4 py-1.5 flex items-center justify-between text-xs font-black uppercase tracking-wider shadow-md">
+                      <span className="flex items-center gap-1.5">
+                        <i className="fa-solid fa-bolt text-amber-950"></i>
+                        <span>{item.badge || 'SPECIAL COMBO'}</span>
+                      </span>
+                      {item.originalPrice && (
+                        <span className="bg-[#2D1B18] text-amber-300 text-[10px] px-2.5 py-0.5 rounded-full font-black border border-amber-400/50">
+                          SAVE {item.originalPrice - item.price} PKR
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      {/* Deal Image Container */}
+                      <div
+                        className="relative h-52 overflow-hidden cursor-pointer bg-stone-900"
+                        onClick={() => onSelectItem(item)}
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          referrerPolicy="no-referrer"
+                          className={`w-full h-full object-cover transition-transform duration-500 ${
+                            isSoldOut ? 'grayscale' : 'group-hover:scale-105'
+                          }`}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#2D1B18] via-transparent to-black/20" />
+
+                        {/* Sold Out Overlay */}
+                        {isSoldOut && (
+                          <div className="absolute inset-0 bg-stone-900/80 backdrop-blur-[2px] flex items-center justify-center">
+                            <span className="bg-rose-600 text-white font-black text-xs px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-lg border border-rose-400">
+                              <i className="fa-solid fa-ban mr-1.5"></i> Out of Stock
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Rating */}
+                        {!isSoldOut && item.rating && (
+                          <span className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md text-amber-300 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-md border border-amber-400/30">
+                            <i className="fa-solid fa-star text-amber-400"></i>
+                            <span className="text-white">{item.rating}</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Deal Content */}
+                      <div className="p-5 space-y-3">
+                        <h3
+                          onClick={() => onSelectItem(item)}
+                          className="font-heading font-black text-xl text-amber-300 group-hover:text-amber-200 transition-colors cursor-pointer line-clamp-1"
+                        >
+                          {item.name}
+                        </h3>
+
+                        <p className="text-xs text-stone-300 leading-relaxed line-clamp-2">
+                          {item.description}
+                        </p>
+
+                        {/* Deal Inclusions Checklist */}
+                        <div className="bg-white/5 rounded-2xl p-3 border border-white/10 space-y-1.5 text-xs">
+                          <div className="flex items-center gap-2 text-stone-200 font-medium">
+                            <i className="fa-solid fa-circle-check text-emerald-400 text-[11px]"></i>
+                            <span>Choose Custom Ice Cream Flavors</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-stone-200 font-medium">
+                            <i className="fa-solid fa-circle-check text-emerald-400 text-[11px]"></i>
+                            <span>Includes 2 Soda Chillers (Choice of Flavors)</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Deal Footer Price & Action */}
+                    <div className="p-5 pt-0 mt-auto border-t border-white/10 flex items-center justify-between gap-3">
+                      <div>
+                        {item.originalPrice && (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-stone-400 font-bold line-through">
+                              {item.originalPrice} PKR
+                            </span>
+                            <span className="text-[10px] bg-red-500/20 text-red-300 font-bold px-1.5 py-0.2 rounded">
+                              Save {item.originalPrice - item.price} PKR
+                            </span>
+                          </div>
+                        )}
+                        <span className="font-heading font-black text-2xl sm:text-3xl text-amber-300 block">
+                          {item.price} PKR
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => onSelectItem(item)}
+                        disabled={isSoldOut}
+                        id={`btn-add-${item.id}`}
+                        className={`px-4 py-3 rounded-2xl font-extrabold text-xs transition-all shadow-lg flex items-center gap-2 ${
+                          isSoldOut
+                            ? 'bg-stone-700 text-stone-400 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-[#FF4B72] to-amber-500 hover:from-amber-500 hover:to-[#FF4B72] text-white shadow-pink-500/20 hover:scale-105'
+                        }`}
+                      >
+                        <i className="fa-solid fa-fire text-amber-200"></i>
+                        <span>Customize & Claim</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
 
               return (
                 <div

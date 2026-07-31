@@ -74,10 +74,16 @@ export const OrderModal: React.FC<OrderModalProps> = ({
 
     msg += `\n*ORDER ITEMS:*\n`;
     cart.forEach((item, idx) => {
-      const unitText = item.menuItem.unit ? ` (${item.menuItem.unit})` : '';
-      msg += `${idx + 1}. ${item.menuItem.name}${unitText} x${item.quantity} - Rs. ${item.totalPrice}\n`;
+      const variantText = item.selectedVariant ? ` (${item.selectedVariant.name})` : item.menuItem.unit ? ` (${item.menuItem.unit})` : '';
+      msg += `${idx + 1}. ${item.menuItem.name}${variantText} x${item.quantity} - Rs. ${item.totalPrice}\n`;
 
       const customizationLines: string[] = [];
+      if (item.selectedFlavors && item.selectedFlavors.length > 0) {
+        customizationLines.push(`   • Flavors: ${item.selectedFlavors.join(', ')}`);
+      }
+      if (item.selectedSodas && item.selectedSodas.length > 0) {
+        customizationLines.push(`   • Soda Chillers: ${item.selectedSodas.join(', ')}`);
+      }
       if (item.selectedSyrups && item.selectedSyrups.length > 0) {
         customizationLines.push(`   • Syrups: ${item.selectedSyrups.join(', ')}`);
       }
@@ -111,6 +117,15 @@ export const OrderModal: React.FC<OrderModalProps> = ({
         orderType,
         items: cart.map((ci) => {
           const parts: string[] = [];
+          if (ci.selectedVariant) {
+            parts.push(`Size: ${ci.selectedVariant.name}`);
+          }
+          if (ci.selectedFlavors && ci.selectedFlavors.length > 0) {
+            parts.push(`Flavors: ${ci.selectedFlavors.join(', ')}`);
+          }
+          if (ci.selectedSodas && ci.selectedSodas.length > 0) {
+            parts.push(`Soda Chillers: ${ci.selectedSodas.join(', ')}`);
+          }
           if (ci.selectedSyrups && ci.selectedSyrups.length > 0) {
             parts.push(`Syrups: ${ci.selectedSyrups.join(', ')}`);
           }
@@ -127,7 +142,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
 
           return {
             id: ci.menuItem.id,
-            name: ci.menuItem.name,
+            name: ci.selectedVariant ? `${ci.menuItem.name} (${ci.selectedVariant.name})` : ci.menuItem.name,
             quantity: ci.quantity,
             price: ci.unitPrice,
             unit: ci.menuItem.unit,
@@ -243,7 +258,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                 <i className="fa-solid fa-basket-shopping text-3xl text-stone-300"></i>
                 <p className="text-sm font-semibold text-stone-600">Your cart is currently empty</p>
                 <p className="text-xs text-stone-400">
-                  Select signature sundaes, thick shakes, warm Belgian waffles, or gelato scoops from our dessert menu to build your order!
+                  Select ice cream scoops, Banana Splits, sundaes, milkshakes, cold coffee, or soda chillers from our menu to build your order!
                 </p>
               </div>
             ) : (
@@ -264,11 +279,31 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                         />
                         <div className="min-w-0 flex-1">
                           <h4 className="font-heading font-bold text-sm text-[#2D1B18] truncate">
-                            {item.menuItem.name}
+                            {item.menuItem.name} {item.selectedVariant && <span className="text-xs font-semibold text-[#FF4B72]">({item.selectedVariant.name})</span>}
                           </h4>
                           <span className="text-xs text-stone-500 font-medium block">
                             Rs. {item.unitPrice} each
                           </span>
+
+                          {/* Render Selected Flavors */}
+                          {item.selectedFlavors && item.selectedFlavors.length > 0 && (
+                            <div className="text-[11px] text-amber-900 font-semibold mt-1">
+                              <span>🍨 Flavors: </span>
+                              <span className="text-stone-700 font-normal">
+                                {item.selectedFlavors.join(', ')}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Render Selected Sodas */}
+                          {item.selectedSodas && item.selectedSodas.length > 0 && (
+                            <div className="text-[11px] text-amber-900 font-semibold mt-1">
+                              <span>🥤 Soda Chillers: </span>
+                              <span className="text-stone-700 font-normal">
+                                {item.selectedSodas.join(', ')}
+                              </span>
+                            </div>
+                          )}
 
                           {/* Render Syrups */}
                           {item.selectedSyrups && item.selectedSyrups.length > 0 && (

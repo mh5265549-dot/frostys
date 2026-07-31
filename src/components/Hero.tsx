@@ -76,7 +76,7 @@ export const Hero: React.FC<HeroProps> = ({
               <strong className="text-white font-semibold underline decoration-[#FF4B72] decoration-2 underline-offset-4">
                 8B Commercial, Green City, Lahore
               </strong>
-              . Serving signature sundaes, thick shakes, warm Nutella waffles, fudgy brownies, and gelato scoops until 2:00 AM!
+              . Serving signature sundaes, Banana Splits, ice cream milkshakes, cold coffees, creamy kulfi, and 20 soda chillers until 2:00 AM!
             </p>
 
             {/* Mobile-First Quick Search Bar at the Top */}
@@ -86,7 +86,7 @@ export const Hero: React.FC<HeroProps> = ({
                   type="text"
                   value={searchQuery}
                   onChange={handleSearchInput}
-                  placeholder="Search Oreo Sundae, Nutella Shake, Lotus Waffle, Brownie..."
+                  placeholder="Search Ice Cream Scoops, Banana Split, Kulfi, Cold Coffee, Soda Chillers..."
                   className="w-full pl-12 pr-28 py-4 rounded-2xl bg-white/95 backdrop-blur-md text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-4 focus:ring-[#FF4B72]/40 shadow-2xl text-sm font-semibold"
                 />
                 <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-[#FF4B72] text-lg"></i>
@@ -102,7 +102,7 @@ export const Hero: React.FC<HeroProps> = ({
               {/* Quick Suggestion Chips */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1.5 pt-3 text-[11px]">
                 <span className="text-amber-200/70 font-semibold mr-1">Quick Search:</span>
-                {['Oreo Sundae', 'Nutella Shake', 'Lotus Waffle', 'Lava Brownie', 'Ferrero Shake', 'Belgian Scoop'].map((item) => (
+                {['Banana Split', 'Ice Cream Scoops', 'Kulfi', 'Spanish Latte', 'Mocha Frappe', 'Soda Chiller', 'Super Sundae'].map((item) => (
                   <button
                     key={item}
                     onClick={() => handleQuickChipClick(item)}

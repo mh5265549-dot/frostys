@@ -1,8 +1,9 @@
 export interface MenuItem {
   id: string;
   name: string;
-  category: 'sundaes' | 'shakes' | 'waffles' | 'scoops' | 'brownies' | 'combos';
+  category: 'scoops' | 'sundaes' | 'deals' | 'shakes' | 'kulfi' | 'coffees' | 'sodas';
   price: number; // In PKR
+  originalPrice?: number; // Original PKR price before discount
   description: string;
   image: string;
   popular?: boolean;
@@ -12,6 +13,11 @@ export interface MenuItem {
   unit?: string;
   stock?: number;
   tags?: string[];
+  variants?: { name: string; price: number; scoopsCount?: number }[];
+  allowFlavors?: boolean;
+  maxFlavors?: number;
+  allowSodas?: boolean;
+  maxSodas?: number;
   customizations?: {
     name: string;
     options: { label: string; price: number }[];
@@ -19,7 +25,7 @@ export interface MenuItem {
 }
 
 export interface Category {
-  id: 'all' | 'sundaes' | 'shakes' | 'waffles' | 'scoops' | 'brownies' | 'combos';
+  id: 'all' | 'scoops' | 'sundaes' | 'deals' | 'shakes' | 'kulfi' | 'coffees' | 'sodas';
   name: string;
   icon: string;
   description: string;
@@ -29,6 +35,9 @@ export interface CartItem {
   cartItemId: string;
   menuItem: MenuItem;
   quantity: number;
+  selectedVariant?: { name: string; price: number; scoopsCount?: number };
+  selectedFlavors?: string[];
+  selectedSodas?: string[];
   selectedSyrups?: string[];
   selectedToppings?: { name: string; price: number }[];
   customInstructions?: string;

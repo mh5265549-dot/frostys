@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { MenuItem } from '../types';
 
 export interface CustomizationDetails {
+  selectedVariant?: { name: string; price: number; scoopsCount?: number };
+  selectedFlavors?: string[];
+  selectedSodas?: string[];
   selectedSyrups: string[];
   selectedToppings: { name: string; price: number }[];
   instructions: string;
@@ -20,26 +23,63 @@ interface ItemDetailModalProps {
   ) => void;
 }
 
-const PREMIUM_CHUNKS = ['Mango Chunks', 'Banana Chunks'];
+const PREMIUM_CHUNKS = ['Mango Chunks', 'Banana Slices'];
+
+const ICE_CREAM_FLAVORS = [
+  'Vanilla',
+  'Chocolate',
+  'Chocolate Chip',
+  'Strawberry',
+  'Mango',
+  'Praline',
+  'Kulfa',
+  'Coffee',
+];
+
+const SODA_FLAVORS = [
+  'Blue Berry',
+  'Mango',
+  'Strawberry',
+  'Cherry',
+  'Pineapple',
+  'Pomegranate',
+  'Peach',
+  'Orange',
+  'Black Current',
+  'Lemon',
+  'Plum',
+  'Falsa',
+  'Bubble Gum',
+  'Green Apple',
+  'Mint',
+  'Imli',
+  'Sting',
+  'Red Bull',
+  'Mountain Dew',
+  'Cherry Cola',
+];
 
 const SYRUP_OPTIONS = [
   { id: 'chocolate_syrup', name: 'Chocolate Syrup', icon: '🍫' },
-  { id: 'blueberry_syrup', name: 'Blueberry Syrup', icon: '🫐' },
-  { id: 'caramel_syrup', name: 'Caramel Syrup', icon: '🍮' },
   { id: 'strawberry_syrup', name: 'Strawberry Syrup', icon: '🍓' },
-  { id: 'nutella_drizzle', name: 'Nutella Drizzle', icon: '🍯' },
-  { id: 'biscoff_drizzle', name: 'Lotus Biscoff Drizzle', icon: '🍪' },
+  { id: 'caramel_syrup', name: 'Caramel Syrup', icon: '🍮' },
+  { id: 'blueberry_syrup', name: 'Blueberry Syrup', icon: '🫐' },
+  { id: 'pineapple_syrup', name: 'Pineapple Syrup', icon: '🍍' },
+  { id: 'mango_syrup', name: 'Mango Syrup', icon: '🥭' },
+  { id: 'peach_syrup', name: 'Peach Syrup', icon: '🍑' },
+  { id: 'coffee_syrup', name: 'Coffee Syrup', icon: '☕' },
 ];
 
 const TOPPING_OPTIONS = [
   // Standard Toppings (eligible for 2 free choices)
-  { id: 'cookies_powder', name: 'Cookies Powder', isPremium: false, icon: '🍪' },
-  { id: 'oreo_powder', name: 'Oreo Powder', isPremium: false, icon: '🍫' },
-  { id: 'sprinkles', name: 'Rainbow Sprinkles', isPremium: false, icon: '🌈' },
+  { id: 'sprinkles', name: 'Sprinkles', isPremium: false, icon: '🌈' },
   { id: 'choco_chips', name: 'Chocolate Chips', isPremium: false, icon: '🍫' },
+  { id: 'oreo_crumbs', name: 'Oreo Crumbs', isPremium: false, icon: '🍪' },
+  { id: 'cookie_crumbs', name: 'Cookie Crumbs', isPremium: false, icon: '🍪' },
+  { id: 'waffle_crumbs', name: 'Waffle Crumbs', isPremium: false, icon: '🧇' },
   // Premium Fruit Chunks (Always +50 PKR)
   { id: 'mango_chunks', name: 'Mango Chunks', isPremium: true, icon: '🥭' },
-  { id: 'banana_chunks', name: 'Banana Chunks', isPremium: true, icon: '🍌' },
+  { id: 'banana_slices', name: 'Banana Slices', isPremium: true, icon: '🍌' },
 ];
 
 export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
@@ -56,9 +96,52 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const [quantity, setQuantity] = useState(1);
   const [instructions, setInstructions] = useState('');
 
+  // Variant selection (e.g., Single, Double, Triple scoop)
+  const defaultVariant = item.variants && item.variants.length > 0 ? item.variants[0] : undefined;
+  const [selectedVariant, setSelectedVariant] = useState<
+    { name: string; price: number; scoopsCount?: number } | undefined
+  >(defaultVariant);
+
+  // Flavor selection state
+  const [selectedFlavors, setSelectedFlavors] = useState<string[]>([]);
+
+  // Soda selection state
+  const [selectedSodas, setSelectedSodas] = useState<string[]>([]);
+
   // Customization selection state
   const [selectedSyrups, setSelectedSyrups] = useState<string[]>([]);
   const [selectedToppings, setSelectedToppings] = useState<string[]>([]);
+
+  // Toggle flavor selection up to allowed max
+  const maxAllowedFlavors =
+    item.maxFlavors || (selectedVariant?.scoopsCount ? selectedVariant.scoopsCount : 3);
+
+  const toggleFlavor = (flavor: string) => {
+    if (selectedFlavors.includes(flavor)) {
+      setSelectedFlavors(selectedFlavors.filter((f) => f !== flavor));
+    } else {
+      if (selectedFlavors.length < maxAllowedFlavors) {
+        setSelectedFlavors([...selectedFlavors, flavor]);
+      } else {
+        // Replace last or alert
+        setSelectedFlavors([...selectedFlavors.slice(1), flavor]);
+      }
+    }
+  };
+
+  // Soda toggle function
+  const maxAllowedSodas = item.maxSodas || 2;
+  const toggleSoda = (soda: string) => {
+    if (selectedSodas.includes(soda)) {
+      setSelectedSodas(selectedSodas.filter((s) => s !== soda));
+    } else {
+      if (selectedSodas.length < maxAllowedSodas) {
+        setSelectedSodas([...selectedSodas, soda]);
+      } else {
+        setSelectedSodas([...selectedSodas.slice(1), soda]);
+      }
+    }
+  };
 
   // Syrup toggle
   const toggleSyrup = (syrupName: string) => {
@@ -78,6 +161,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     }
   };
 
+  // Calculate base price from variant or item.price
+  const basePrice = selectedVariant ? selectedVariant.price : item.price;
+
   // Calculate standard selections vs premium fruit chunks
   const selectedStandardToppings = selectedToppings.filter(
     (t) => !PREMIUM_CHUNKS.includes(t)
@@ -96,7 +182,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
 
   const extraCharges = standardExtraCharges + premiumExtraCharges;
 
-  const unitPrice = item.price + extraCharges;
+  const unitPrice = basePrice + extraCharges;
   const totalPrice = unitPrice * quantity;
 
   const handleAdd = () => {
@@ -115,6 +201,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     });
 
     onAddToCart(item, quantity, {
+      selectedVariant,
+      selectedFlavors,
+      selectedSodas,
       selectedSyrups,
       selectedToppings: toppingsWithPrice,
       instructions,
@@ -206,7 +295,110 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             </div>
           </div>
 
-          {/* SECTION 1: SYRUPS */}
+          {/* VARIANTS SELECTION (if item has variants like Single, Double, Triple) */}
+          {item.variants && item.variants.length > 0 && (
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
+                <i className="fa-solid fa-layer-group text-amber-600"></i>
+                <span>Choose Serving Size / Variant</span>
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {item.variants.map((v) => {
+                  const isSelected = selectedVariant?.name === v.name;
+                  return (
+                    <button
+                      key={v.name}
+                      type="button"
+                      onClick={() => {
+                        setSelectedVariant(v);
+                        // Reset flavors if variant changes scoops
+                        setSelectedFlavors([]);
+                      }}
+                      className={`p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex flex-col justify-between ${
+                        isSelected
+                          ? 'bg-[#2D1B18] text-white border-[#2D1B18] shadow-sm'
+                          : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-400'
+                      }`}
+                    >
+                      <span className="truncate">{v.name}</span>
+                      <span className={`text-[11px] font-extrabold mt-1 ${isSelected ? 'text-amber-300' : 'text-[#FF4B72]'}`}>
+                        Rs. {v.price}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* FLAVORS SELECTION (for Ice Cream Scoops, Banana Splits, or Deals) */}
+          {item.allowFlavors && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <i className="fa-solid fa-ice-cream text-amber-600"></i>
+                  <span>Select Ice Cream Flavors</span>
+                </label>
+                <span className="text-[11px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full">
+                  {selectedFlavors.length} / {maxAllowedFlavors} Chosen
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {ICE_CREAM_FLAVORS.map((flavor) => {
+                  const isSelected = selectedFlavors.includes(flavor);
+                  return (
+                    <button
+                      key={flavor}
+                      type="button"
+                      onClick={() => toggleFlavor(flavor)}
+                      className={`p-2 rounded-xl border text-center text-xs font-bold transition-all ${
+                        isSelected
+                          ? 'bg-[#FF4B72] text-white border-[#FF4B72] shadow-sm'
+                          : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-400'
+                      }`}
+                    >
+                      {flavor}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* SODA CHILLERS SELECTION (for Deals or items with allowSodas) */}
+          {(item.allowSodas || item.category === 'deals') && (
+            <div className="space-y-2.5 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-pink-500/10 p-3.5 rounded-2xl border border-amber-300/60 shadow-sm">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-[#2D1B18] uppercase tracking-wider flex items-center gap-1.5">
+                  <i className="fa-solid fa-glass-water text-amber-600"></i>
+                  <span>Select Soda Chiller Flavors</span>
+                </label>
+                <span className="text-[11px] font-bold text-amber-900 bg-amber-200/90 px-2.5 py-0.5 rounded-full border border-amber-300">
+                  {selectedSodas.length} / {maxAllowedSodas} Chosen
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {SODA_FLAVORS.map((soda) => {
+                  const isSelected = selectedSodas.includes(soda);
+                  return (
+                    <button
+                      key={soda}
+                      type="button"
+                      onClick={() => toggleSoda(soda)}
+                      className={`p-2.5 rounded-xl border text-center text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-[#2D1B18] text-amber-300 border-[#2D1B18] shadow-sm scale-[1.02]'
+                          : 'bg-white text-stone-700 border-stone-200 hover:border-amber-400'
+                      }`}
+                    >
+                      <span>🥤</span>
+                      <span className="truncate">{soda}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">

@@ -86,7 +86,7 @@ export const AboutSection: React.FC = () => {
             </h2>
 
             <p className="text-base text-amber-100/90 leading-relaxed font-normal">
-              Founded with a passion for satisfying midnight cravings, <strong>Frosty's</strong> was born right in the heart of Green City Commercial, Lahore. When standard cafes close down, our kitchen heats up—baking fresh Belgian waffles, swirling creamy thick shakes, and crafting loaded sundaes until 2:00 AM.
+              Founded with a passion for satisfying midnight cravings, <strong>Frosty's</strong> was born right in the heart of Green City Commercial, Lahore. When standard cafes close down, our parlor comes alive—serving artisanal ice cream scoops, signature Banana Splits, ice cream milkshakes, cold coffees, authentic kulfi, and 20 soda chillers until 2:00 AM.
             </p>
 
             <p className="text-sm text-amber-200/80 leading-relaxed">
@@ -102,7 +102,7 @@ export const AboutSection: React.FC = () => {
                 <div>
                   <h4 className="font-bold text-sm text-amber-100">100% Quality & Hygiene</h4>
                   <p className="text-xs text-amber-200/70">
-                    We use only original Nutella, authentic Lotus Biscoff, Belgian dark cocoa, and fresh pasteurized dairy.
+                    We use only 100% pure dairy cream, fresh fruits, rich espresso, and high quality natural ingredients.
                   </p>
                 </div>
               </div>
