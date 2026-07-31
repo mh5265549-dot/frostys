@@ -24,7 +24,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminModal }) => {
             </div>
 
             <p className="text-sm text-amber-100/70 max-w-sm font-normal leading-relaxed">
-              Lahore’s favorite late-night dessert parlour serving signature sundaes, thick shakes, warm Belgian waffles, and artisanal scoops until 2:00 AM daily.
+              Lahore’s favorite late-night dessert parlour serving artisanal ice cream scoops, signature sundaes, ice cream milkshakes, cold coffees, creamy kulfi, and 20 soda chillers until 2:00 AM daily.
             </p>
 
             {/* Social Links */}
