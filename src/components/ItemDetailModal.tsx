@@ -112,6 +112,24 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const [selectedSyrups, setSelectedSyrups] = useState<string[]>([]);
   const [selectedToppings, setSelectedToppings] = useState<string[]>([]);
 
+  // Reset modal state whenever selected item changes
+  React.useEffect(() => {
+    if (item) {
+      setQuantity(1);
+      setInstructions('');
+      const defVar = item.variants && item.variants.length > 0 ? item.variants[0] : undefined;
+      setSelectedVariant(defVar);
+      if (item.defaultFlavor) {
+        setSelectedFlavors([item.defaultFlavor]);
+      } else {
+        setSelectedFlavors([]);
+      }
+      setSelectedSodas([]);
+      setSelectedSyrups([]);
+      setSelectedToppings([]);
+    }
+  }, [item?.id]);
+
   // Toggle flavor selection up to allowed max
   const maxAllowedFlavors =
     item.maxFlavors || (selectedVariant?.scoopsCount ? selectedVariant.scoopsCount : 3);

@@ -15,6 +15,7 @@ export interface MenuItem {
   tags?: string[];
   variants?: { name: string; price: number; scoopsCount?: number }[];
   allowFlavors?: boolean;
+  defaultFlavor?: string;
   maxFlavors?: number;
   allowSodas?: boolean;
   maxSodas?: number;

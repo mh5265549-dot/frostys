@@ -1,7 +1,7 @@
 import { MenuItem } from '../types';
 import { MENU_ITEMS } from '../data/menuData';
 
-const MENU_STORAGE_KEY = 'frostys_custom_menu_catalog_v2';
+const MENU_STORAGE_KEY = 'frostys_custom_menu_catalog_v3';
 const PIN_STORAGE_KEY = 'frostys_admin_pin_v1';
 const DEFAULT_PIN = '1234';
 

@@ -45,18 +45,42 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
   const tagsList = ['Milk', 'Rice', 'Oil', 'Tea', 'Snack', 'Nutella', 'Lotus', 'Oreo', 'Chocolate', 'Sundae'];
 
   const filteredItems = items.filter((item) => {
+    const q = searchQuery.trim().toLowerCase();
+
+    // Search query match
+    let matchesSearch = true;
+    if (q) {
+      const qIsCone = q === 'cone' || q === 'cones';
+      const qIsSundae = q === 'sundae' || q === 'sundaes';
+      const qIsDeal = q === 'deal' || q === 'deals';
+      const qIsShake = q === 'shake' || q === 'shakes' || q === 'milkshake' || q === 'milkshakes';
+      const qIsKulfi = q === 'kulfi';
+      const qIsCoffee = q === 'coffee' || q === 'coffees' || q === 'latte' || q === 'frappe';
+      const qIsSoda = q === 'soda' || q === 'sodas' || q === 'chiller' || q === 'chillers';
+
+      matchesSearch =
+        item.name.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q) ||
+        (qIsCone && (item.category === 'scoops' || item.name.toLowerCase().includes('cone') || item.tags?.some((t) => t.toLowerCase().includes('cone')))) ||
+        (qIsSundae && (item.category === 'sundaes' || item.name.toLowerCase().includes('sundae'))) ||
+        (qIsDeal && (item.category === 'deals' || !!item.originalPrice)) ||
+        (qIsShake && (item.category === 'shakes' || item.name.toLowerCase().includes('shake'))) ||
+        (qIsKulfi && (item.category === 'kulfi' || item.name.toLowerCase().includes('kulfi'))) ||
+        (qIsCoffee && (item.category === 'coffees' || item.name.toLowerCase().includes('coffee'))) ||
+        (qIsSoda && (item.category === 'sodas' || item.name.toLowerCase().includes('soda'))) ||
+        (item.tags && item.tags.some((t) => t.toLowerCase().includes(q)));
+    }
+
     // Category match
     const matchesCategory =
       selectedCategory === 'all' || item.category === selectedCategory;
 
-    // Search query match
-    const matchesSearch =
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.tags?.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
-
     // Active tag match
-    const matchesTag = !activeTag || item.tags?.some((t) => t.toLowerCase() === activeTag.toLowerCase());
+    const matchesTag =
+      !activeTag ||
+      item.tags?.some((t) => t.toLowerCase() === activeTag.toLowerCase()) ||
+      item.name.toLowerCase().includes(activeTag.toLowerCase());
 
     return matchesCategory && matchesSearch && matchesTag;
   });
@@ -101,9 +125,9 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
           </div>
 
           {/* Quick Filter Tags */}
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-medium">
-            <span className="text-stone-500 font-semibold mr-1">Popular Category Tags:</span>
-            {['Scoops', 'Banana Split', 'Sundae', 'Kulfi', 'Iced Coffee', 'Latte', 'Frappe', 'Soda Chiller', 'Milkshake', 'Deal'].map((tag) => (
+          <div className="flex flex-wrap items-center justify-center gap-1.5 text-xs font-medium">
+            <span className="text-stone-500 font-semibold mr-1">Popular Flavor & Item Tags:</span>
+            {['Cone', 'Vanilla', 'Chocolate', 'Strawberry', 'Mango', 'Kulfa', 'Pista', 'Coffee', 'Banana Split', 'Sundae', 'Milkshake', 'Kulfi', 'Soda Chiller', 'Deal'].map((tag) => (
               <button
                 key={tag}
                 onClick={() => setActiveTag(activeTag === tag ? null : tag)}
