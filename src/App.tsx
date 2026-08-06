@@ -5,6 +5,7 @@ import { Hero } from './components/Hero';
 import { TrustSection } from './components/TrustSection';
 import { MenuSection } from './components/MenuSection';
 import { FlameTransitionOverlay } from './components/FlameTransitionOverlay';
+import { FrostTransitionOverlay } from './components/FrostTransitionOverlay';
 import { FrostysFlameViewPage } from './components/FrostysFlameViewPage';
 import { AboutSection } from './components/AboutSection';
 import { LocationHoursSection } from './components/LocationHoursSection';
@@ -59,6 +60,7 @@ export default function App() {
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<Category['id']>('all');
   const [isFlameTransitioning, setIsFlameTransitioning] = useState(false);
+  const [isFrostTransitioning, setIsFrostTransitioning] = useState(false);
   const [isFrostysFlameView, setIsFrostysFlameView] = useState(false);
 
   // Trigger smooth cinematic heat/flame transition to Frosty's Flame Teaser
@@ -71,14 +73,16 @@ export default function App() {
     }, 450);
   };
 
-  // Return smoothly to Frosty's Ice Cream Shop
+  // Return smoothly to Frosty's Ice Cream Shop with custom Frozen Screen transition
   const handleBackToDessertStore = () => {
-    setIsFlameTransitioning(true);
+    setIsFrostTransitioning(true);
     setTimeout(() => {
       setIsFrostysFlameView(false);
       setActiveCategory('all');
-      setIsFlameTransitioning(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => {
+        setIsFrostTransitioning(false);
+      }, 500);
     }, 450);
   };
 
@@ -349,6 +353,9 @@ export default function App() {
 
       {/* Flame Heat Transition Overlay */}
       <FlameTransitionOverlay isActive={isFlameTransitioning} />
+
+      {/* Frozen Screen Transition Overlay when returning to Ice Cream Parlor */}
+      <FrostTransitionOverlay isActive={isFrostTransitioning} />
 
       {/* Complete View Swap: Frosty's Flame Teaser View vs Main Ice Cream Shop View */}
       {isFrostysFlameView ? (
