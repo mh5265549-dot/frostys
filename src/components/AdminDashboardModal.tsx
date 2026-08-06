@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MenuItem, OrderRecord } from '../types';
+import { MenuItem, OrderRecord, Review, Complaint } from '../types';
 import { getStoredAdminPin, saveAdminPin } from '../utils/menuStore';
 
 interface AdminDashboardModalProps {
@@ -12,6 +12,13 @@ interface AdminDashboardModalProps {
   onUpdateStock: (itemId: string, newStock: number) => void;
   orders: OrderRecord[];
   onUpdateOrderStatus: (orderId: string, status: OrderRecord['status']) => void;
+  reviews?: Review[];
+  complaints?: Complaint[];
+  onUpdateComplaintStatus?: (
+    complaintId: string,
+    status: Complaint['status'],
+    resolutionNotes?: string
+  ) => void;
 }
 
 export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
@@ -24,6 +31,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   onUpdateStock,
   orders,
   onUpdateOrderStatus,
+  reviews = [],
+  complaints = [],
+  onUpdateComplaintStatus,
 }) => {
   // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -37,7 +47,16 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [pinChangeMsg, setPinChangeMsg] = useState('');
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'overview' | 'menu' | 'inventory' | 'orders'>('overview');
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'menu' | 'inventory' | 'orders' | 'feedback' | 'complaints'
+  >('overview');
+
+  // Resolution note state for complaints in admin
+  const [editingResolution, setEditingResolution] = useState<{
+    id: string;
+    note: string;
+  } | null>(null);
+
 
   // Search & Filters inside Admin
   const [menuSearch, setMenuSearch] = useState('');
@@ -364,6 +383,30 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
               >
                 <i className="fa-solid fa-clock-rotate-left"></i>
                 <span>Order Log ({orders.length})</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('feedback')}
+                className={`py-3.5 px-4 text-xs font-extrabold uppercase tracking-wider border-b-2 whitespace-nowrap transition-colors flex items-center gap-2 ${
+                  activeTab === 'feedback'
+                    ? 'border-[#FF4B72] text-[#FF4B72]'
+                    : 'border-transparent text-stone-400 hover:text-stone-200'
+                }`}
+              >
+                <i className="fa-solid fa-star text-amber-400"></i>
+                <span>Customer Feedback ({reviews.length})</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('complaints')}
+                className={`py-3.5 px-4 text-xs font-extrabold uppercase tracking-wider border-b-2 whitespace-nowrap transition-colors flex items-center gap-2 ${
+                  activeTab === 'complaints'
+                    ? 'border-red-500 text-red-400'
+                    : 'border-transparent text-stone-400 hover:text-stone-200'
+                }`}
+              >
+                <i className="fa-solid fa-triangle-exclamation text-red-400"></i>
+                <span>Customer Complaints ({complaints.length})</span>
               </button>
             </div>
 
@@ -704,7 +747,252 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 </div>
               )}
 
-              {/* TAB 4: ORDER LOG */}
+              {/* TAB 5: CUSTOMER FEEDBACK */}
+              {activeTab === 'feedback' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between bg-[#211311] p-4 rounded-2xl border border-[#3D2522]">
+                    <div>
+                      <h3 className="font-heading font-bold text-base text-amber-100 flex items-center gap-2">
+                        <i className="fa-solid fa-star text-amber-400"></i>
+                        <span>Customer Feedback & Reviews Log</span>
+                      </h3>
+                      <p className="text-xs text-stone-400">
+                        View submitted ratings, comments, and timestamps from your customers.
+                      </p>
+                    </div>
+                    <span className="text-xs font-bold text-amber-300 bg-[#3D2522] border border-[#52332E] px-3 py-1.5 rounded-xl">
+                      Total Submissions: {reviews.length}
+                    </span>
+                  </div>
+
+                  {reviews.length === 0 ? (
+                    <div className="p-12 text-center bg-[#211311] rounded-2xl border border-[#3D2522] space-y-2">
+                      <i className="fa-solid fa-comment-slash text-3xl text-stone-600"></i>
+                      <p className="text-sm font-bold text-stone-300">No feedback submitted yet</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {reviews.map((rev) => (
+                        <div
+                          key={rev.id}
+                          className="bg-[#211311] p-4 rounded-2xl border border-[#3D2522] space-y-3 flex flex-col justify-between"
+                        >
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1 text-amber-400 text-sm">
+                                {[...Array(5)].map((_, i) => (
+                                  <i
+                                    key={i}
+                                    className={`fa-solid fa-star ${
+                                      i < rev.rating ? 'text-amber-400' : 'text-stone-700'
+                                    }`}
+                                  ></i>
+                                ))}
+                              </div>
+                              <span className="text-[10px] bg-[#FF4B72]/20 border border-[#FF4B72]/30 text-[#FF85A1] px-2 py-0.5 rounded font-extrabold">
+                                {rev.tag || 'Verified'}
+                              </span>
+                            </div>
+
+                            <p className="text-xs text-amber-100/90 italic leading-relaxed">
+                              "{rev.comment}"
+                            </p>
+                          </div>
+
+                          <div className="pt-3 border-t border-[#3D2522] flex items-center justify-between text-xs">
+                            <div>
+                              <span className="font-bold text-stone-100 block">{rev.name}</span>
+                              {rev.favItem && (
+                                <span className="text-[10px] text-amber-400 font-semibold block">
+                                  Fav: {rev.favItem}
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[10px] text-stone-400">{rev.date}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 6: CUSTOMER COMPLAINTS MANAGEMENT */}
+              {activeTab === 'complaints' && (
+                <div className="space-y-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 bg-[#211311] p-4 rounded-2xl border border-[#3D2522]">
+                    <div>
+                      <h3 className="font-heading font-bold text-base text-amber-100 flex items-center gap-2">
+                        <i className="fa-solid fa-triangle-exclamation text-red-400"></i>
+                        <span>Customer Complaints & Grievance Tickets</span>
+                      </h3>
+                      <p className="text-xs text-stone-400">
+                        Manage customer issues, update resolution status, and save manager response notes.
+                      </p>
+                    </div>
+                    <span className="text-xs font-bold text-amber-300 bg-[#3D2522] border border-[#52332E] px-3 py-1.5 rounded-xl">
+                      Total Tickets: {complaints.length}
+                    </span>
+                  </div>
+
+                  {complaints.length === 0 ? (
+                    <div className="p-12 text-center bg-[#211311] rounded-2xl border border-[#3D2522] space-y-2">
+                      <i className="fa-solid fa-circle-check text-3xl text-emerald-500"></i>
+                      <p className="text-sm font-bold text-stone-300">No active complaints logged</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {complaints.map((cmp) => {
+                        const isEditingThisNote = editingResolution?.id === cmp.id;
+
+                        return (
+                          <div
+                            key={cmp.id}
+                            className="bg-[#211311] p-5 rounded-2xl border border-[#3D2522] space-y-4 shadow-lg"
+                          >
+                            {/* Ticket Header & Status Select */}
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#3D2522] pb-3">
+                              <div className="flex items-center gap-3">
+                                <span className="font-mono font-extrabold text-xs text-amber-300 bg-[#3D2522] px-2.5 py-1 rounded border border-[#52332E]">
+                                  #{cmp.ticketNumber}
+                                </span>
+                                <span className="text-xs font-bold text-amber-200 bg-red-950/80 border border-red-900/60 px-2.5 py-0.5 rounded-full">
+                                  {cmp.category}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <span className="text-[11px] text-stone-400 font-semibold">Status:</span>
+                                <select
+                                  value={cmp.status}
+                                  onChange={(e) => {
+                                    if (onUpdateComplaintStatus) {
+                                      onUpdateComplaintStatus(
+                                        cmp.id,
+                                        e.target.value as Complaint['status'],
+                                        cmp.resolutionNotes
+                                      );
+                                    }
+                                  }}
+                                  className={`text-xs font-bold px-3 py-1 rounded-xl border focus:outline-none ${
+                                    cmp.status === 'Resolved'
+                                      ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
+                                      : cmp.status === 'In Progress'
+                                      ? 'bg-amber-950 text-amber-300 border-amber-800'
+                                      : 'bg-red-950 text-red-300 border-red-800'
+                                  }`}
+                                >
+                                  <option value="Pending">🔴 Pending</option>
+                                  <option value="In Progress">🟡 In Progress</option>
+                                  <option value="Resolved">🟢 Resolved</option>
+                                  <option value="Closed">⚪ Closed</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* Customer & Description Details */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-[#170C0B] p-3.5 rounded-xl border border-[#2D1B18]">
+                              <div className="space-y-0.5">
+                                <span className="text-[10px] uppercase font-extrabold text-stone-500">Customer</span>
+                                <p className="text-xs font-bold text-amber-50">{cmp.customerName}</p>
+                                <p className="text-xs text-amber-300 font-mono flex items-center gap-1">
+                                  <i className="fa-solid fa-phone text-[10px]"></i>
+                                  <span>{cmp.customerPhone}</span>
+                                </p>
+                              </div>
+
+                              <div className="space-y-0.5">
+                                <span className="text-[10px] uppercase font-extrabold text-stone-500">Order ID / Date</span>
+                                <p className="text-xs text-stone-300 font-mono">{cmp.orderId || 'N/A'}</p>
+                                <p className="text-[11px] text-stone-400">{cmp.timestamp}</p>
+                              </div>
+
+                              <div className="md:col-span-1 space-y-0.5">
+                                <span className="text-[10px] uppercase font-extrabold text-stone-500">Grievance Description</span>
+                                <p className="text-xs text-amber-100/90 leading-relaxed italic">
+                                  "{cmp.description}"
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Manager Resolution Notes Section */}
+                            <div className="space-y-2 pt-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-amber-200/90 flex items-center gap-1.5">
+                                  <i className="fa-solid fa-comment-medical text-emerald-400"></i>
+                                  <span>Manager Resolution & Action Notes</span>
+                                </span>
+
+                                {!isEditingThisNote && (
+                                  <button
+                                    onClick={() =>
+                                      setEditingResolution({
+                                        id: cmp.id,
+                                        note: cmp.resolutionNotes || '',
+                                      })
+                                    }
+                                    className="text-[11px] text-amber-400 hover:text-amber-300 font-bold underline"
+                                  >
+                                    {cmp.resolutionNotes ? 'Edit Note' : '+ Add Resolution Note'}
+                                  </button>
+                                )}
+                              </div>
+
+                              {isEditingThisNote ? (
+                                <div className="space-y-2 bg-[#1A100E] p-3 rounded-xl border border-[#52332E]">
+                                  <textarea
+                                    rows={2}
+                                    value={editingResolution.note}
+                                    onChange={(e) =>
+                                      setEditingResolution({
+                                        id: cmp.id,
+                                        note: e.target.value,
+                                      })
+                                    }
+                                    placeholder="e.g. Called customer, issued Rs. 200 discount coupon on WhatsApp and resent fresh scoops."
+                                    className="w-full p-2 bg-[#211311] border border-[#3D2522] rounded-lg text-xs text-white placeholder-stone-500 focus:outline-none"
+                                  />
+                                  <div className="flex justify-end gap-2">
+                                    <button
+                                      onClick={() => setEditingResolution(null)}
+                                      className="px-3 py-1 rounded bg-stone-800 text-stone-300 text-xs font-bold"
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        if (onUpdateComplaintStatus) {
+                                          onUpdateComplaintStatus(
+                                            cmp.id,
+                                            cmp.status,
+                                            editingResolution.note
+                                          );
+                                        }
+                                        setEditingResolution(null);
+                                      }}
+                                      className="px-4 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold"
+                                    >
+                                      Save Resolution
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                cmp.resolutionNotes && (
+                                  <div className="p-3 bg-emerald-950/40 border border-emerald-900/60 rounded-xl text-xs text-emerald-200">
+                                    <p className="italic">"{cmp.resolutionNotes}"</p>
+                                  </div>
+                                )
+                              )}
+                            </div>
+
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {activeTab === 'orders' && (
                 <div className="space-y-4">
                   {/* Search and status filters */}

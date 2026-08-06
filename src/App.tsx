@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MenuItem, CartItem, OrderRecord } from './types';
+import { MenuItem, CartItem, OrderRecord, Review, Complaint } from './types';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { TrustSection } from './components/TrustSection';
@@ -15,6 +15,9 @@ import { InventoryManagerModal } from './components/InventoryManagerModal';
 import { OrderHistoryModal } from './components/OrderHistoryModal';
 import { AdminDashboardModal } from './components/AdminDashboardModal';
 import { FloatingCartBar } from './components/FloatingCartBar';
+import { FeedbackModal } from './components/FeedbackModal';
+import { ComplaintModal } from './components/ComplaintModal';
+import { FloatingFeedbackButton } from './components/FloatingFeedbackButton';
 import {
   getStoredInventory,
   saveInventory,
@@ -31,6 +34,12 @@ import {
   updateSingleMenuItem,
   resetMenuCatalogToDefault,
 } from './utils/menuStore';
+import { getStoredFeedback, saveFeedback } from './utils/feedbackStore';
+import {
+  getStoredComplaints,
+  saveComplaint,
+  updateComplaintStatus,
+} from './utils/complaintStore';
 
 export default function App() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(() => getStoredMenuItems());
@@ -41,8 +50,45 @@ export default function App() {
   const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false);
   const [isOrderHistoryModalOpen, setIsOrderHistoryModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
+
+  // Persistent Feedback State
+  const [reviews, setReviews] = useState<Review[]>(() => getStoredFeedback());
+
+  // Persistent Complaint State
+  const [complaints, setComplaints] = useState<Complaint[]>(() => getStoredComplaints());
+
+  // Handle New Feedback Submission
+  const handleNewFeedbackSubmitted = (newFeedback: Omit<Review, 'id' | 'date'>) => {
+    const updated = saveFeedback(newFeedback);
+    setReviews(updated);
+    triggerToast('🌟 Thank you! Your feedback has been published.');
+  };
+
+  // Handle New Complaint Submission
+  const handleNewComplaintSubmitted = (
+    newComplaint: Omit<Complaint, 'id' | 'ticketNumber' | 'timestamp' | 'status'>
+  ) => {
+    const { updatedList, newComplaint: created } = saveComplaint(newComplaint);
+    setComplaints(updatedList);
+    triggerToast(`⚠️ Complaint ticket #${created.ticketNumber} registered.`);
+    return { ticketNumber: created.ticketNumber };
+  };
+
+  // Handle Updating Complaint Status from Admin
+  const handleUpdateComplaintStatus = (
+    complaintId: string,
+    status: Complaint['status'],
+    resolutionNotes?: string
+  ) => {
+    const updated = updateComplaintStatus(complaintId, status, resolutionNotes);
+    setComplaints(updated);
+    triggerToast(`Ticket status updated to ${status}`);
+  };
+
 
   // Persistent Inventory & Order History State
   const [inventory, setInventory] = useState<{ [itemId: string]: number }>(() =>
@@ -162,6 +208,7 @@ export default function App() {
       return;
     }
 
+    const selectedContainer = customization?.selectedContainer;
     const selectedVariant = customization?.selectedVariant;
     const selectedFlavors = customization?.selectedFlavors || [];
     const selectedSodas = customization?.selectedSodas || [];
@@ -172,7 +219,7 @@ export default function App() {
     const unitPrice = customization?.unitPrice || (item.price + extraCharges);
 
     // Unique cart item identifier
-    const cartItemId = `${item.id}_${selectedVariant?.name || ''}_${selectedFlavors.join('-')}_${selectedSodas.join('-')}_${selectedSyrups.join('-')}_${selectedToppings
+    const cartItemId = `${item.id}_${selectedContainer || ''}_${selectedVariant?.name || ''}_${selectedFlavors.join('-')}_${selectedSodas.join('-')}_${selectedSyrups.join('-')}_${selectedToppings
       .map((t) => t.name)
       .join('-')}_${customInstructions}`;
 
@@ -197,6 +244,7 @@ export default function App() {
             cartItemId,
             menuItem: item,
             quantity: Math.min(itemStock, quantity),
+            selectedContainer,
             selectedVariant,
             selectedFlavors,
             selectedSodas,
@@ -307,8 +355,13 @@ export default function App() {
           onOpenCallModal={() => setIsCallModalOpen(true)}
         />
 
-        {/* Reviews Section */}
-        <ReviewsSection />
+        {/* Reviews & Help Center Section */}
+        <ReviewsSection
+          reviews={reviews}
+          complaints={complaints}
+          onOpenFeedbackModal={() => setIsFeedbackModalOpen(true)}
+          onOpenComplaintModal={() => setIsComplaintModalOpen(true)}
+        />
       </main>
 
       {/* Footer */}
@@ -318,6 +371,12 @@ export default function App() {
       <FloatingCartBar
         cart={cart}
         onOpenOrderModal={() => setIsOrderModalOpen(true)}
+      />
+
+      {/* Floating Feedback Trigger Button */}
+      <FloatingFeedbackButton
+        onClick={() => setIsFeedbackModalOpen(true)}
+        feedbackCount={reviews.length}
       />
 
       {/* Item Details Modal */}
@@ -337,6 +396,7 @@ export default function App() {
         onRemoveItem={handleRemoveItem}
         onClearCart={handleClearCart}
         onOrderSubmitted={handleOrderSubmitted}
+        onSaveFeedback={handleNewFeedbackSubmitted}
       />
 
       {/* Call / Contact Modal */}
@@ -373,7 +433,25 @@ export default function App() {
         onUpdateStock={handleUpdateStock}
         orders={orderHistory}
         onUpdateOrderStatus={handleUpdateOrderStatus}
+        reviews={reviews}
+        complaints={complaints}
+        onUpdateComplaintStatus={handleUpdateComplaintStatus}
       />
+
+      {/* Customer Feedback Modal Form */}
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+        onSubmitFeedback={handleNewFeedbackSubmitted}
+      />
+
+      {/* Customer Complaint Registration Modal */}
+      <ComplaintModal
+        isOpen={isComplaintModalOpen}
+        onClose={() => setIsComplaintModalOpen(false)}
+        onSubmitComplaint={handleNewComplaintSubmitted}
+      />
+
 
     </div>
   );

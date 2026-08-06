@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MenuItem } from '../types';
 
 export interface CustomizationDetails {
+  selectedContainer?: 'Cone' | 'Cup';
   selectedVariant?: { name: string; price: number; scoopsCount?: number };
   selectedFlavors?: string[];
   selectedSodas?: string[];
@@ -102,6 +103,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     { name: string; price: number; scoopsCount?: number } | undefined
   >(defaultVariant);
 
+  // Container selection state (Cone or Cup)
+  const [selectedContainer, setSelectedContainer] = useState<'Cone' | 'Cup'>('Cone');
+
   // Flavor selection state
   const [selectedFlavors, setSelectedFlavors] = useState<string[]>([]);
 
@@ -117,6 +121,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     if (item) {
       setQuantity(1);
       setInstructions('');
+      setSelectedContainer('Cone');
       const defVar = item.variants && item.variants.length > 0 ? item.variants[0] : undefined;
       setSelectedVariant(defVar);
       if (item.defaultFlavor) {
@@ -218,9 +223,17 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
       }
     });
 
+    const isContainerApplicable =
+      item.category === 'scoops' ||
+      item.category === 'sundaes' ||
+      item.category === 'kulfi' ||
+      !!item.allowFlavors ||
+      !!item.defaultFlavor;
+
     onAddToCart(item, quantity, {
+      selectedContainer: isContainerApplicable ? selectedContainer : undefined,
       selectedVariant,
-      selectedFlavors,
+      selectedFlavors: item.defaultFlavor && selectedFlavors.length === 0 ? [item.defaultFlavor] : selectedFlavors,
       selectedSodas,
       selectedSyrups,
       selectedToppings: toppingsWithPrice,
@@ -313,6 +326,46 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             </div>
           </div>
 
+          {/* REQUIRED CONTAINER SELECTION (Cone vs Cup) */}
+          {(item.category === 'scoops' || item.category === 'sundaes' || item.category === 'kulfi' || item.allowFlavors || item.defaultFlavor) && (
+            <div className="space-y-2.5 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
+              <label className="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <i className="fa-solid fa-ice-cream text-[#FF4B72]"></i>
+                  <span>Choose Container <span className="text-[#FF4B72] font-black">*Required Selection</span></span>
+                </span>
+                <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-extrabold">Included Free</span>
+              </label>
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setSelectedContainer('Cone')}
+                  className={`p-3 rounded-xl border text-center text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                    selectedContainer === 'Cone'
+                      ? 'bg-[#2D1B18] text-amber-300 border-[#2D1B18] shadow-md scale-[1.01]'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
+                  }`}
+                >
+                  <span className="text-lg">🍦</span>
+                  <span>Crispy Wafer Cone</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedContainer('Cup')}
+                  className={`p-3 rounded-xl border text-center text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                    selectedContainer === 'Cup'
+                      ? 'bg-[#2D1B18] text-amber-300 border-[#2D1B18] shadow-md scale-[1.01]'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
+                  }`}
+                >
+                  <span className="text-lg">🍨</span>
+                  <span>Classic Dessert Cup</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* VARIANTS SELECTION (if item has variants like Single, Double, Triple) */}
           {item.variants && item.variants.length > 0 && (
             <div className="space-y-2">
@@ -329,8 +382,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                       type="button"
                       onClick={() => {
                         setSelectedVariant(v);
-                        // Reset flavors if variant changes scoops
-                        setSelectedFlavors([]);
+                        if (!item.defaultFlavor) {
+                          setSelectedFlavors([]);
+                        }
                       }}
                       className={`p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex flex-col justify-between ${
                         isSelected
@@ -349,8 +403,21 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             </div>
           )}
 
-          {/* FLAVORS SELECTION (for Ice Cream Scoops, Banana Splits, or Deals) */}
-          {item.allowFlavors && (
+          {/* DIRECT FLAVOR INDICATOR (When selected from dedicated flavor product block) */}
+          {item.defaultFlavor && (
+            <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-300/80 flex items-center justify-between text-xs font-bold text-amber-950">
+              <span className="flex items-center gap-2">
+                <i className="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
+                <span>Selected Flavor: <strong className="text-[#2D1B18]">{item.defaultFlavor}</strong></span>
+              </span>
+              <span className="text-[10px] text-amber-900 bg-amber-200/90 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold">
+                Direct Selection
+              </span>
+            </div>
+          )}
+
+          {/* MULTI-FLAVOR SELECTION (Only for custom mix / multi-flavor items without a default single flavor) */}
+          {item.allowFlavors && !item.defaultFlavor && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">

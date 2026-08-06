@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CartItem } from '../types';
+import { CartItem, Review } from '../types';
 import { STORE_INFO } from '../data/menuData';
 
 interface OrderModalProps {
@@ -18,6 +18,7 @@ interface OrderModalProps {
     totalAmount: number;
     notes?: string;
   }) => void;
+  onSaveFeedback?: (newFeedback: Omit<Review, 'id' | 'date'>) => void;
 }
 
 export const OrderModal: React.FC<OrderModalProps> = ({
@@ -28,6 +29,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
   onRemoveItem,
   onClearCart,
   onOrderSubmitted,
+  onSaveFeedback,
 }) => {
   if (!isOpen) return null;
 
@@ -36,11 +38,49 @@ export const OrderModal: React.FC<OrderModalProps> = ({
   const [customerPhone, setCustomerPhone] = useState('');
   const [addressOrTable, setAddressOrTable] = useState('');
   const [notes, setNotes] = useState('');
+  const [addressError, setAddressError] = useState<string | null>(null);
+
+  // Post-Order Service Rating State
+  const [serviceRating, setServiceRating] = useState<number>(5);
+  const [serviceComment, setServiceComment] = useState<string>('');
+  const [includeFeedback, setIncludeFeedback] = useState<boolean>(true);
 
   const subtotal = cart.reduce((sum, item) => sum + item.totalPrice, 0);
 
+  const validateDeliveryAddress = (address: string): boolean => {
+    const normalized = address.toLowerCase().trim();
+
+    // Rule 1: Must explicitly contain Paragon or Green City
+    const hasParagon = normalized.includes('paragon');
+    const hasGreenCity = normalized.includes('green city') || normalized.includes('greencity');
+
+    if (!hasParagon && !hasGreenCity) {
+      return false;
+    }
+
+    // Rule 2: If address contains any location, society, or city other than Paragon and Green City, reject
+    const forbiddenLocations = [
+      'dha', 'askari', 'johar town', 'gulberg', 'model town', 'cantt', 'cavalry',
+      'wapda town', 'lake city', 'bahria', 'valancia', 'faisal town', 'iqbal town',
+      'allama iqbal town', 'garden town', 'shadman', 'township', 'defense', 'defence', 'air avenue',
+      'state life', 'eden', 'central park', 'khayaban', 'suigas', 'tariq gardens', 'architects',
+      'bedian', 'ring road', 'fazaia', 'pia society', 'sabzazar', 'subzazar', 'multan road', 'thokar',
+      'raiwind', 'karachi', 'islamabad', 'rawalpindi', 'faisalabad', 'multan', 'peshawar', 'sialkot',
+      'gujranwala', 'quetta', 'sargodha', 'bahawalpur', 'sheikhupura', 'kasur', 'okara', 'sahiwal',
+      'murree', 'taxila', 'wah cantt', 'hyderabad', 'sukkur', 'abbottabad', 'gilgit'
+    ];
+
+    const hasForbidden = forbiddenLocations.some((loc) => normalized.includes(loc));
+    if (hasForbidden) {
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSendWhatsApp = (e: React.FormEvent) => {
     e.preventDefault();
+    setAddressError(null);
 
     if (cart.length === 0) {
       alert('Your cart is empty! Please add some desserts from the menu first.');
@@ -50,6 +90,16 @@ export const OrderModal: React.FC<OrderModalProps> = ({
     if (!customerName || !customerPhone) {
       alert('Please fill in your name and phone number so we can process your order.');
       return;
+    }
+
+    if (orderType === 'delivery') {
+      const isAddressValid = validateDeliveryAddress(addressOrTable);
+      if (!isAddressValid) {
+        const rejectionMsg = "Order not confirmed. Frosty currently only delivers within Paragon and Green City.";
+        setAddressError(rejectionMsg);
+        alert(rejectionMsg);
+        return;
+      }
     }
 
     // Build WhatsApp message string
@@ -78,6 +128,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({
       msg += `${idx + 1}. ${item.menuItem.name}${variantText} x${item.quantity} - Rs. ${item.totalPrice}\n`;
 
       const customizationLines: string[] = [];
+      if (item.selectedContainer) {
+        customizationLines.push(`   • Container: ${item.selectedContainer === 'Cone' ? 'Crispy Wafer Cone 🍦' : 'Classic Dessert Cup 🍨'}`);
+      }
       if (item.selectedFlavors && item.selectedFlavors.length > 0) {
         customizationLines.push(`   • Flavors: ${item.selectedFlavors.join(', ')}`);
       }
@@ -117,6 +170,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({
         orderType,
         items: cart.map((ci) => {
           const parts: string[] = [];
+          if (ci.selectedContainer) {
+            parts.push(`Container: ${ci.selectedContainer}`);
+          }
           if (ci.selectedVariant) {
             parts.push(`Size: ${ci.selectedVariant.name}`);
           }
@@ -151,6 +207,20 @@ export const OrderModal: React.FC<OrderModalProps> = ({
         }),
         totalAmount: subtotal,
         notes,
+      });
+    }
+
+    // Save Post-Order Feedback if provided
+    if (onSaveFeedback && includeFeedback) {
+      const mainItemName = cart[0]?.menuItem.name || "Frosty's Dessert";
+      const commentText = serviceComment.trim() || `Ordered ${cart.length} item(s) via web app. Great experience!`;
+      
+      onSaveFeedback({
+        name: customerName.trim() || 'Verified Customer',
+        rating: serviceRating,
+        comment: commentText,
+        favItem: mainItemName,
+        tag: 'Verified Order',
       });
     }
 
@@ -197,7 +267,10 @@ export const OrderModal: React.FC<OrderModalProps> = ({
             <div className="grid grid-cols-3 gap-2 p-1.5 bg-stone-100 rounded-2xl border border-stone-200">
               <button
                 type="button"
-                onClick={() => setOrderType('takeaway')}
+                onClick={() => {
+                  setOrderType('takeaway');
+                  setAddressError(null);
+                }}
                 className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   orderType === 'takeaway'
                     ? 'bg-[#2D1B18] text-white shadow-sm'
@@ -210,7 +283,10 @@ export const OrderModal: React.FC<OrderModalProps> = ({
 
               <button
                 type="button"
-                onClick={() => setOrderType('dinein')}
+                onClick={() => {
+                  setOrderType('dinein');
+                  setAddressError(null);
+                }}
                 className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   orderType === 'dinein'
                     ? 'bg-[#2D1B18] text-white shadow-sm'
@@ -223,7 +299,10 @@ export const OrderModal: React.FC<OrderModalProps> = ({
 
               <button
                 type="button"
-                onClick={() => setOrderType('delivery')}
+                onClick={() => {
+                  setOrderType('delivery');
+                  setAddressError(null);
+                }}
                 className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   orderType === 'delivery'
                     ? 'bg-[#2D1B18] text-white shadow-sm'
@@ -284,6 +363,16 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                           <span className="text-xs text-stone-500 font-medium block">
                             Rs. {item.unitPrice} each
                           </span>
+
+                          {/* Render Selected Container */}
+                          {item.selectedContainer && (
+                            <div className="text-[11px] text-amber-900 font-semibold mt-1">
+                              <span>{item.selectedContainer === 'Cone' ? '🍦 Container: ' : '🍨 Container: '}</span>
+                              <span className="text-stone-700 font-bold">
+                                {item.selectedContainer === 'Cone' ? 'Crispy Wafer Cone' : 'Classic Dessert Cup'}
+                              </span>
+                            </div>
+                          )}
 
                           {/* Render Selected Flavors */}
                           {item.selectedFlavors && item.selectedFlavors.length > 0 && (
@@ -418,14 +507,17 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                 {orderType === 'dinein'
                   ? 'Table Number (Optional)'
                   : orderType === 'delivery'
-                  ? 'Complete Delivery Address in Lahore *'
+                  ? 'Complete Delivery Address (Paragon or Green City) *'
                   : 'Pickup Time / Vehicle Details (Optional)'}
               </label>
               <input
                 type="text"
                 required={orderType === 'delivery'}
                 value={addressOrTable}
-                onChange={(e) => setAddressOrTable(e.target.value)}
+                onChange={(e) => {
+                  setAddressOrTable(e.target.value);
+                  if (addressError) setAddressError(null);
+                }}
                 placeholder={
                   orderType === 'dinein'
                     ? 'e.g. Table 4'
@@ -433,8 +525,22 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                     ? 'e.g. House #12, Block B, Green City, Lahore'
                     : 'e.g. Ready in 20 mins'
                 }
-                className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-800 focus:ring-2 focus:ring-[#FF4B72] focus:outline-none"
+                className={`w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border text-xs text-stone-800 focus:ring-2 focus:ring-[#FF4B72] focus:outline-none ${
+                  addressError ? 'border-red-500 bg-red-50/50' : 'border-stone-200'
+                }`}
               />
+              {orderType === 'delivery' && !addressError && (
+                <p className="text-[11px] text-amber-800/80 mt-1 flex items-center gap-1 font-medium">
+                  <i className="fa-solid fa-[#FF4B72] fa-circle-info text-[#FF4B72]"></i>
+                  <span>Delivery Zone: Exclusively within <strong>Paragon</strong> & <strong>Green City</strong>.</span>
+                </p>
+              )}
+              {addressError && (
+                <div className="mt-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold flex items-start gap-2 animate-shake">
+                  <i className="fa-solid fa-triangle-exclamation text-red-500 text-sm mt-0.5 shrink-0"></i>
+                  <span>{addressError}</span>
+                </div>
+              )}
             </div>
 
             <div>
@@ -448,6 +554,73 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                 placeholder="e.g. Please send extra spoons & napkins"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-800 focus:ring-2 focus:ring-[#FF4B72] focus:outline-none"
               />
+            </div>
+
+            {/* Post-Order Feedback Prompt */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-pink-50 border border-pink-200/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-[#FF4B72]/15 text-[#FF4B72] flex items-center justify-center text-xs font-bold">
+                    <i className="fa-solid fa-star"></i>
+                  </div>
+                  <div>
+                    <span className="text-xs font-extrabold text-[#2D1B18] block">
+                      How do you rate our service?
+                    </span>
+                    <span className="text-[10px] text-stone-500">
+                      Help us improve! Rating will be published with your order.
+                    </span>
+                  </div>
+                </div>
+
+                <label className="inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={includeFeedback}
+                    onChange={(e) => setIncludeFeedback(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-8 h-4 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#FF4B72] relative"></div>
+                </label>
+              </div>
+
+              {includeFeedback && (
+                <div className="space-y-2 pt-1 border-t border-pink-200/60 animate-fadeIn">
+                  <div className="flex items-center gap-1.5">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setServiceRating(star)}
+                        className="text-lg focus:outline-none transition-transform hover:scale-125"
+                      >
+                        <i
+                          className={`fa-solid fa-star ${
+                            star <= serviceRating ? 'text-amber-400' : 'text-stone-300'
+                          }`}
+                        ></i>
+                      </button>
+                    ))}
+                    <span className="text-xs font-bold text-stone-700 ml-2">
+                      {serviceRating === 5
+                        ? '🌟 Excellent!'
+                        : serviceRating === 4
+                        ? '😊 Very Good'
+                        : serviceRating === 3
+                        ? '😐 Average'
+                        : '🙁 Could be better'}
+                    </span>
+                  </div>
+
+                  <input
+                    type="text"
+                    value={serviceComment}
+                    onChange={(e) => setServiceComment(e.target.value)}
+                    placeholder="Quick service note (e.g., Easy ordering & polite staff!)"
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-800 placeholder-stone-400 focus:ring-1 focus:ring-[#FF4B72] focus:outline-none"
+                  />
+                </div>
+              )}
             </div>
           </form>
 

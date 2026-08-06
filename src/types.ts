@@ -36,6 +36,7 @@ export interface CartItem {
   cartItemId: string;
   menuItem: MenuItem;
   quantity: number;
+  selectedContainer?: 'Cone' | 'Cup';
   selectedVariant?: { name: string; price: number; scoopsCount?: number };
   selectedFlavors?: string[];
   selectedSodas?: string[];
@@ -76,3 +77,17 @@ export interface Review {
   favItem: string;
   tag: string;
 }
+
+export interface Complaint {
+  id: string;
+  ticketNumber: string;
+  customerName: string;
+  customerPhone: string;
+  orderId?: string;
+  category: 'Late Delivery' | 'Food Quality & Taste' | 'Missing Item' | 'Incorrect Order' | 'Staff / Service Behavior' | 'Packaging / Spills' | 'Other';
+  description: string;
+  timestamp: string;
+  status: 'Pending' | 'In Progress' | 'Resolved' | 'Closed';
+  resolutionNotes?: string;
+}
+
