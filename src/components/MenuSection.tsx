@@ -12,6 +12,7 @@ interface MenuSectionProps {
   inventory?: { [itemId: string]: number };
   activeCategory?: Category['id'];
   onCategoryChange?: (category: Category['id']) => void;
+  onNavigateToFrostysFlame?: () => void;
   triggerToast?: (msg: string) => void;
 }
 
@@ -24,6 +25,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
   inventory = {},
   activeCategory: externalActiveCategory,
   onCategoryChange,
+  onNavigateToFrostysFlame,
   triggerToast,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<Category['id']>(
@@ -39,6 +41,10 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
   }, [externalActiveCategory]);
 
   const handleCategorySelect = (catId: Category['id']) => {
+    if (catId === 'fast-food-bbq' && onNavigateToFrostysFlame) {
+      onNavigateToFrostysFlame();
+      return;
+    }
     setSelectedCategory(catId);
     if (onCategoryChange) {
       onCategoryChange(catId);
