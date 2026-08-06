@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CartItem, Review } from '../types';
 import { STORE_INFO } from '../data/menuData';
+import { isConeCupApplicable } from '../utils/categoryUtils';
 
 interface OrderModalProps {
   isOpen: boolean;
@@ -128,7 +129,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
       msg += `${idx + 1}. ${item.menuItem.name}${variantText} x${item.quantity} - Rs. ${item.totalPrice}\n`;
 
       const customizationLines: string[] = [];
-      if (item.selectedContainer) {
+      if (item.selectedContainer && isConeCupApplicable(item.menuItem)) {
         customizationLines.push(`   • Container: ${item.selectedContainer === 'Cone' ? 'Crispy Wafer Cone 🍦' : 'Classic Dessert Cup 🍨'}`);
       }
       if (item.selectedFlavors && item.selectedFlavors.length > 0) {
@@ -170,7 +171,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
         orderType,
         items: cart.map((ci) => {
           const parts: string[] = [];
-          if (ci.selectedContainer) {
+          if (ci.selectedContainer && isConeCupApplicable(ci.menuItem)) {
             parts.push(`Container: ${ci.selectedContainer}`);
           }
           if (ci.selectedVariant) {
@@ -365,7 +366,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                           </span>
 
                           {/* Render Selected Container */}
-                          {item.selectedContainer && (
+                          {item.selectedContainer && isConeCupApplicable(item.menuItem) && (
                             <div className="text-[11px] text-amber-900 font-semibold mt-1">
                               <span>{item.selectedContainer === 'Cone' ? '🍦 Container: ' : '🍨 Container: '}</span>
                               <span className="text-stone-700 font-bold">

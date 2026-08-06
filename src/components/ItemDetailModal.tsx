@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MenuItem } from '../types';
+import { isConeCupApplicable, validateItemCustomizationContainer } from '../utils/categoryUtils';
 
 export interface CustomizationDetails {
   selectedContainer?: 'Cone' | 'Cup';
@@ -223,15 +224,10 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
       }
     });
 
-    const isContainerApplicable =
-      item.category === 'scoops' ||
-      item.category === 'sundaes' ||
-      item.category === 'kulfi' ||
-      !!item.allowFlavors ||
-      !!item.defaultFlavor;
+    const validatedContainer = validateItemCustomizationContainer(item, selectedContainer);
 
     onAddToCart(item, quantity, {
-      selectedContainer: isContainerApplicable ? selectedContainer : undefined,
+      selectedContainer: validatedContainer,
       selectedVariant,
       selectedFlavors: item.defaultFlavor && selectedFlavors.length === 0 ? [item.defaultFlavor] : selectedFlavors,
       selectedSodas,
@@ -303,6 +299,22 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             {item.description}
           </p>
 
+          {/* Coming Soon Teaser Banner */}
+          {item.isComingSoon && (
+            <div className="bg-gradient-to-r from-amber-500/15 via-amber-500/25 to-amber-500/15 border-2 border-amber-500/60 rounded-2xl p-4 text-center space-y-2 my-2 shadow-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-[#2D1B18] font-black text-xs uppercase tracking-wider shadow-sm">
+                <i className="fa-solid fa-clock text-[#2D1B18]"></i>
+                <span>{item.comingSoonLaunchDate || 'Launching in 1–2 Weeks'}</span>
+              </span>
+              <p className="text-xs text-[#2D1B18] font-black">
+                Savory Kitchen Item Showcase
+              </p>
+              <p className="text-[11px] text-stone-600 leading-relaxed max-w-sm mx-auto">
+                This item is previewed as part of Frosty's upcoming Fast Food & BBQ kitchen launch. Online ordering and customization will open soon!
+              </p>
+            </div>
+          )}
+
           {/* Prominent Customization Banner */}
           <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-start gap-3">
             <div className="w-9 h-9 rounded-xl bg-amber-500 text-stone-900 font-black text-lg flex items-center justify-center shrink-0 shadow-sm mt-0.5">
@@ -326,8 +338,8 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             </div>
           </div>
 
-          {/* REQUIRED CONTAINER SELECTION (Cone vs Cup) */}
-          {(item.category === 'scoops' || item.category === 'sundaes' || item.category === 'kulfi' || item.allowFlavors || item.defaultFlavor) && (
+          {/* REQUIRED CONTAINER SELECTION (Cone vs Cup) - Only for ice cream scoops / dessert categories */}
+          {isConeCupApplicable(item) && (
             <div className="space-y-2.5 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
               <label className="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
@@ -623,18 +635,18 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               <button
                 type="button"
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={isSoldOut || quantity <= 1}
+                disabled={item.isComingSoon || isSoldOut || quantity <= 1}
                 className="w-8 h-8 rounded-lg bg-white text-stone-800 font-bold hover:bg-stone-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors shadow-sm"
               >
                 <i className="fa-solid fa-minus text-xs"></i>
               </button>
               <span className="font-bold text-base px-2 text-[#2D1B18]">
-                {isSoldOut ? 0 : quantity}
+                {item.isComingSoon || isSoldOut ? 0 : quantity}
               </span>
               <button
                 type="button"
                 onClick={() => setQuantity(Math.min(availableStock, quantity + 1))}
-                disabled={isSoldOut || quantity >= availableStock}
+                disabled={item.isComingSoon || isSoldOut || quantity >= availableStock}
                 className="w-8 h-8 rounded-lg bg-white text-stone-800 font-bold hover:bg-stone-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors shadow-sm"
               >
                 <i className="fa-solid fa-plus text-xs"></i>
@@ -646,7 +658,15 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
 
         {/* Modal Action Footer */}
         <div className="p-4 bg-stone-50 border-t border-stone-200 flex items-center gap-3 shrink-0">
-          {isSoldOut ? (
+          {item.isComingSoon ? (
+            <button
+              disabled
+              className="w-full py-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-900 font-extrabold text-sm cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
+            >
+              <i className="fa-solid fa-clock text-amber-600"></i>
+              <span>Coming Soon • Ordering Disabled</span>
+            </button>
+          ) : isSoldOut ? (
             <button
               disabled
               className="w-full py-3.5 rounded-2xl bg-stone-200 text-stone-500 font-bold text-sm cursor-not-allowed flex items-center justify-center gap-2"

@@ -9,6 +9,7 @@ interface NavbarProps {
   onOpenInventoryModal: () => void;
   onOpenOrderHistoryModal: () => void;
   onOpenAdminModal?: () => void;
+  onNavigateToFrostysFlame?: () => void;
   lowStockCount?: number;
   ordersCount?: number;
 }
@@ -20,6 +21,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenInventoryModal,
   onOpenOrderHistoryModal,
   onOpenAdminModal,
+  onNavigateToFrostysFlame,
   lowStockCount = 0,
   ordersCount = 0,
 }) => {
@@ -63,21 +65,34 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           
-          {/* Logo */}
+          {/* Logo - Clickable link to Frosty's Flame Teaser */}
           <a
-            href="#"
-            className="flex items-center gap-3 group focus:outline-none"
+            href="#menu"
+            onClick={(e) => {
+              e.preventDefault();
+              if (onNavigateToFrostysFlame) {
+                onNavigateToFrostysFlame();
+              }
+            }}
+            className="flex items-center gap-3 group focus:outline-none cursor-pointer"
             id="navbar-logo"
+            title="Click to enter Frosty's Flame 🔥 Savory Kitchen Teaser!"
           >
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FF4B72] to-[#FF85A1] flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
-              <i className="fa-solid fa-ice-cream text-xl"></i>
+            <div className="relative">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FF4B72] to-[#FF85A1] group-hover:from-orange-500 group-hover:to-amber-400 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-all duration-300">
+                <i className="fa-solid fa-ice-cream text-xl group-hover:hidden"></i>
+                <i className="fa-solid fa-fire-flame-curved text-xl hidden group-hover:block text-amber-100 animate-bounce"></i>
+              </div>
+              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-400 border-2 border-[#2D1B18] flex items-center justify-center text-[8px] text-zinc-950 font-black shadow-sm" title="Flame Teaser">
+                🔥
+              </span>
             </div>
             <div>
-              <span className="font-heading font-black text-2xl tracking-tight text-white flex items-center gap-1.5">
+              <span className="font-heading font-black text-2xl tracking-tight text-white flex items-center gap-1.5 group-hover:text-amber-300 transition-colors">
                 Frosty's
-                <span className="inline-block w-2 h-2 rounded-full bg-[#38D39F] animate-pulse"></span>
+                <span className="inline-block w-2 h-2 rounded-full bg-[#38D39F] group-hover:bg-amber-400 animate-pulse"></span>
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#FF85A1] block -mt-1">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#FF85A1] group-hover:text-amber-400 block -mt-1 transition-colors">
                 Green City • Lahore
               </span>
             </div>

@@ -1,7 +1,7 @@
 export interface MenuItem {
   id: string;
   name: string;
-  category: 'scoops' | 'sundaes' | 'deals' | 'shakes' | 'kulfi' | 'coffees' | 'sodas';
+  category: 'scoops' | 'sundaes' | 'deals' | 'fast-food-bbq' | 'shakes' | 'kulfi' | 'coffees' | 'sodas';
   price: number; // In PKR
   originalPrice?: number; // Original PKR price before discount
   description: string;
@@ -13,12 +13,15 @@ export interface MenuItem {
   unit?: string;
   stock?: number;
   tags?: string[];
+  isComingSoon?: boolean;
+  comingSoonLaunchDate?: string;
   variants?: { name: string; price: number; scoopsCount?: number }[];
   allowFlavors?: boolean;
   defaultFlavor?: string;
   maxFlavors?: number;
   allowSodas?: boolean;
   maxSodas?: number;
+  isConeCupAllowed?: boolean;
   customizations?: {
     name: string;
     options: { label: string; price: number }[];
@@ -26,7 +29,7 @@ export interface MenuItem {
 }
 
 export interface Category {
-  id: 'all' | 'scoops' | 'sundaes' | 'deals' | 'shakes' | 'kulfi' | 'coffees' | 'sodas';
+  id: 'all' | 'scoops' | 'sundaes' | 'deals' | 'fast-food-bbq' | 'shakes' | 'kulfi' | 'coffees' | 'sodas';
   name: string;
   icon: string;
   description: string;

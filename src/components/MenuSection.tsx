@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MenuItem, Category } from '../types';
 import { CATEGORIES, MENU_ITEMS } from '../data/menuData';
+import { FrostysFlameMetalBoard } from './FrostysFlameMetalBoard';
 
 interface MenuSectionProps {
   items?: MenuItem[];
@@ -9,6 +10,9 @@ interface MenuSectionProps {
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
   inventory?: { [itemId: string]: number };
+  activeCategory?: Category['id'];
+  onCategoryChange?: (category: Category['id']) => void;
+  triggerToast?: (msg: string) => void;
 }
 
 export const MenuSection: React.FC<MenuSectionProps> = ({
@@ -18,10 +22,28 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
   searchQuery: externalSearchQuery = '',
   onSearchChange,
   inventory = {},
+  activeCategory: externalActiveCategory,
+  onCategoryChange,
+  triggerToast,
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<Category['id']>('all');
+  const [selectedCategory, setSelectedCategory] = useState<Category['id']>(
+    externalActiveCategory || 'all'
+  );
   const [internalSearchQuery, setInternalSearchQuery] = useState('');
   const [activeTag, setActiveTag] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (externalActiveCategory) {
+      setSelectedCategory(externalActiveCategory);
+    }
+  }, [externalActiveCategory]);
+
+  const handleCategorySelect = (catId: Category['id']) => {
+    setSelectedCategory(catId);
+    if (onCategoryChange) {
+      onCategoryChange(catId);
+    }
+  };
 
   const searchQuery = externalSearchQuery || internalSearchQuery;
 
@@ -57,6 +79,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
       const qIsKulfi = q === 'kulfi';
       const qIsCoffee = q === 'coffee' || q === 'coffees' || q === 'latte' || q === 'frappe';
       const qIsSoda = q === 'soda' || q === 'sodas' || q === 'chiller' || q === 'chillers';
+      const qIsFastFood = q === 'burger' || q === 'burgers' || q === 'bbq' || q === 'taco' || q === 'tacos' || q === 'sandwich' || q === 'sandwiches' || q === 'fast food' || q === 'tikka';
 
       matchesSearch =
         item.name.toLowerCase().includes(q) ||
@@ -69,6 +92,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
         (qIsKulfi && (item.category === 'kulfi' || item.name.toLowerCase().includes('kulfi'))) ||
         (qIsCoffee && (item.category === 'coffees' || item.name.toLowerCase().includes('coffee'))) ||
         (qIsSoda && (item.category === 'sodas' || item.name.toLowerCase().includes('soda'))) ||
+        (qIsFastFood && (item.category === 'fast-food-bbq' || item.name.toLowerCase().includes('burger') || item.name.toLowerCase().includes('bbq') || item.name.toLowerCase().includes('taco') || item.name.toLowerCase().includes('sandwich'))) ||
         (item.tags && item.tags.some((t) => t.toLowerCase().includes(q)));
     }
 
@@ -127,7 +151,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
           {/* Quick Filter Tags */}
           <div className="flex flex-wrap items-center justify-center gap-1.5 text-xs font-medium">
             <span className="text-stone-500 font-semibold mr-1">Popular Flavor & Item Tags:</span>
-            {['Cone', 'Vanilla', 'Chocolate', 'Strawberry', 'Mango', 'Kulfa', 'Pista', 'Coffee', 'Banana Split', 'Sundae', 'Milkshake', 'Kulfi', 'Soda Chiller', 'Deal'].map((tag) => (
+            {['Cone', 'Vanilla', 'Chocolate', 'Burger', 'BBQ', 'Tacos', 'Sandwich', 'Banana Split', 'Sundae', 'Milkshake', 'Kulfi', 'Soda Chiller', 'Deal'].map((tag) => (
               <button
                 key={tag}
                 onClick={() => setActiveTag(activeTag === tag ? null : tag)}
@@ -156,7 +180,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
           {CATEGORIES.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
+              onClick={() => handleCategorySelect(cat.id)}
               className={`shrink-0 px-5 py-3 rounded-2xl text-sm font-bold transition-all duration-200 flex items-center gap-2.5 ${
                 selectedCategory === cat.id
                   ? 'bg-[#2D1B18] text-[#FFFDF7] shadow-lg shadow-[#2D1B18]/20 scale-105 ring-2 ring-[#FF4B72]/50'
@@ -170,43 +194,56 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                   HOT
                 </span>
               )}
+              {cat.id === 'fast-food-bbq' && (
+                <span className="bg-amber-400 text-[#2D1B18] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse border border-amber-500">
+                  SOON
+                </span>
+              )}
             </button>
           ))}
         </div>
 
-        {/* Promotional Banner for Deals Category */}
-        {selectedCategory === 'deals' && (
-          <div className="mb-10 bg-gradient-to-r from-[#2D1B18] via-[#3B172C] to-[#2D1B18] text-white rounded-3xl p-6 sm:p-8 border-2 border-amber-400/60 shadow-2xl relative overflow-hidden">
-            <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="space-y-2 text-center md:text-left">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-extrabold uppercase tracking-wider border border-amber-400/40">
-                  <i className="fa-solid fa-gift text-amber-400"></i>
-                  <span>Exclusive Promotional Combo Deals</span>
+        {/* Frosty's Flame Industrial Steel Metal Board Section */}
+        {selectedCategory === 'fast-food-bbq' ? (
+          <FrostysFlameMetalBoard
+            onBackToDesserts={() => handleCategorySelect('all')}
+            triggerToast={triggerToast}
+          />
+        ) : (
+          <>
+            {/* Promotional Banner for Deals Category */}
+            {selectedCategory === 'deals' && (
+              <div className="mb-10 bg-gradient-to-r from-[#2D1B18] via-[#3B172C] to-[#2D1B18] text-white rounded-3xl p-6 sm:p-8 border-2 border-amber-400/60 shadow-2xl relative overflow-hidden">
+                <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="space-y-2 text-center md:text-left">
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-extrabold uppercase tracking-wider border border-amber-400/40">
+                      <i className="fa-solid fa-gift text-amber-400"></i>
+                      <span>Exclusive Promotional Combo Deals</span>
+                    </div>
+                    <h3 className="font-heading font-black text-2xl sm:text-3xl lg:text-4xl text-white">
+                      Special Ice Cream & Soda Combos
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-300 max-w-xl leading-relaxed">
+                      Enjoy our top artisanal ice cream scoops combined with refreshing chilled sodas at unbeatable prices! Select your custom ice cream & soda flavors before ordering on WhatsApp.
+                    </p>
+                  </div>
+                  <div className="shrink-0 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 text-center shadow-inner">
+                    <span className="text-xs text-amber-300 font-bold block uppercase tracking-wider">Save Up To</span>
+                    <span className="font-heading font-black text-3xl text-amber-400">200 PKR</span>
+                    <span className="text-[10px] text-stone-300 block">per promotional deal</span>
+                  </div>
                 </div>
-                <h3 className="font-heading font-black text-2xl sm:text-3xl lg:text-4xl text-white">
-                  Special Ice Cream & Soda Combos
-                </h3>
-                <p className="text-xs sm:text-sm text-stone-300 max-w-xl leading-relaxed">
-                  Enjoy our top artisanal ice cream scoops combined with refreshing chilled sodas at unbeatable prices! Select your custom ice cream & soda flavors before ordering on WhatsApp.
-                </p>
               </div>
-              <div className="shrink-0 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 text-center shadow-inner">
-                <span className="text-xs text-amber-300 font-bold block uppercase tracking-wider">Save Up To</span>
-                <span className="font-heading font-black text-3xl text-amber-400">200 PKR</span>
-                <span className="text-[10px] text-stone-300 block">per promotional deal</span>
-              </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {/* Menu Items Grid */}
-        {filteredItems.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-3xl border border-stone-200 max-w-md mx-auto p-8 space-y-3">
-            <div className="w-16 h-16 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mx-auto text-2xl">
-              <i className="fa-solid fa-cookie-bite"></i>
-            </div>
-            <h3 className="font-heading font-bold text-lg text-stone-800">No desserts matched</h3>
+            {/* Menu Items Grid */}
+            {filteredItems.length === 0 ? (
+              <div className="text-center py-16 bg-white rounded-3xl border border-stone-200 max-w-md mx-auto p-8 space-y-3">
+                <div className="w-16 h-16 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mx-auto text-2xl">
+                  <i className="fa-solid fa-cookie-bite"></i>
+                </div>
+                <h3 className="font-heading font-bold text-lg text-stone-800">No desserts matched</h3>
             <p className="text-xs text-stone-500">
               Try adjusting your search terms or clearing tag filters to see our full dessert menu.
             </p>
@@ -369,16 +406,26 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                       />
 
                       {/* Sold Out Overlay */}
-                      {isSoldOut && (
+                      {isSoldOut && !item.isComingSoon && (
                         <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[2px] flex items-center justify-center">
                           <span className="bg-rose-600 text-white font-black text-xs px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-lg border border-rose-400">
                             <i className="fa-solid fa-ban mr-1.5"></i> Out of Stock
                           </span>
                         </div>
                       )}
+
+                      {/* Coming Soon Overlay Ribbon */}
+                      {item.isComingSoon && (
+                        <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-[1px] flex items-center justify-center p-4">
+                          <span className="bg-amber-400 text-[#2D1B18] font-black text-xs px-4 py-1.5 rounded-full uppercase tracking-wider shadow-xl border-2 border-amber-500 flex items-center gap-1.5 animate-pulse">
+                            <i className="fa-solid fa-clock"></i>
+                            <span>Launching Soon</span>
+                          </span>
+                        </div>
+                      )}
                       
                       {/* Badge */}
-                      {!isSoldOut && item.badge && (
+                      {!isSoldOut && item.badge && !item.isComingSoon && (
                         <span className="absolute top-3 left-3 bg-[#FF4B72] text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow-md uppercase tracking-wider">
                           {item.badge}
                         </span>
@@ -444,7 +491,16 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                         <i className="fa-solid fa-eye"></i>
                       </button>
 
-                      {isSoldOut ? (
+                      {item.isComingSoon ? (
+                        <button
+                          disabled
+                          className="px-3.5 py-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-900 font-extrabold text-xs cursor-not-allowed flex items-center gap-1.5 shadow-sm"
+                          title="Launching in 1-2 weeks - ordering disabled"
+                        >
+                          <i className="fa-solid fa-clock text-amber-600"></i>
+                          <span>Coming Soon</span>
+                        </button>
+                      ) : isSoldOut ? (
                         <button
                           disabled
                           className="px-3.5 py-2.5 rounded-xl bg-stone-200 text-stone-500 font-bold text-xs cursor-not-allowed flex items-center gap-1.5"
@@ -470,6 +526,8 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
             })}
           </div>
         )}
+      </>
+    )}
 
       </div>
     </section>

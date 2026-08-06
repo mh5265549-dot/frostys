@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { MenuItem, CartItem, OrderRecord, Review, Complaint } from './types';
+import { MenuItem, CartItem, OrderRecord, Review, Complaint, Category } from './types';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { TrustSection } from './components/TrustSection';
 import { MenuSection } from './components/MenuSection';
+import { FlameTransitionOverlay } from './components/FlameTransitionOverlay';
 import { AboutSection } from './components/AboutSection';
 import { LocationHoursSection } from './components/LocationHoursSection';
 import { ReviewsSection } from './components/ReviewsSection';
@@ -18,6 +19,7 @@ import { FloatingCartBar } from './components/FloatingCartBar';
 import { FeedbackModal } from './components/FeedbackModal';
 import { ComplaintModal } from './components/ComplaintModal';
 import { FloatingFeedbackButton } from './components/FloatingFeedbackButton';
+import { validateItemCustomizationContainer } from './utils/categoryUtils';
 import {
   getStoredInventory,
   saveInventory,
@@ -54,6 +56,24 @@ export default function App() {
   const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState<Category['id']>('all');
+  const [isFlameTransitioning, setIsFlameTransitioning] = useState(false);
+
+  // Trigger smooth cinematic heat/flame transition to Frosty's Flame Teaser
+  const handleNavigateToFrostysFlame = () => {
+    setIsFlameTransitioning(true);
+    setActiveCategory('fast-food-bbq');
+    
+    // Smooth scroll to menu section
+    const menuEl = document.getElementById('menu');
+    if (menuEl) {
+      menuEl.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    setTimeout(() => {
+      setIsFlameTransitioning(false);
+    }, 950);
+  };
 
   // Persistent Feedback State
   const [reviews, setReviews] = useState<Review[]>(() => getStoredFeedback());
@@ -202,13 +222,21 @@ export default function App() {
     quantity: number = 1,
     customization?: CustomizationDetails
   ) => {
+    if (item.isComingSoon) {
+      triggerToast(`⚠️ ${item.name} is launching soon! Ordering is currently locked.`);
+      return;
+    }
+
     const itemStock = inventory[item.id] ?? 15;
     if (itemStock <= 0) {
       alert(`Sorry, ${item.name} is currently out of stock!`);
       return;
     }
 
-    const selectedContainer = customization?.selectedContainer;
+    const selectedContainer = validateItemCustomizationContainer(
+      item,
+      customization?.selectedContainer
+    );
     const selectedVariant = customization?.selectedVariant;
     const selectedFlavors = customization?.selectedFlavors || [];
     const selectedSodas = customization?.selectedSodas || [];
@@ -312,6 +340,9 @@ export default function App() {
         </div>
       )}
 
+      {/* Flame Heat Transition Overlay */}
+      <FlameTransitionOverlay isActive={isFlameTransitioning} />
+
       {/* Navigation Bar */}
       <Navbar
         cartCount={cartTotalCount}
@@ -320,6 +351,7 @@ export default function App() {
         onOpenInventoryModal={() => setIsInventoryModalOpen(true)}
         onOpenOrderHistoryModal={() => setIsOrderHistoryModalOpen(true)}
         onOpenAdminModal={() => setIsAdminModalOpen(true)}
+        onNavigateToFrostysFlame={handleNavigateToFrostysFlame}
         lowStockCount={lowStockCount}
         ordersCount={orderHistory.length}
       />
@@ -345,6 +377,9 @@ export default function App() {
           searchQuery={globalSearchQuery}
           onSearchChange={(query) => setGlobalSearchQuery(query)}
           inventory={inventory}
+          activeCategory={activeCategory}
+          onCategoryChange={(cat) => setActiveCategory(cat)}
+          triggerToast={triggerToast}
         />
 
         {/* About Section */}
