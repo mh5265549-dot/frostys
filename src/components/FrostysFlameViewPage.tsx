@@ -21,7 +21,7 @@ export const FrostysFlameViewPage: React.FC<FrostysFlameViewPageProps> = ({
     );
     window.open(`https://wa.me/${STORE_INFO.whatsapp}?text=${text}`, '_blank');
     if (triggerToast) {
-      triggerToast('🔥 Opening WhatsApp to register for Frosty\'s Flame launch alerts!');
+      triggerToast('🔥 Opening WhatsApp to register for Frosty\'s Grill launch alerts!');
     }
     setWhatsappNumber('');
     setUserName('');
@@ -93,7 +93,7 @@ export const FrostysFlameViewPage: React.FC<FrostysFlameViewPageProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-heading font-black text-xl sm:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-orange-500 tracking-tight">
-                  Frosty's Flame
+                  Frosty's Grill
                 </span>
                 <span className="text-[10px] bg-amber-500/20 text-amber-300 font-extrabold px-2 py-0.5 rounded-full border border-amber-500/40 uppercase">
                   TEASER
@@ -149,7 +149,7 @@ export const FrostysFlameViewPage: React.FC<FrostysFlameViewPageProps> = ({
               <div className="h-3.5 bg-[repeating-linear-gradient(135deg,#f59e0b,#f59e0b_15px,#18181b_15px,#18181b_30px)]"></div>
               <div className="bg-zinc-950/95 py-2 px-4 text-center flex items-center justify-center gap-3 text-amber-400 text-xs sm:text-sm font-black uppercase tracking-widest">
                 <i className="fa-solid fa-triangle-exclamation text-amber-500 animate-bounce"></i>
-                <span>RESTRICTED KITCHEN AREA • FROSTY'S FLAME TEASER</span>
+                <span>RESTRICTED KITCHEN AREA • FROSTY'S GRILL TEASER</span>
                 <i className="fa-solid fa-triangle-exclamation text-amber-500 animate-bounce"></i>
               </div>
               <div className="h-3.5 bg-[repeating-linear-gradient(135deg,#f59e0b,#f59e0b_15px,#18181b_15px,#18181b_30px)]"></div>
@@ -209,7 +209,7 @@ export const FrostysFlameViewPage: React.FC<FrostysFlameViewPageProps> = ({
                 <span>Upcoming Savory Menu Preview</span>
               </h2>
               <p className="text-xs text-stone-400 mt-1">
-                A sneak peek at the mouthwatering lineup launching at Frosty's Flame.
+                A sneak peek at the mouthwatering lineup launching at Frosty's Grill.
               </p>
             </div>
             <span className="text-xs bg-amber-500/10 border border-amber-500/30 text-amber-300 font-extrabold px-3 py-1.5 rounded-full flex items-center gap-1.5">
@@ -279,7 +279,7 @@ export const FrostysFlameViewPage: React.FC<FrostysFlameViewPageProps> = ({
             
             <div className="space-y-2">
               <h3 className="font-heading font-black text-2xl sm:text-3xl text-amber-200">
-                Be The First To Taste Frosty's Flame!
+                Be The First To Taste Frosty's Grill!
               </h3>
               <p className="text-xs sm:text-sm text-stone-300 max-w-lg mx-auto leading-relaxed">
                 Register for WhatsApp launch alerts to get an exclusive opening day discount when our kitchen fires up live in Green City, Lahore.
@@ -331,7 +331,7 @@ export const FrostysFlameViewPage: React.FC<FrostysFlameViewPageProps> = ({
           <div className="space-y-1">
             <div className="flex items-center justify-center md:justify-start gap-2">
               <span className="font-heading font-black text-lg text-amber-300">
-                Frosty's Flame
+                Frosty's Grill
               </span>
               <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold">
                 Savory Kitchen Division
@@ -363,7 +363,7 @@ export const FrostysFlameViewPage: React.FC<FrostysFlameViewPageProps> = ({
         </div>
 
         <div className="max-w-6xl mx-auto mt-8 pt-6 border-t border-zinc-900 text-center text-[11px] text-stone-400">
-          © {new Date().getFullYear()} Frosty's Flame • Savory Kitchen Expansion • Green City, Lahore. All Rights Reserved.
+          © {new Date().getFullYear()} Frosty's Grill • Savory Kitchen Expansion • Green City, Lahore. All Rights Reserved.
         </div>
       </footer>
 

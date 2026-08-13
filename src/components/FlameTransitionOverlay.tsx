@@ -25,7 +25,7 @@ export const FlameTransitionOverlay: React.FC<FlameTransitionOverlayProps> = ({ 
           <i className="fa-solid fa-fire-flame-curved text-3xl text-amber-200"></i>
         </div>
         <h2 className="font-heading font-black text-2xl sm:text-3xl text-amber-300 uppercase tracking-widest">
-          Frosty's Flame
+          Frosty's Grill
         </h2>
         <p className="text-xs text-amber-100 font-bold uppercase tracking-wider animate-pulse">
           🔥 Switching to Savory Kitchen Teaser...

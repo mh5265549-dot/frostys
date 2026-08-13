@@ -63,7 +63,7 @@ export default function App() {
   const [isFrostTransitioning, setIsFrostTransitioning] = useState(false);
   const [isFrostysFlameView, setIsFrostysFlameView] = useState(false);
 
-  // Trigger smooth cinematic heat/flame transition to Frosty's Flame Teaser
+  // Trigger smooth cinematic heat/flame transition to Frosty's Grill Teaser
   const handleNavigateToFrostysFlame = () => {
     setIsFlameTransitioning(true);
     setTimeout(() => {

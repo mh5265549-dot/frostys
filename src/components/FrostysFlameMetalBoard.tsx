@@ -12,11 +12,11 @@ export const FrostysFlameMetalBoard: React.FC<FrostysFlameMetalBoardProps> = ({
 }) => {
   const handleNotifyWhatsApp = () => {
     const text = encodeURIComponent(
-      `Hi Frosty's Green City! 🔥 I'm excited about Frosty's Flame! Please notify me on WhatsApp as soon as your Burgers, Tacos & BBQ launch!`
+      `Hi Frosty's Green City! 🔥 I'm excited about Frosty's Grill! Please notify me on WhatsApp as soon as your Burgers, Tacos & BBQ launch!`
     );
     window.open(`https://wa.me/${STORE_INFO.whatsapp}?text=${text}`, '_blank');
     if (triggerToast) {
-      triggerToast('🔥 Opening WhatsApp to register for Frosty\'s Flame launch alerts!');
+      triggerToast('🔥 Opening WhatsApp to register for Frosty\'s Grill launch alerts!');
     }
   };
 
@@ -84,7 +84,7 @@ export const FrostysFlameMetalBoard: React.FC<FrostysFlameMetalBoardProps> = ({
           <div className="h-3 bg-[repeating-linear-gradient(135deg,#f59e0b,#f59e0b_15px,#18181b_15px,#18181b_30px)]"></div>
           <div className="bg-zinc-950/90 py-2 px-4 text-center flex items-center justify-center gap-3 text-amber-400 text-xs font-black uppercase tracking-widest">
             <i className="fa-solid fa-triangle-exclamation text-amber-500 animate-bounce"></i>
-            <span>RESTRICTED KITCHEN AREA • FROSTY'S FLAME TEASER</span>
+            <span>RESTRICTED KITCHEN AREA • FROSTY'S GRILL TEASER</span>
             <i className="fa-solid fa-triangle-exclamation text-amber-500 animate-bounce"></i>
           </div>
           <div className="h-3 bg-[repeating-linear-gradient(135deg,#f59e0b,#f59e0b_15px,#18181b_15px,#18181b_30px)]"></div>
@@ -96,7 +96,7 @@ export const FrostysFlameMetalBoard: React.FC<FrostysFlameMetalBoardProps> = ({
           {/* Brand & Flame Icon */}
           <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-gradient-to-r from-red-950/80 via-amber-950/90 to-red-950/80 border-2 border-amber-500/60 text-amber-300 text-xs font-black uppercase tracking-widest shadow-xl">
             <i className="fa-solid fa-fire-flame-curved text-amber-400 text-lg animate-pulse"></i>
-            <span>FROSTY'S FLAME • GREEN CITY LAHORE</span>
+            <span>FROSTY'S GRILL • GREEN CITY LAHORE</span>
             <i className="fa-solid fa-fire-flame-curved text-amber-400 text-lg animate-pulse"></i>
           </div>
 

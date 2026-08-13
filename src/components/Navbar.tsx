@@ -76,7 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
             className="flex items-center gap-3 group focus:outline-none cursor-pointer"
             id="navbar-logo"
-            title="Click to enter Frosty's Flame 🔥 Savory Kitchen Teaser!"
+            title="Click to enter Frosty's Grill 🔥 Savory Kitchen Teaser!"
           >
             <div className="relative">
               <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FF4B72] to-[#FF85A1] group-hover:from-orange-500 group-hover:to-amber-400 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-all duration-300">
