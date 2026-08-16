@@ -9,6 +9,7 @@ interface NavbarProps {
   onOpenInventoryModal: () => void;
   onOpenOrderHistoryModal: () => void;
   onOpenAdminModal?: () => void;
+  onOpenHelperModal?: () => void;
   onNavigateToFrostysFlame?: () => void;
   lowStockCount?: number;
   ordersCount?: number;
@@ -21,6 +22,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenInventoryModal,
   onOpenOrderHistoryModal,
   onOpenAdminModal,
+  onOpenHelperModal,
   onNavigateToFrostysFlame,
   lowStockCount = 0,
   ordersCount = 0,
@@ -143,6 +145,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
+            {/* Helper AI Assistant Button */}
+            {onOpenHelperModal && (
+              <button
+                onClick={onOpenHelperModal}
+                id="btn-helper-nav"
+                className="p-2.5 rounded-xl bg-gradient-to-r from-[#FF4B72]/20 to-[#FF85A1]/20 hover:from-[#FF4B72]/40 hover:to-[#FF85A1]/30 text-white transition-all duration-200 border border-[#FF4B72]/50 text-xs font-bold flex items-center gap-1.5 shadow-sm group"
+                title="Bilingual Helper AI (شاپ اسسٹنٹ)"
+              >
+                <i className="fa-solid fa-headset text-[#FF85A1] group-hover:scale-110 transition-transform"></i>
+                <span className="hidden xl:inline">AI Helper</span>
+              </button>
+            )}
+
             {/* Quick Call Button */}
             <button
               onClick={onOpenCallModal}
@@ -228,6 +243,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               </a>
             ))}
           </div>
+
+          {onOpenHelperModal && (
+            <div className="pt-2 border-t border-[#3D2522]">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenHelperModal();
+                }}
+                className="w-full px-3 py-2.5 rounded-xl bg-gradient-to-r from-[#FF4B72]/25 to-[#FF85A1]/25 text-white text-xs font-bold hover:from-[#FF4B72]/40 hover:to-[#FF85A1]/40 flex items-center justify-center gap-2 border border-[#FF4B72]/50 shadow-sm"
+              >
+                <i className="fa-solid fa-headset text-[#FF85A1]"></i>
+                <span>Ask AI Helper (شاپ اسسٹنٹ)</span>
+              </button>
+            </div>
+          )}
 
           {onOpenAdminModal && (
             <div className="pt-2 border-t border-[#3D2522]">

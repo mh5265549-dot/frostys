@@ -33,6 +33,10 @@ export interface Category {
   name: string;
   icon: string;
   description: string;
+  image?: string;
+  badge?: string;
+  startingPrice?: string;
+  tagline?: string;
 }
 
 export interface CartItem {

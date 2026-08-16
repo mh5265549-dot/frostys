@@ -21,6 +21,8 @@ import { FloatingCartBar } from './components/FloatingCartBar';
 import { FeedbackModal } from './components/FeedbackModal';
 import { ComplaintModal } from './components/ComplaintModal';
 import { FloatingFeedbackButton } from './components/FloatingFeedbackButton';
+import { FloatingHelperButton } from './components/FloatingHelperButton';
+import { HelperAIModal } from './components/HelperAIModal';
 import { validateItemCustomizationContainer } from './utils/categoryUtils';
 import {
   getStoredInventory,
@@ -56,9 +58,10 @@ export default function App() {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
+  const [isHelperModalOpen, setIsHelperModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<Category['id']>('all');
+  const [activeCategory, setActiveCategory] = useState<Category['id'] | null>(null);
   const [isFlameTransitioning, setIsFlameTransitioning] = useState(false);
   const [isFrostTransitioning, setIsFrostTransitioning] = useState(false);
   const [isFrostysFlameView, setIsFrostysFlameView] = useState(false);
@@ -78,7 +81,7 @@ export default function App() {
     setIsFrostTransitioning(true);
     setTimeout(() => {
       setIsFrostysFlameView(false);
-      setActiveCategory('all');
+      setActiveCategory(null);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       setTimeout(() => {
         setIsFrostTransitioning(false);
@@ -373,6 +376,7 @@ export default function App() {
             onOpenInventoryModal={() => setIsInventoryModalOpen(true)}
             onOpenOrderHistoryModal={() => setIsOrderHistoryModalOpen(true)}
             onOpenAdminModal={() => setIsAdminModalOpen(true)}
+            onOpenHelperModal={() => setIsHelperModalOpen(true)}
             onNavigateToFrostysFlame={handleNavigateToFrostysFlame}
             lowStockCount={lowStockCount}
             ordersCount={orderHistory.length}
@@ -436,6 +440,11 @@ export default function App() {
             onClick={() => setIsFeedbackModalOpen(true)}
             feedbackCount={reviews.length}
           />
+
+          {/* Floating Bilingual AI Helper / Shop Assistant Button */}
+          <FloatingHelperButton
+            onClick={() => setIsHelperModalOpen(true)}
+          />
         </>
       )}
 
@@ -445,6 +454,19 @@ export default function App() {
         stock={selectedItem ? inventory[selectedItem.id] : 15}
         onClose={() => setSelectedItem(null)}
         onAddToCart={handleAddToCart}
+      />
+
+      {/* Bilingual AI Shop Assistant Modal */}
+      <HelperAIModal
+        isOpen={isHelperModalOpen}
+        onClose={() => setIsHelperModalOpen(false)}
+        onSelectCategory={(catId) => {
+          setActiveCategory(catId);
+          const el = document.getElementById('menu');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }}
+        onOpenOrderModal={() => setIsOrderModalOpen(true)}
+        onOpenCallModal={() => setIsCallModalOpen(true)}
       />
 
       {/* Order / Cart Modal with Free WhatsApp Checkout */}
