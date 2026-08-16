@@ -271,19 +271,6 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                       "{cmp.description}"
                     </p>
 
-                    {/* Store Resolution Notes if available */}
-                    {cmp.resolutionNotes && (
-                      <div className="p-3.5 rounded-2xl bg-[#2D1B18] border border-emerald-900/60 text-xs space-y-1">
-                        <span className="text-[10px] uppercase font-extrabold tracking-wider text-emerald-400 block flex items-center gap-1">
-                          <i className="fa-solid fa-comment-medical"></i>
-                          <span>Manager Resolution Note:</span>
-                        </span>
-                        <p className="text-amber-100/90 italic font-medium">
-                          {cmp.resolutionNotes}
-                        </p>
-                      </div>
-                    )}
-
                     {/* Footer Customer Info & Date */}
                     <div className="pt-3 border-t border-[#52332E] flex items-center justify-between text-xs text-amber-200/60">
                       <span>Customer: <strong className="text-amber-100">{cmp.customerName}</strong></span>

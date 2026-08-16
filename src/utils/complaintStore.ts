@@ -14,7 +14,6 @@ const INITIAL_COMPLAINTS: Complaint[] = [
     description: 'Rider took 50 minutes to deliver to Green City Block B instead of 25 mins. The ice cream was slightly soft on top.',
     timestamp: 'Aug 4, 2026, 09:15 PM',
     status: 'Resolved',
-    resolutionNotes: 'Issued a Rs. 200 discount coupon on WhatsApp and apologized for the peak hour rider delay.',
   },
   {
     id: 'cmp-102',
@@ -26,7 +25,6 @@ const INITIAL_COMPLAINTS: Complaint[] = [
     description: 'Ordered 2 Kulfa Sundaes and 1 Chocolate Scoop. The extra chocolate syrup bottle was missing in the bag.',
     timestamp: 'Aug 5, 2026, 08:30 PM',
     status: 'In Progress',
-    resolutionNotes: 'Contacted customer via phone. Arranged free complimentary topping on next order.',
   },
 ];
 

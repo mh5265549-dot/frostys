@@ -352,29 +352,45 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedContainer('Cone')}
-                  className={`p-3 rounded-xl border text-center text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  className={`p-3 rounded-xl border text-center text-xs font-bold transition-all flex flex-col items-center justify-center gap-1.5 ${
                     selectedContainer === 'Cone'
                       ? 'bg-[#2D1B18] text-amber-300 border-[#2D1B18] shadow-md scale-[1.01]'
                       : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
                   }`}
                 >
-                  <span className="text-lg">🍦</span>
-                  <span>Crispy Wafer Cone</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🍦</span>
+                    <span>Crispy Cone</span>
+                  </div>
+                  <span className="text-[10px] text-amber-400/90 font-bold bg-[#3D2522] px-2 py-0.5 rounded-full">
+                    Dine-In & Takeaway Only
+                  </span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setSelectedContainer('Cup')}
-                  className={`p-3 rounded-xl border text-center text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  className={`p-3 rounded-xl border text-center text-xs font-bold transition-all flex flex-col items-center justify-center gap-1.5 ${
                     selectedContainer === 'Cup'
                       ? 'bg-[#2D1B18] text-amber-300 border-[#2D1B18] shadow-md scale-[1.01]'
                       : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
                   }`}
                 >
-                  <span className="text-lg">🍨</span>
-                  <span>Classic Dessert Cup</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🍨</span>
+                    <span>Classic Cup</span>
+                  </div>
+                  <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/40 px-2 py-0.5 rounded-full">
+                    Deliverable & Takeaway
+                  </span>
                 </button>
               </div>
+              {selectedContainer === 'Cone' && (
+                <p className="text-[11px] text-amber-800 font-semibold bg-amber-100/70 border border-amber-200 rounded-xl px-3 py-1.5 flex items-center gap-1.5">
+                  <i className="fa-solid fa-triangle-exclamation text-amber-600"></i>
+                  <span>Note: Cones cannot be delivered to homes. Orders with cones are strictly for Dine-In or Take-Away.</span>
+                </p>
+              )}
             </div>
           )}
 

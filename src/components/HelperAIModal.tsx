@@ -42,6 +42,7 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
   const [language, setLanguage] = useState<'both' | 'en' | 'ur'>('both');
   const [textSize, setTextSize] = useState<'normal' | 'large'>('large'); // default to large for elders
   const [isListening, setIsListening] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const [speechError, setSpeechError] = useState<string | null>(null);
   const [interimTranscript, setInterimTranscript] = useState('');
   const [speechLang, setSpeechLang] = useState<'ur-PK' | 'en-US'>('en-US');
@@ -138,7 +139,7 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
     if (isOpen) {
       setTimeout(scrollToBottom, 150);
     }
-  }, [isOpen, messages, isListening]);
+  }, [isOpen, messages, isListening, isTyping]);
 
   // Toggle Voice Recording
   const toggleListening = () => {
@@ -274,8 +275,16 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
     // 3. Waffle Cone (Soft Serve)
     if (q.includes('waffle') || q.includes('soft serve') || q.includes('سافٹ سرو') || q.includes('وافل')) {
       return {
-        text: "🍦 Waffle Cone (Soft Serve):\n\n• Freshly rolled golden crispy waffle cone with smooth vanilla soft serve and rich chocolate drizzle.\n• Includes 2 FREE toppings of your choice!\n• Price: Rs. 100 (Regular/Large)\n• Note: Available for Dine-In & Counter Take-Away only.",
-        urduText: "🍦 وافل کون سافٹ سرو:\n\n• تازہ بنی کرسپی وافل کون، ونیلا سافٹ سرو آئس کریم اور چاکلیٹ ساس۔\n• اس میں 2 مفت ٹاپنگز شامل ہیں!\n• قیمت: 100 روپے (ریگولر/لارج)۔\n• نوٹ: صرف ڈائن اِن اور کاؤنٹر ٹیک اوے کے لیے دستیاب ہے۔",
+        text: "🍦 Waffle Cone (Soft Serve):\n\n• Available in Cup & Cone formats:\n  - Rs. 100 Option: Crispy waffle cone or cup with vanilla soft serve and 2 free toppings.\n  - Rs. 150 Option: Crispy waffle cone or cup with rich chocolate coated inside the cone and drizzled on the ice cream, plus 2 free toppings.\n• Delivery Policy: Cones are strictly for Dine-In & Take-Away only (orders for delivery with cones cannot be accepted to prevent melting). Cups and desserts are 100% deliverable!",
+        urduText: "🍦 وافل کون سافٹ سرو:\n\n• کپ اور کون دونوں میں 2 قیمتوں کے ساتھ دستیاب ہے:\n  - 100 روپے: کون یا کپ + سافٹ سرو + 2 مفت ٹاپنگز۔\n  - 150 روپے: کون کے اندر اور آئس کریم پر چاکلیٹ + 2 مفت ٹاپنگز۔\n• ڈیلیوری پالیسی: کونز صرف ڈائن اِن اور ٹیک اوے کے لیے ہیں (ہوم ڈیلیوری پر کون آرڈر قبول نہیں ہوگا)۔ صرف کپ اور باقی ڈیزرٹس ڈیلیور کیے جاتے ہیں۔",
+        action: {
+          label: 'Order Waffle Cone (Soft Serve)',
+          action: () => {
+            if (onSelectCategory) onSelectCategory('scoops');
+            onClose();
+          },
+          icon: 'fa-ice-cream',
+        },
       };
     }
 
@@ -378,6 +387,7 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
     setMessages((prev) => [...prev, userMessage]);
     setInputText('');
     setSpeechError(null);
+    setIsTyping(true);
 
     setTimeout(() => {
       const response = getAIResponse(query);
@@ -390,7 +400,8 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
         actionButton: response.action,
       };
       setMessages((prev) => [...prev, aiMessage]);
-    }, 300);
+      setIsTyping(false);
+    }, 600);
   };
 
   if (!isOpen) return null;
@@ -629,6 +640,34 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
                 </span>
               </div>
             ))}
+
+            {/* Subtle Typing Animation Indicator */}
+            {isTyping && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 6 }}
+                className="flex flex-col items-start"
+              >
+                <div className="bg-[#281814] border border-[#3E2620] text-amber-50 rounded-2xl rounded-tl-none px-4 py-3 shadow-md flex items-center gap-2.5">
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-[#FF4B72] to-[#FF85A1] flex items-center justify-center text-[10px] text-white">
+                    <i className="fa-solid fa-headset"></i>
+                  </div>
+                  <span className="text-xs font-semibold text-amber-200/90 mr-1">
+                    {language === 'ur' ? 'اسسٹنٹ سوچ رہا ہے' : "Frosty's Assistant is typing"}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-[#FF4B72] animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="w-2 h-2 rounded-full bg-[#FF85A1] animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce"></span>
+                  </div>
+                </div>
+                <span className="text-[10px] text-stone-500 mt-1 px-1">
+                  Just now
+                </span>
+              </motion.div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
