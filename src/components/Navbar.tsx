@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { STORE_INFO } from '../data/menuData';
 import { getStoreStatus } from '../utils/hours';
+import { ThemeToggle } from './ThemeToggle';
+import { ShopMode } from '../types';
 
 interface NavbarProps {
   cartCount: number;
@@ -10,9 +12,10 @@ interface NavbarProps {
   onOpenOrderHistoryModal: () => void;
   onOpenAdminModal?: () => void;
   onOpenHelperModal?: () => void;
-  onNavigateToFrostysFlame?: () => void;
   lowStockCount?: number;
   ordersCount?: number;
+  activeShop: ShopMode;
+  onSwitchShop: (shop: ShopMode) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -23,9 +26,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenOrderHistoryModal,
   onOpenAdminModal,
   onOpenHelperModal,
-  onNavigateToFrostysFlame,
   lowStockCount = 0,
   ordersCount = 0,
+  activeShop,
+  onSwitchShop,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -56,6 +60,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     { name: 'Reviews', href: '#reviews' },
   ];
 
+  const isGrill = activeShop === 'grill';
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -67,41 +73,90 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           
-          {/* Logo - Clickable link to Frosty's Flame Teaser */}
+          {/* Logo with Active Shop Branding */}
           <a
-            href="#menu"
-            onClick={(e) => {
-              e.preventDefault();
-              if (onNavigateToFrostysFlame) {
-                onNavigateToFrostysFlame();
-              }
-            }}
+            href="#hero"
             className="flex items-center gap-3 group focus:outline-none cursor-pointer"
             id="navbar-logo"
-            title="Click to enter Frosty's Grill 🔥 Savory Kitchen Teaser!"
+            title={isGrill ? "Frosty's Grill - Green City, Lahore" : "Frosty's Ice Cream - Green City, Lahore"}
           >
             <div className="relative">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FF4B72] to-[#FF85A1] group-hover:from-orange-500 group-hover:to-amber-400 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-all duration-300">
-                <i className="fa-solid fa-ice-cream text-xl group-hover:hidden"></i>
-                <i className="fa-solid fa-fire-flame-curved text-xl hidden group-hover:block text-amber-100 animate-bounce"></i>
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-all duration-300 ${
+                  isGrill
+                    ? 'bg-gradient-to-tr from-amber-500 via-orange-500 to-red-600 shadow-orange-950/60'
+                    : 'bg-gradient-to-tr from-[#FF4B72] to-[#FF85A1]'
+                }`}
+              >
+                {isGrill ? (
+                  <i className="fa-solid fa-fire-flame-curved text-xl"></i>
+                ) : (
+                  <i className="fa-solid fa-ice-cream text-xl"></i>
+                )}
               </div>
-              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-400 border-2 border-[#2D1B18] flex items-center justify-center text-[8px] text-zinc-950 font-black shadow-sm" title="Flame Teaser">
-                🔥
-              </span>
             </div>
             <div>
-              <span className="font-heading font-black text-2xl tracking-tight text-white flex items-center gap-1.5 group-hover:text-amber-300 transition-colors">
-                Frosty's
-                <span className="inline-block w-2 h-2 rounded-full bg-[#38D39F] group-hover:bg-amber-400 animate-pulse"></span>
+              <span className="font-heading font-black text-xl sm:text-2xl tracking-tight text-white flex items-center gap-1.5 group-hover:text-amber-300 transition-colors">
+                {isGrill ? "Frosty's Grill" : "Frosty's"}
+                <span
+                  className={`inline-block w-2 h-2 rounded-full animate-pulse ${
+                    isGrill ? 'bg-amber-400' : 'bg-[#38D39F]'
+                  }`}
+                ></span>
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#FF85A1] group-hover:text-amber-400 block -mt-1 transition-colors">
-                Green City • Lahore
+              <span
+                className={`text-[10px] uppercase font-bold tracking-widest block -mt-1 transition-colors ${
+                  isGrill ? 'text-amber-300' : 'text-[#FF85A1]'
+                }`}
+              >
+                {isGrill ? 'Charcoal BBQ & Fast Food' : 'Ice Cream & Desserts'}
               </span>
             </div>
           </a>
 
+          {/* Desktop Shop Switcher Control */}
+          <div className="hidden md:flex items-center p-1 rounded-2xl bg-[#190E0C] border border-[#422622] shadow-inner">
+            <button
+              onClick={() => onSwitchShop('ice-cream')}
+              id="nav-switch-icecream"
+              title="Shop Frosty's Handcrafted Ice Cream & Shakes"
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
+                !isGrill
+                  ? 'bg-gradient-to-r from-[#FF4B72] to-[#FF85A1] text-white shadow-md shadow-pink-950/60 scale-[1.02]'
+                  : 'text-amber-200/70 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <i className="fa-solid fa-ice-cream text-xs"></i>
+              <span>Frosty's (Ice Cream)</span>
+              {!isGrill && (
+                <span className="text-[9px] bg-white/25 text-white font-black px-1.5 py-0.2 rounded-full uppercase">
+                  Active
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => onSwitchShop('grill')}
+              id="nav-switch-grill"
+              title="Shop Frosty's Charcoal Burgers, Sandwiches & BBQ"
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
+                isGrill
+                  ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 text-white shadow-md shadow-orange-950/80 scale-[1.02]'
+                  : 'text-amber-200/70 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <i className="fa-solid fa-fire-flame-curved text-xs text-amber-300"></i>
+              <span>Frosty's Grill</span>
+              {isGrill && (
+                <span className="text-[9px] bg-white/25 text-white font-black px-1.5 py-0.2 rounded-full uppercase">
+                  Active
+                </span>
+              )}
+            </button>
+          </div>
+
           {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center gap-8" id="desktop-nav">
+          <nav className="hidden lg:flex items-center gap-6" id="desktop-nav">
             {navLinks.map((link) => (
               <a
                 key={link.name}
@@ -158,6 +213,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
+            {/* Theme Switcher Toggle */}
+            <ThemeToggle variant="icon" />
+
             {/* Quick Call Button */}
             <button
               onClick={onOpenCallModal}
@@ -186,13 +244,38 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Mobile Right Controls */}
-          <div className="flex sm:hidden items-center gap-2">
+          <div className="flex sm:hidden items-center gap-1.5">
+            {/* Mobile Shop Switcher Pill */}
+            <button
+              onClick={() => onSwitchShop(isGrill ? 'ice-cream' : 'grill')}
+              className={`p-2 rounded-xl text-xs font-bold flex items-center gap-1 border shadow-sm ${
+                isGrill
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white border-orange-400'
+                  : 'bg-gradient-to-r from-[#FF4B72] to-[#FF85A1] text-white border-pink-400'
+              }`}
+              title={isGrill ? "Switch to Frosty's Ice Cream" : "Switch to Frosty's Grill"}
+            >
+              {isGrill ? (
+                <>
+                  <i className="fa-solid fa-fire text-[11px]"></i>
+                  <span className="text-[10px] font-black">Grill</span>
+                </>
+              ) : (
+                <>
+                  <i className="fa-solid fa-ice-cream text-[11px]"></i>
+                  <span className="text-[10px] font-black">Ice Cream</span>
+                </>
+              )}
+            </button>
+
+            {/* Quick Mobile Theme Switcher */}
+            <ThemeToggle variant="icon" className="!p-2 !rounded-lg" />
+
             <button
               onClick={onOpenOrderModal}
               className="p-2 rounded-lg bg-[#FF4B72] text-white font-bold text-xs flex items-center gap-1.5"
             >
               <i className="fa-solid fa-bag-shopping"></i>
-              <span>Order</span>
               {cartCount > 0 && (
                 <span className="bg-white text-[#FF4B72] text-[10px] font-black px-1.5 rounded-full">
                   {cartCount}
@@ -229,6 +312,51 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               {status.isOpen ? 'Open Now (4 PM - 2 AM)' : 'Opens at 4:00 PM'}
             </span>
+          </div>
+
+          {/* Dedicated Mobile Shop Switcher Card */}
+          <div className="p-2.5 rounded-2xl bg-[#1D110F] border border-[#452723] space-y-2">
+            <span className="text-[10px] uppercase font-black tracking-wider text-amber-200/70 block px-1">
+              Select Shop Mode:
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onSwitchShop('ice-cream');
+                }}
+                className={`py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 border ${
+                  !isGrill
+                    ? 'bg-gradient-to-r from-[#FF4B72] to-[#FF85A1] text-white border-pink-400 shadow-md'
+                    : 'bg-[#2A1815] text-stone-300 border-[#3D2522] hover:bg-[#38201C]'
+                }`}
+              >
+                <i className="fa-solid fa-ice-cream"></i>
+                <span>Frosty's</span>
+                {!isGrill && <span className="text-[9px] bg-white/20 px-1 rounded">Active</span>}
+              </button>
+
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onSwitchShop('grill');
+                }}
+                className={`py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 border ${
+                  isGrill
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white border-orange-400 shadow-md'
+                    : 'bg-[#2A1815] text-stone-300 border-[#3D2522] hover:bg-[#38201C]'
+                }`}
+              >
+                <i className="fa-solid fa-fire text-amber-300"></i>
+                <span>Frosty's Grill</span>
+                {isGrill && <span className="text-[9px] bg-white/20 px-1 rounded">Active</span>}
+              </button>
+            </div>
+          </div>
+
+          {/* Theme switcher option inside drawer */}
+          <div className="pt-1">
+            <ThemeToggle variant="full" onToggleCallback={() => setMobileMenuOpen(false)} />
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-1">

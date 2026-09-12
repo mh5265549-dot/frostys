@@ -7,7 +7,7 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onOpenAdminModal }) => {
   return (
-    <footer className="bg-[#1F110E] text-white pt-16 pb-8 border-t border-[#3D2522]">
+    <footer className="bg-[#1F110E] dark:bg-[#110A09] text-white pt-16 pb-8 border-t border-[#3D2522] dark:border-[#261715] transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-[#3D2522]">
@@ -22,10 +22,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminModal }) => {
                 Frosty's
               </span>
             </div>
-
-            <p className="text-sm text-amber-100/70 max-w-sm font-normal leading-relaxed">
-              Lahore’s favorite late-night dessert parlour serving artisanal ice cream scoops, signature sundaes, ice cream milkshakes, cold coffees, creamy kulfi, and 20 soda chillers until 2:00 AM daily.
-            </p>
 
             {/* Social Links */}
             <div className="flex items-center gap-3 pt-2">

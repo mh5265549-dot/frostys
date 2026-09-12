@@ -1,5 +1,6 @@
 import React from 'react';
-import { STORE_INFO, heroDessertImg } from '../data/menuData';
+import { STORE_INFO, heroDessertImg, smashBurgerImg } from '../data/menuData';
+import { ShopMode } from '../types';
 
 interface HeroProps {
   onOpenOrderModal: () => void;
@@ -7,6 +8,8 @@ interface HeroProps {
   searchQuery?: string;
   onSearchChange?: (q: string) => void;
   onQuickSearch?: (term: string) => void;
+  activeShop: ShopMode;
+  onSwitchShop: (shop: ShopMode) => void;
 }
 
 export const Hero: React.FC<HeroProps> = ({
@@ -15,7 +18,11 @@ export const Hero: React.FC<HeroProps> = ({
   searchQuery = '',
   onSearchChange,
   onQuickSearch,
+  activeShop,
+  onSwitchShop,
 }) => {
+  const isGrill = activeShop === 'grill';
+
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (onSearchChange) {
       onSearchChange(e.target.value);
@@ -34,16 +41,88 @@ export const Hero: React.FC<HeroProps> = ({
     }
   };
 
+  const iceCreamChips = [
+    'Waffle Cone',
+    'Banana Split',
+    'Super Cup',
+    'Oreo Shake',
+    'Pistachio Kulfa',
+    'Cold Coffee',
+    'Blue Berry Soda',
+  ];
+
+  const grillChips = [
+    'Charcoal Burger',
+    'Tikka Burger',
+    'Club Sandwich',
+    'Zinger Wrap',
+    'Fries Supreme',
+    'BBQ Tikka',
+  ];
+
+  const activeChips = isGrill ? grillChips : iceCreamChips;
+
   return (
     <section
       id="hero"
-      className="relative pt-24 pb-12 lg:pt-32 lg:pb-20 bg-[#2D1B18] text-white overflow-hidden"
+      className="relative pt-24 pb-12 lg:pt-32 lg:pb-20 bg-[#2D1B18] dark:bg-[#160E0D] text-white overflow-hidden transition-colors duration-200"
     >
       {/* Soft Background Accents */}
-      <div className="absolute top-1/4 left-10 w-96 h-96 bg-[#FF4B72]/15 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#38D39F]/10 rounded-full blur-3xl pointer-events-none"></div>
+      {isGrill ? (
+        <>
+          <div className="absolute top-1/4 left-10 w-96 h-96 bg-orange-600/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
+        </>
+      ) : (
+        <>
+          <div className="absolute top-1/4 left-10 w-96 h-96 bg-[#FF4B72]/15 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#38D39F]/10 rounded-full blur-3xl pointer-events-none"></div>
+        </>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        
+        {/* Top Interactive Shop Mode Indicator & Fast Switch Banner */}
+        <div className="mb-6 p-2 sm:p-2.5 rounded-2xl bg-[#1D110F]/90 backdrop-blur-md border border-[#482823] flex flex-wrap items-center justify-between gap-3 shadow-xl">
+          <div className="flex items-center gap-2.5 pl-2">
+            <span
+              className={`w-3 h-3 rounded-full flex items-center justify-center text-[8px] text-white font-black animate-ping ${
+                isGrill ? 'bg-orange-500' : 'bg-[#38D39F]'
+              }`}
+            ></span>
+            <span className="text-xs text-amber-200/80 font-medium">
+              Currently Shopping at:{' '}
+              <strong className="text-white font-extrabold">
+                {isGrill ? "Frosty's Grill (Burgers & BBQ)" : "Frosty's (Ice Cream & Desserts)"}
+              </strong>
+            </span>
+          </div>
+
+          <button
+            onClick={() => onSwitchShop(isGrill ? 'ice-cream' : 'grill')}
+            id="hero-banner-switch-shop"
+            className={`px-4 py-2 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 shadow-md cursor-pointer hover:scale-105 active:scale-95 ${
+              isGrill
+                ? 'bg-gradient-to-r from-[#FF4B72] to-[#FF85A1] text-white shadow-pink-950/60'
+                : 'bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 text-white shadow-orange-950/80'
+            }`}
+          >
+            {isGrill ? (
+              <>
+                <i className="fa-solid fa-ice-cream"></i>
+                <span>Switch to Frosty's (Ice Cream Shop)</span>
+                <i className="fa-solid fa-arrow-right text-[10px]"></i>
+              </>
+            ) : (
+              <>
+                <i className="fa-solid fa-fire text-amber-300"></i>
+                <span>Switch to Frosty's Grill (Burgers & BBQ)</span>
+                <i className="fa-solid fa-arrow-right text-[10px]"></i>
+              </>
+            )}
+          </button>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           
           {/* Left Column Text Content */}
@@ -58,25 +137,53 @@ export const Hero: React.FC<HeroProps> = ({
 
             {/* Prominent Store Header & Headline */}
             <div>
-              <span className="block font-heading text-xs font-extrabold uppercase tracking-widest text-[#FF85A1] mb-1">
-                Welcome to {STORE_INFO.name} Ice Cream & Desserts
+              <span
+                className={`block font-heading text-xs font-extrabold uppercase tracking-widest mb-1 ${
+                  isGrill ? 'text-amber-400' : 'text-[#FF85A1]'
+                }`}
+              >
+                {isGrill ? "Welcome to Frosty's Grill & Fast Food" : "Welcome to Frosty's Ice Cream Parlor"}
               </span>
               <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.15] text-amber-50">
-                Satisfy Your Late-Night <br className="hidden sm:inline" />
-                <span className="bg-gradient-to-r from-[#FF4B72] via-[#FF85A1] to-[#38D39F] bg-clip-text text-transparent">
-                  Sweet Cravings
-                </span>{' '}
-                Delivered Fresh!
+                {isGrill ? (
+                  <>
+                    Charcoal Burgers, BBQ & <br className="hidden sm:inline" />
+                    <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-500 bg-clip-text text-transparent">
+                      Sizzling Fast Food
+                    </span>{' '}
+                    Delivered Hot!
+                  </>
+                ) : (
+                  <>
+                    Artisanal Scoops, Sundaes & <br className="hidden sm:inline" />
+                    <span className="bg-gradient-to-r from-[#FF4B72] via-[#FF85A1] to-[#38D39F] bg-clip-text text-transparent">
+                      Ice Cream Treats
+                    </span>{' '}
+                    Delivered Fresh!
+                  </>
+                )}
               </h1>
             </div>
 
             {/* Subheadline Tagline */}
             <p className="text-sm sm:text-base text-amber-100/90 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
-              Lahore’s favorite dessert haven at{' '}
-              <strong className="text-white font-semibold underline decoration-[#FF4B72] decoration-2 underline-offset-4">
-                8B Commercial, Green City, Lahore
-              </strong>
-              . Serving signature sundaes, Banana Splits, ice cream milkshakes, cold coffees, creamy kulfi, and 20 soda chillers until 2:00 AM!
+              {isGrill ? (
+                <>
+                  Juicy charcoal smash burgers, crispy chicken tikka boti, grilled club sandwiches, zinger wraps, and loaded fries supreme at{' '}
+                  <strong className="text-white font-semibold underline decoration-orange-500 decoration-2 underline-offset-4">
+                    8B Commercial, Green City, Lahore
+                  </strong>
+                  . Sizzling and ready for late-night delivery until 2:00 AM!
+                </>
+              ) : (
+                <>
+                  Lahore’s favorite ice cream parlor at{' '}
+                  <strong className="text-white font-semibold underline decoration-[#FF4B72] decoration-2 underline-offset-4">
+                    8B Commercial, Green City, Lahore
+                  </strong>
+                  . Serving freshly rolled waffle cones, 10 artisanal scoops, Banana Splits, thick shakes, cold coffees, and 20 soda chiller flavors until 2:00 AM!
+                </>
+              )}
             </p>
 
             {/* Mobile-First Quick Search Bar at the Top */}
@@ -86,13 +193,23 @@ export const Hero: React.FC<HeroProps> = ({
                   type="text"
                   value={searchQuery}
                   onChange={handleSearchInput}
-                  placeholder="Search Ice Cream Cones, Banana Split, Kulfi, Cold Coffee, Soda Chillers..."
+                  placeholder={
+                    isGrill
+                      ? 'Search Charcoal Burgers, Tikka, Sandwiches, Wraps, Fries Supreme...'
+                      : 'Search Ice Cream Cones, Sundaes, Shakes, Kulfi, Cold Coffee...'
+                  }
                   className="w-full pl-12 pr-28 py-4 rounded-2xl bg-white/95 backdrop-blur-md text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-4 focus:ring-[#FF4B72]/40 shadow-2xl text-sm font-semibold"
                 />
-                <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-[#FF4B72] text-lg"></i>
+                <i
+                  className={`fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-lg ${
+                    isGrill ? 'text-orange-500' : 'text-[#FF4B72]'
+                  }`}
+                ></i>
                 <a
                   href="#menu"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2.5 rounded-xl bg-[#FF4B72] hover:bg-[#E63956] text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2.5 rounded-xl text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 ${
+                    isGrill ? 'bg-orange-500 hover:bg-orange-600' : 'bg-[#FF4B72] hover:bg-[#E63956]'
+                  }`}
                 >
                   <span>Search</span>
                   <i className="fa-solid fa-arrow-down text-[10px]"></i>
@@ -102,11 +219,11 @@ export const Hero: React.FC<HeroProps> = ({
               {/* Quick Suggestion Chips */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1.5 pt-3 text-[11px]">
                 <span className="text-amber-200/70 font-semibold mr-1">Quick Search:</span>
-                {['Cone', 'Mango Cone', 'Vanilla Cone', 'Chocolate Cone', 'Banana Split', 'Cold Coffee', 'Kulfi', 'Soda Chiller', 'Deals'].map((item) => (
+                {activeChips.map((item) => (
                   <button
                     key={item}
                     onClick={() => handleQuickChipClick(item)}
-                    className="px-2.5 py-1 rounded-lg bg-[#3D2522] hover:bg-[#FF4B72] text-amber-100 border border-[#52332E] transition-all font-medium"
+                    className="px-2.5 py-1 rounded-lg bg-[#3D2522] hover:bg-[#FF4B72] text-amber-100 border border-[#52332E] transition-all font-medium cursor-pointer"
                   >
                     {item}
                   </button>
@@ -119,22 +236,43 @@ export const Hero: React.FC<HeroProps> = ({
               <a
                 href="#menu"
                 id="hero-btn-view-menu"
-                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#FF4B72] to-[#E63956] hover:from-[#E63956] hover:to-[#C92A43] text-white font-bold text-sm shadow-xl shadow-[#FF4B72]/20 hover:shadow-2xl transition-all duration-200 text-center flex items-center justify-center gap-2.5"
+                className={`w-full sm:w-auto px-7 py-3.5 rounded-xl text-white font-bold text-sm shadow-xl transition-all duration-200 text-center flex items-center justify-center gap-2.5 ${
+                  isGrill
+                    ? 'bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 shadow-orange-950/60'
+                    : 'bg-gradient-to-r from-[#FF4B72] to-[#E63956] hover:from-[#E63956] hover:to-[#C92A43] shadow-[#FF4B72]/20'
+                }`}
               >
-                <i className="fa-solid fa-store"></i>
-                <span>Explore Catalog</span>
+                {isGrill ? (
+                  <i className="fa-solid fa-fire-flame-curved"></i>
+                ) : (
+                  <i className="fa-solid fa-ice-cream"></i>
+                )}
+                <span>{isGrill ? "Explore Grill Menu" : "Explore Ice Cream Menu"}</span>
               </a>
 
-              <a
-                href={STORE_INFO.googleMapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                id="hero-btn-directions"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#3D2522] hover:bg-[#4D302C] text-amber-100 border border-[#5A3833] font-bold text-sm transition-all duration-200 text-center flex items-center justify-center gap-2"
+              {/* Explicit Shop Switcher Button in Hero CTA */}
+              <button
+                onClick={() => onSwitchShop(isGrill ? 'ice-cream' : 'grill')}
+                id="hero-btn-switch-shop-cta"
+                className={`w-full sm:w-auto px-6 py-3.5 rounded-xl border font-bold text-sm transition-all duration-200 text-center flex items-center justify-center gap-2 cursor-pointer ${
+                  isGrill
+                    ? 'bg-[#2E1813] hover:bg-[#3D201A] text-pink-300 border-[#FF4B72]/60 hover:border-[#FF4B72]'
+                    : 'bg-[#2E1813] hover:bg-[#3D201A] text-amber-300 border-orange-500/60 hover:border-orange-500'
+                }`}
               >
-                <i className="fa-solid fa-location-dot text-[#FF4B72]"></i>
-                <span>Find Store</span>
-              </a>
+                {isGrill ? (
+                  <>
+                    <i className="fa-solid fa-ice-cream text-[#FF4B72]"></i>
+                    <span>Go to Frosty's Ice Cream</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="fa-solid fa-fire text-amber-400"></i>
+                    <span>Go to Frosty's Grill</span>
+                  </>
+                )}
+                <i className="fa-solid fa-arrow-right text-xs"></i>
+              </button>
 
               <button
                 onClick={onOpenCallModal}
@@ -152,12 +290,18 @@ export const Hero: React.FC<HeroProps> = ({
           <div className="lg:col-span-5 relative">
             <div className="relative mx-auto max-w-md lg:max-w-none">
               
-              <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-tr from-[#FF4B72] via-[#FF85A1] to-[#38D39F] opacity-70 blur-md"></div>
+              <div
+                className={`absolute -inset-1.5 rounded-3xl opacity-70 blur-md ${
+                  isGrill
+                    ? 'bg-gradient-to-tr from-amber-500 via-orange-500 to-red-600'
+                    : 'bg-gradient-to-tr from-[#FF4B72] via-[#FF85A1] to-[#38D39F]'
+                }`}
+              ></div>
               
               <div className="relative rounded-2xl overflow-hidden border-2 border-[#5A3833] bg-[#221311] shadow-2xl group">
                 <img
-                  src={heroDessertImg}
-                  alt="Frosty's Supermarket Catalog & Gourmet Desserts"
+                  src={isGrill ? smashBurgerImg : heroDessertImg}
+                  alt={isGrill ? "Frosty's Grill Burgers & BBQ" : "Frosty's Ice Cream & Gourmet Desserts"}
                   referrerPolicy="no-referrer"
                   className="w-full h-[320px] sm:h-[400px] object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -180,12 +324,16 @@ export const Hero: React.FC<HeroProps> = ({
                       <span className="text-white ml-1">(4.9/5 Local Rating)</span>
                     </div>
                     <p className="text-xs text-amber-100/90 font-medium">
-                      "Fast delivery in Green City & best dessert menu!"
+                      {isGrill
+                        ? '"Crispy tikka & smash burgers are legendary in Green City!"'
+                        : '"Fast delivery in Green City & best dessert menu!"'}
                     </p>
                   </div>
                   <button
                     onClick={onOpenOrderModal}
-                    className="shrink-0 p-2.5 rounded-lg bg-[#FF4B72] hover:bg-[#E63956] text-white text-xs font-bold transition-colors"
+                    className={`shrink-0 p-2.5 rounded-lg text-white text-xs font-bold transition-colors ${
+                      isGrill ? 'bg-orange-500 hover:bg-orange-600' : 'bg-[#FF4B72] hover:bg-[#E63956]'
+                    }`}
                     title="Order Now"
                   >
                     <i className="fa-solid fa-arrow-right"></i>
@@ -201,4 +349,3 @@ export const Hero: React.FC<HeroProps> = ({
     </section>
   );
 };
-

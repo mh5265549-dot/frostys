@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { MenuItem, CartItem, OrderRecord, Review, Complaint, Category } from './types';
+import { MenuItem, CartItem, OrderRecord, Review, Complaint, Category, ShopMode } from './types';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { TrustSection } from './components/TrustSection';
 import { MenuSection } from './components/MenuSection';
-import { FlameTransitionOverlay } from './components/FlameTransitionOverlay';
-import { FrostTransitionOverlay } from './components/FrostTransitionOverlay';
-import { FrostysFlameViewPage } from './components/FrostysFlameViewPage';
 import { AboutSection } from './components/AboutSection';
 import { LocationHoursSection } from './components/LocationHoursSection';
 import { ReviewsSection } from './components/ReviewsSection';
@@ -23,6 +20,9 @@ import { ComplaintModal } from './components/ComplaintModal';
 import { FloatingFeedbackButton } from './components/FloatingFeedbackButton';
 import { FloatingHelperButton } from './components/FloatingHelperButton';
 import { HelperAIModal } from './components/HelperAIModal';
+import { ShopTransitionOverlay } from './components/ShopTransitionOverlay';
+import { FloatingShopSwitcher } from './components/FloatingShopSwitcher';
+import { playShopTransitionSound } from './utils/soundEffects';
 import { validateItemCustomizationContainer } from './utils/categoryUtils';
 import {
   getStoredInventory,
@@ -62,31 +62,51 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<Category['id'] | null>(null);
-  const [isFlameTransitioning, setIsFlameTransitioning] = useState(false);
-  const [isFrostTransitioning, setIsFrostTransitioning] = useState(false);
-  const [isFrostysFlameView, setIsFrostysFlameView] = useState(false);
 
-  // Trigger smooth cinematic heat/flame transition to Frosty's Grill Teaser
-  const handleNavigateToFrostysFlame = () => {
-    setIsFlameTransitioning(true);
+  // Active Shop Mode: 'ice-cream' vs 'grill'
+  const [activeShop, setActiveShop] = useState<ShopMode>(() => {
+    try {
+      const saved = localStorage.getItem('frostys_active_shop');
+      if (saved === 'grill' || saved === 'ice-cream') {
+        return saved;
+      }
+    } catch {
+      // fallback
+    }
+    return 'ice-cream';
+  });
+  const [targetShop, setTargetShop] = useState<ShopMode | null>(null);
+
+  // Switch Shop with Cool Cinematic Sound & Visual Transition
+  const handleSwitchShop = (nextShop: ShopMode) => {
+    if (nextShop === activeShop && !targetShop) return;
+    if (targetShop) return; // already transitioning
+
+    setTargetShop(nextShop);
+    playShopTransitionSound(nextShop);
+
+    // Swap catalog items and smooth scroll mid-transition
     setTimeout(() => {
-      setIsFrostysFlameView(true);
-      setIsFlameTransitioning(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setActiveShop(nextShop);
+      try {
+        localStorage.setItem('frostys_active_shop', nextShop);
+      } catch (e) {
+        console.warn('Could not save active shop', e);
+      }
+      const menuEl = document.getElementById('menu');
+      if (menuEl) {
+        menuEl.scrollIntoView({ behavior: 'smooth' });
+      }
     }, 450);
   };
 
-  // Return smoothly to Frosty's Ice Cream Shop with custom Frozen Screen transition
-  const handleBackToDessertStore = () => {
-    setIsFrostTransitioning(true);
-    setTimeout(() => {
-      setIsFrostysFlameView(false);
-      setActiveCategory(null);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(() => {
-        setIsFrostTransitioning(false);
-      }, 500);
-    }, 450);
+  const handleTransitionComplete = () => {
+    setTargetShop(null);
+    triggerToast(
+      activeShop === 'grill'
+        ? "🔥 Welcome to Frosty's Grill! Fresh charcoal burgers & BBQ."
+        : "🍦 Welcome to Frosty's! Artisanal ice creams & sundaes."
+    );
   };
 
   // Persistent Feedback State
@@ -236,11 +256,6 @@ export default function App() {
     quantity: number = 1,
     customization?: CustomizationDetails
   ) => {
-    if (item.isComingSoon) {
-      triggerToast(`⚠️ ${item.name} is launching soon! Ordering is currently locked.`);
-      return;
-    }
-
     const itemStock = inventory[item.id] ?? 15;
     if (itemStock <= 0) {
       alert(`Sorry, ${item.name} is currently out of stock!`);
@@ -344,8 +359,14 @@ export default function App() {
   const lowStockCount = countLowStockItems(inventory);
 
   return (
-    <div className="min-h-screen bg-[#FFFDF7] text-[#2D1B18] font-sans antialiased selection:bg-[#FF4B72] selection:text-white flex flex-col">
+    <div className="min-h-screen bg-[#FFFDF7] dark:bg-[#140D0C] text-[#2D1B18] dark:text-[#F7F2EE] font-sans antialiased selection:bg-[#FF4B72] selection:text-white flex flex-col transition-colors duration-200">
       
+      {/* Cinematic Shop Transition Overlay with Web Audio Synthesis */}
+      <ShopTransitionOverlay
+        targetShop={targetShop}
+        onComplete={handleTransitionComplete}
+      />
+
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-20 sm:bottom-8 right-4 z-50 bg-[#2D1B18] text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-[#FF4B72] flex items-center gap-3 animate-slideUp max-w-sm">
@@ -354,107 +375,105 @@ export default function App() {
         </div>
       )}
 
-      {/* Flame Heat Transition Overlay */}
-      <FlameTransitionOverlay isActive={isFlameTransitioning} />
+      {/* Navigation Bar with Shop Switcher */}
+      <Navbar
+        cartCount={cartTotalCount}
+        onOpenOrderModal={() => setIsOrderModalOpen(true)}
+        onOpenCallModal={() => setIsCallModalOpen(true)}
+        onOpenInventoryModal={() => setIsInventoryModalOpen(true)}
+        onOpenOrderHistoryModal={() => setIsOrderHistoryModalOpen(true)}
+        onOpenAdminModal={() => setIsAdminModalOpen(true)}
+        onOpenHelperModal={() => setIsHelperModalOpen(true)}
+        lowStockCount={lowStockCount}
+        ordersCount={orderHistory.length}
+        activeShop={activeShop}
+        onSwitchShop={handleSwitchShop}
+      />
 
-      {/* Frozen Screen Transition Overlay when returning to Ice Cream Parlor */}
-      <FrostTransitionOverlay isActive={isFrostTransitioning} />
-
-      {/* Complete View Swap: Frosty's Flame Teaser View vs Main Ice Cream Shop View */}
-      {isFrostysFlameView ? (
-        <FrostysFlameViewPage
-          onBackToDesserts={handleBackToDessertStore}
-          triggerToast={triggerToast}
+      <main className="flex-1">
+        {/* Mobile-First Hero Section with Shop-Aware Headlines & Search */}
+        <Hero
+          onOpenOrderModal={() => setIsOrderModalOpen(true)}
+          onOpenCallModal={() => setIsCallModalOpen(true)}
+          searchQuery={globalSearchQuery}
+          onSearchChange={(query) => setGlobalSearchQuery(query)}
+          onQuickSearch={(term) => setGlobalSearchQuery(term)}
+          activeShop={activeShop}
+          onSwitchShop={handleSwitchShop}
         />
-      ) : (
-        <>
-          {/* Navigation Bar */}
-          <Navbar
-            cartCount={cartTotalCount}
-            onOpenOrderModal={() => setIsOrderModalOpen(true)}
-            onOpenCallModal={() => setIsCallModalOpen(true)}
-            onOpenInventoryModal={() => setIsInventoryModalOpen(true)}
-            onOpenOrderHistoryModal={() => setIsOrderHistoryModalOpen(true)}
-            onOpenAdminModal={() => setIsAdminModalOpen(true)}
-            onOpenHelperModal={() => setIsHelperModalOpen(true)}
-            onNavigateToFrostysFlame={handleNavigateToFrostysFlame}
-            lowStockCount={lowStockCount}
-            ordersCount={orderHistory.length}
-          />
 
-          <main className="flex-1">
-            {/* Mobile-First Hero Section with Search Bar */}
-            <Hero
-              onOpenOrderModal={() => setIsOrderModalOpen(true)}
-              onOpenCallModal={() => setIsCallModalOpen(true)}
-              searchQuery={globalSearchQuery}
-              onSearchChange={(query) => setGlobalSearchQuery(query)}
-              onQuickSearch={(term) => setGlobalSearchQuery(term)}
-            />
+        {/* Local Trust Elements Section */}
+        <TrustSection />
 
-            {/* Local Trust Elements Section */}
-            <TrustSection />
+        {/* Shop-Partitioned Menu Section */}
+        <MenuSection
+          items={menuItems}
+          onSelectItem={(item) => setSelectedItem(item)}
+          onAddToCart={(item) => handleAddToCart(item, 1)}
+          searchQuery={globalSearchQuery}
+          onSearchChange={(query) => setGlobalSearchQuery(query)}
+          inventory={inventory}
+          activeCategory={activeCategory}
+          onCategoryChange={(cat) => setActiveCategory(cat)}
+          triggerToast={triggerToast}
+          activeShop={activeShop}
+          onSwitchShop={handleSwitchShop}
+        />
 
-            {/* Product Catalog & Category Tabs Section */}
-            <MenuSection
-              items={menuItems}
-              onSelectItem={(item) => setSelectedItem(item)}
-              onAddToCart={(item) => handleAddToCart(item, 1)}
-              searchQuery={globalSearchQuery}
-              onSearchChange={(query) => setGlobalSearchQuery(query)}
-              inventory={inventory}
-              activeCategory={activeCategory}
-              onCategoryChange={(cat) => setActiveCategory(cat)}
-              onNavigateToFrostysFlame={handleNavigateToFrostysFlame}
-              triggerToast={triggerToast}
-            />
+        {/* About Section */}
+        <AboutSection />
 
-            {/* About Section */}
-            <AboutSection />
+        {/* Location & Hours Section */}
+        <LocationHoursSection
+          onOpenCallModal={() => setIsCallModalOpen(true)}
+        />
 
-            {/* Location & Hours Section */}
-            <LocationHoursSection
-              onOpenCallModal={() => setIsCallModalOpen(true)}
-            />
+        {/* Reviews & Help Center Section */}
+        <ReviewsSection
+          reviews={reviews}
+          complaints={complaints}
+          onOpenFeedbackModal={() => setIsFeedbackModalOpen(true)}
+          onOpenComplaintModal={() => setIsComplaintModalOpen(true)}
+        />
+      </main>
 
-            {/* Reviews & Help Center Section */}
-            <ReviewsSection
-              reviews={reviews}
-              complaints={complaints}
-              onOpenFeedbackModal={() => setIsFeedbackModalOpen(true)}
-              onOpenComplaintModal={() => setIsComplaintModalOpen(true)}
-            />
-          </main>
+      {/* Footer */}
+      <Footer onOpenAdminModal={() => setIsAdminModalOpen(true)} />
 
-          {/* Footer */}
-          <Footer onOpenAdminModal={() => setIsAdminModalOpen(true)} />
+      {/* Floating Interactive Cart Bar / Drawer Trigger with Cross-Shop Switcher */}
+      <FloatingCartBar
+        cart={cart}
+        onOpenOrderModal={() => setIsOrderModalOpen(true)}
+        activeShop={activeShop}
+        onSwitchShop={handleSwitchShop}
+      />
 
-          {/* Floating Interactive Cart Bar / Drawer Trigger */}
-          <FloatingCartBar
-            cart={cart}
-            onOpenOrderModal={() => setIsOrderModalOpen(true)}
-          />
+      {/* Floating Shop Switcher (Frosty's vs Frosty's Grill) */}
+      <FloatingShopSwitcher
+        activeShop={activeShop}
+        onSwitchShop={handleSwitchShop}
+      />
 
-          {/* Floating Feedback Trigger Button */}
-          <FloatingFeedbackButton
-            onClick={() => setIsFeedbackModalOpen(true)}
-            feedbackCount={reviews.length}
-          />
+      {/* Floating Feedback Trigger Button */}
+      <FloatingFeedbackButton
+        onClick={() => setIsFeedbackModalOpen(true)}
+        feedbackCount={reviews.length}
+      />
 
-          {/* Floating Bilingual AI Helper / Shop Assistant Button */}
-          <FloatingHelperButton
-            onClick={() => setIsHelperModalOpen(true)}
-          />
-        </>
-      )}
+      {/* Floating Bilingual AI Helper / Shop Assistant Button */}
+      <FloatingHelperButton
+        onClick={() => setIsHelperModalOpen(true)}
+      />
 
       {/* Item Details Modal */}
-      <ItemDetailModal
-        item={selectedItem}
-        stock={selectedItem ? inventory[selectedItem.id] : 15}
-        onClose={() => setSelectedItem(null)}
-        onAddToCart={handleAddToCart}
-      />
+      {selectedItem && (
+        <ItemDetailModal
+          item={selectedItem}
+          stock={inventory[selectedItem.id] ?? 15}
+          onClose={() => setSelectedItem(null)}
+          onAddToCart={handleAddToCart}
+        />
+      )}
 
       {/* Bilingual AI Shop Assistant Modal */}
       <HelperAIModal
@@ -479,6 +498,8 @@ export default function App() {
         onClearCart={handleClearCart}
         onOrderSubmitted={handleOrderSubmitted}
         onSaveFeedback={handleNewFeedbackSubmitted}
+        activeShop={activeShop}
+        onSwitchShop={handleSwitchShop}
       />
 
       {/* Call / Contact Modal */}

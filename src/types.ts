@@ -98,3 +98,5 @@ export interface Complaint {
   resolutionNotes?: string;
 }
 
+export type ShopMode = 'ice-cream' | 'grill';
+

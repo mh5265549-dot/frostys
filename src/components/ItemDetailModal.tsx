@@ -90,16 +90,11 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   onClose,
   onAddToCart,
 }) => {
-  if (!item) return null;
-
-  const availableStock = stock ?? 15;
-  const isSoldOut = availableStock <= 0;
-
   const [quantity, setQuantity] = useState(1);
   const [instructions, setInstructions] = useState('');
 
   // Variant selection (e.g., Single, Double, Triple scoop)
-  const defaultVariant = item.variants && item.variants.length > 0 ? item.variants[0] : undefined;
+  const defaultVariant = item?.variants && item.variants.length > 0 ? item.variants[0] : undefined;
   const [selectedVariant, setSelectedVariant] = useState<
     { name: string; price: number; scoopsCount?: number } | undefined
   >(defaultVariant);
@@ -117,6 +112,13 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const [selectedSyrups, setSelectedSyrups] = useState<string[]>([]);
   const [selectedToppings, setSelectedToppings] = useState<string[]>([]);
 
+  // Specialized Grill State
+  const isGrillItem = item?.category === 'fast-food-bbq';
+  const [spiceLevel, setSpiceLevel] = useState<'Mild' | 'Medium' | 'Hot & Spicy'>('Medium');
+  const [extraCheese, setExtraCheese] = useState(false);
+  const [extraSauce, setExtraSauce] = useState(false);
+  const [makeCombo, setMakeCombo] = useState(false);
+
   // Reset modal state whenever selected item changes
   React.useEffect(() => {
     if (item) {
@@ -133,8 +135,17 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
       setSelectedSodas([]);
       setSelectedSyrups([]);
       setSelectedToppings([]);
+      setSpiceLevel('Medium');
+      setExtraCheese(false);
+      setExtraSauce(false);
+      setMakeCombo(false);
     }
   }, [item?.id]);
+
+  if (!item) return null;
+
+  const availableStock = stock ?? 15;
+  const isSoldOut = availableStock <= 0;
 
   // Toggle flavor selection up to allowed max
   const maxAllowedFlavors =
@@ -204,7 +215,11 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const premiumCount = selectedPremiumChunks.length;
   const premiumExtraCharges = premiumCount * 50;
 
-  const extraCharges = standardExtraCharges + premiumExtraCharges;
+  const dessertExtraCharges = standardExtraCharges + premiumExtraCharges;
+  const grillExtraCharges =
+    (extraCheese ? 70 : 0) + (extraSauce ? 70 : 0) + (makeCombo ? 300 : 0);
+
+  const extraCharges = isGrillItem ? grillExtraCharges : dessertExtraCharges;
 
   const unitPrice = basePrice + extraCharges;
   const totalPrice = unitPrice * quantity;
@@ -213,27 +228,41 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     if (isSoldOut) return;
 
     let standardIndex = selectedSyrups.length;
-    const toppingsWithPrice = selectedToppings.map((name) => {
-      const isPremium = PREMIUM_CHUNKS.includes(name);
-      if (isPremium) {
-        return { name, price: 50 };
-      } else {
-        standardIndex += 1;
-        const price = standardIndex > 2 ? 50 : 0;
-        return { name, price };
-      }
-    });
+    const toppingsWithPrice = isGrillItem
+      ? [
+          ...(extraCheese ? [{ name: 'Extra Melted Cheese', price: 70 }] : []),
+          ...(extraSauce ? [{ name: 'Extra Signature Chipotle Sauce', price: 70 }] : []),
+          ...(makeCombo ? [{ name: 'Combo Meal (Regular Fries + Chilled Drink)', price: 300 }] : []),
+        ]
+      : selectedToppings.map((name) => {
+          const isPremium = PREMIUM_CHUNKS.includes(name);
+          if (isPremium) {
+            return { name, price: 50 };
+          } else {
+            standardIndex += 1;
+            const price = standardIndex > 2 ? 50 : 0;
+            return { name, price };
+          }
+        });
 
     const validatedContainer = validateItemCustomizationContainer(item, selectedContainer);
+    const combinedInstructions = isGrillItem
+      ? `Spice: ${spiceLevel}${instructions ? ` | Note: ${instructions}` : ''}`
+      : instructions;
 
     onAddToCart(item, quantity, {
-      selectedContainer: validatedContainer,
+      selectedContainer: isGrillItem ? undefined : validatedContainer,
       selectedVariant,
-      selectedFlavors: item.defaultFlavor && selectedFlavors.length === 0 ? [item.defaultFlavor] : selectedFlavors,
-      selectedSodas,
-      selectedSyrups,
+      selectedFlavors:
+        !isGrillItem && item.defaultFlavor && selectedFlavors.length === 0
+          ? [item.defaultFlavor]
+          : isGrillItem
+          ? []
+          : selectedFlavors,
+      selectedSodas: isGrillItem ? [] : selectedSodas,
+      selectedSyrups: isGrillItem ? [] : selectedSyrups,
       selectedToppings: toppingsWithPrice,
-      instructions,
+      instructions: combinedInstructions,
       extraCharges,
       unitPrice,
     });
@@ -299,44 +328,130 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             {item.description}
           </p>
 
-          {/* Coming Soon Teaser Banner */}
-          {item.isComingSoon && (
-            <div className="bg-gradient-to-r from-amber-500/15 via-amber-500/25 to-amber-500/15 border-2 border-amber-500/60 rounded-2xl p-4 text-center space-y-2 my-2 shadow-sm">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-[#2D1B18] font-black text-xs uppercase tracking-wider shadow-sm">
-                <i className="fa-solid fa-clock text-[#2D1B18]"></i>
-                <span>{item.comingSoonLaunchDate || 'Launching in 1–2 Weeks'}</span>
-              </span>
-              <p className="text-xs text-[#2D1B18] font-black">
-                Savory Kitchen Item Showcase
-              </p>
-              <p className="text-[11px] text-stone-600 leading-relaxed max-w-sm mx-auto">
-                This item is previewed as part of Frosty's upcoming Fast Food & BBQ kitchen launch. Online ordering and customization will open soon!
-              </p>
+          {/* Prominent Customization Banner */}
+          {isGrillItem ? (
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-400/40 flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 text-white font-black text-lg flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                🔥
+              </div>
+              <div className="text-xs space-y-1">
+                <p className="font-extrabold text-orange-950 leading-snug">
+                  Frosty's Grill Kitchen — Prepared Fresh to Order
+                </p>
+                <p className="text-stone-600 text-[11px] font-medium">
+                  Charcoal flame-grilled and served hot. Select your spice level and add-ons below!
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-500 text-stone-900 font-black text-lg flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                ✨
+              </div>
+              <div className="text-xs space-y-1">
+                <p className="font-extrabold text-amber-950 leading-snug">
+                  Note: Any 2 syrups or standard toppings are free. Additional ones cost 50 PKR extra. Mango chunks and Banana chunks cost 50 PKR extra each, even if they are your first selection.
+                </p>
+                <div className="text-amber-900/90 text-[11px] font-medium flex flex-wrap gap-x-3 gap-y-0.5">
+                  <span>
+                    • Standard Choices: <strong>{standardCount}</strong> ({standardFreeUsed}/2 FREE
+                    {standardExtraCount > 0 ? `, +${standardExtraCharges} PKR` : ''})
+                  </span>
+                  {premiumCount > 0 && (
+                    <span className="font-bold text-amber-900">
+                      • Premium Chunks: <strong>{premiumCount}</strong> (+{premiumExtraCharges} PKR)
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
-          {/* Prominent Customization Banner */}
-          <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-500 text-stone-900 font-black text-lg flex items-center justify-center shrink-0 shadow-sm mt-0.5">
-              ✨
-            </div>
-            <div className="text-xs space-y-1">
-              <p className="font-extrabold text-amber-950 leading-snug">
-                Note: Any 2 syrups or standard toppings are free. Additional ones cost 50 PKR extra. Mango chunks and Banana chunks cost 50 PKR extra each, even if they are your first selection.
-              </p>
-              <div className="text-amber-900/90 text-[11px] font-medium flex flex-wrap gap-x-3 gap-y-0.5">
-                <span>
-                  • Standard Choices: <strong>{standardCount}</strong> ({standardFreeUsed}/2 FREE
-                  {standardExtraCount > 0 ? `, +${standardExtraCharges} PKR` : ''})
-                </span>
-                {premiumCount > 0 && (
-                  <span className="font-bold text-amber-900">
-                    • Premium Chunks: <strong>{premiumCount}</strong> (+{premiumExtraCharges} PKR)
-                  </span>
-                )}
+          {/* GRILL SPECIFIC CUSTOMIZATION */}
+          {isGrillItem && (
+            <>
+              {/* Spice Level */}
+              <div className="space-y-2 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
+                <label className="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <i className="fa-solid fa-pepper-hot text-red-500"></i>
+                  <span>Spice Level Preference</span>
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(['Mild', 'Medium', 'Hot & Spicy'] as const).map((lvl) => (
+                    <button
+                      key={lvl}
+                      type="button"
+                      onClick={() => setSpiceLevel(lvl)}
+                      className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
+                        spiceLevel === lvl
+                          ? 'bg-[#2D1B18] text-amber-300 border-[#2D1B18] shadow-sm'
+                          : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
+                      }`}
+                    >
+                      {lvl === 'Hot & Spicy' ? '🌶️ Hot & Spicy' : lvl === 'Medium' ? '👌 Medium' : '🌿 Mild'}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          </div>
+
+              {/* Grill Addons */}
+              <div className="space-y-2 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
+                <label className="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <i className="fa-solid fa-plus-circle text-orange-600"></i>
+                  <span>Grill Add-ons & Meal Upgrades</span>
+                </label>
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => setExtraCheese(!extraCheese)}
+                    className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
+                      extraCheese
+                        ? 'bg-amber-100 text-amber-950 border-amber-400 shadow-sm'
+                        : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="text-base">🧀</span>
+                      <span>Extra Melted Cheese</span>
+                    </span>
+                    <span className="font-extrabold text-amber-900">+Rs. 70</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setExtraSauce(!extraSauce)}
+                    className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
+                      extraSauce
+                        ? 'bg-amber-100 text-amber-950 border-amber-400 shadow-sm'
+                        : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="text-base">🥫</span>
+                      <span>Extra Signature Chipotle Sauce</span>
+                    </span>
+                    <span className="font-extrabold text-amber-900">+Rs. 70</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setMakeCombo(!makeCombo)}
+                    className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
+                      makeCombo
+                        ? 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-950 border-orange-400 shadow-sm'
+                        : 'bg-white text-stone-700 border-stone-200 hover:border-orange-300'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="text-base">🍟🥤</span>
+                      <span>Make it a Combo (Add Regular Fries + Chilled Drink)</span>
+                    </span>
+                    <span className="font-extrabold text-orange-700">+Rs. 300</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
 
           {/* REQUIRED CONTAINER SELECTION (Cone vs Cup) - Only for ice cream scoops / dessert categories */}
           {isConeCupApplicable(item) && (
@@ -512,111 +627,116 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               </div>
             </div>
           )}
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
-                <i className="fa-solid fa-bottle-droplet text-amber-600"></i>
-                <span>Flavor Syrups</span>
-              </label>
-              <span className="text-[11px] font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded-full">
-                {selectedSyrups.length} Selected
-              </span>
-            </div>
+          {/* SECTION 1: DESSERT FLAVOR SYRUPS (Only for Ice Cream & Dessert Items) */}
+          {!isGrillItem && (
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <i className="fa-solid fa-bottle-droplet text-amber-600"></i>
+                  <span>Flavor Syrups</span>
+                </label>
+                <span className="text-[11px] font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded-full">
+                  {selectedSyrups.length} Selected
+                </span>
+              </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              {SYRUP_OPTIONS.map((syrup) => {
-                const isSelected = selectedSyrups.includes(syrup.name);
+              <div className="grid grid-cols-2 gap-2">
+                {SYRUP_OPTIONS.map((syrup) => {
+                  const isSelected = selectedSyrups.includes(syrup.name);
 
-                return (
-                  <button
-                    key={syrup.id}
-                    type="button"
-                    onClick={() => toggleSyrup(syrup.name)}
-                    className={`p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between gap-2 ${
-                      isSelected
-                        ? 'bg-[#2D1B18] text-white border-[#2D1B18] shadow-sm'
-                        : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-400'
-                    }`}
-                  >
-                    <span className="flex items-center gap-1.5 truncate">
-                      <span>{syrup.icon}</span>
-                      <span className="truncate">{syrup.name}</span>
-                    </span>
-
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span
-                        className={`w-4 h-4 rounded-full border flex items-center justify-center text-[9px] ${
-                          isSelected
-                            ? 'bg-[#FF4B72] border-[#FF4B72] text-white'
-                            : 'border-stone-300'
-                        }`}
-                      >
-                        {isSelected && <i className="fa-solid fa-check"></i>}
+                  return (
+                    <button
+                      key={syrup.id}
+                      type="button"
+                      onClick={() => toggleSyrup(syrup.name)}
+                      className={`p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between gap-2 ${
+                        isSelected
+                          ? 'bg-[#2D1B18] text-white border-[#2D1B18] shadow-sm'
+                          : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-400'
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5 truncate">
+                        <span>{syrup.icon}</span>
+                        <span className="truncate">{syrup.name}</span>
                       </span>
-                    </div>
-                  </button>
-                );
-              })}
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span
+                          className={`w-4 h-4 rounded-full border flex items-center justify-center text-[9px] ${
+                            isSelected
+                              ? 'bg-[#FF4B72] border-[#FF4B72] text-white'
+                              : 'border-stone-300'
+                          }`}
+                        >
+                          {isSelected && <i className="fa-solid fa-check"></i>}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* SECTION 2: TOPPINGS & ADD-ONS */}
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
-                <i className="fa-solid fa-cookie-bite text-amber-600"></i>
-                <span>Toppings & Extra Chunks</span>
-              </label>
-              <span className="text-[11px] font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded-full">
-                {selectedToppings.length} Selected
-              </span>
+          {/* SECTION 2: TOPPINGS & ADD-ONS (Only for Ice Cream & Dessert Items) */}
+          {!isGrillItem && (
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <i className="fa-solid fa-cookie-bite text-amber-600"></i>
+                  <span>Toppings & Extra Chunks</span>
+                </label>
+                <span className="text-[11px] font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded-full">
+                  {selectedToppings.length} Selected
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {TOPPING_OPTIONS.map((topping) => {
+                  const isSelected = selectedToppings.includes(topping.name);
+
+                  return (
+                    <button
+                      key={topping.id}
+                      type="button"
+                      onClick={() => toggleTopping(topping.name)}
+                      className={`p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between gap-2 ${
+                        isSelected
+                          ? 'bg-amber-950 text-amber-100 border-amber-800 shadow-sm'
+                          : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-400'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5 truncate">
+                        <span>{topping.icon}</span>
+                        <span className="truncate">{topping.name}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span
+                          className={`text-[10px] px-1.5 py-0.5 rounded font-extrabold ${
+                            topping.isPremium
+                              ? 'bg-amber-500 text-stone-900'
+                              : 'bg-emerald-100 text-emerald-800'
+                          }`}
+                        >
+                          {topping.isPremium ? '+50 PKR' : 'Standard'}
+                        </span>
+                        <span
+                          className={`w-4 h-4 rounded-full border flex items-center justify-center text-[9px] ${
+                            isSelected
+                              ? 'bg-amber-500 border-amber-500 text-stone-900'
+                              : 'border-stone-300'
+                          }`}
+                        >
+                          {isSelected && <i className="fa-solid fa-check"></i>}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {TOPPING_OPTIONS.map((topping) => {
-                const isSelected = selectedToppings.includes(topping.name);
-
-                return (
-                  <button
-                    key={topping.id}
-                    type="button"
-                    onClick={() => toggleTopping(topping.name)}
-                    className={`p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between gap-2 ${
-                      isSelected
-                        ? 'bg-amber-950 text-amber-100 border-amber-800 shadow-sm'
-                        : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-400'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 truncate">
-                      <span>{topping.icon}</span>
-                      <span className="truncate">{topping.name}</span>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span
-                        className={`text-[10px] px-1.5 py-0.5 rounded font-extrabold ${
-                          topping.isPremium
-                            ? 'bg-amber-500 text-stone-900'
-                            : 'bg-emerald-100 text-emerald-800'
-                        }`}
-                      >
-                        {topping.isPremium ? '+50 PKR' : 'Standard'}
-                      </span>
-                      <span
-                        className={`w-4 h-4 rounded-full border flex items-center justify-center text-[9px] ${
-                          isSelected
-                            ? 'bg-amber-500 border-amber-500 text-stone-900'
-                            : 'border-stone-300'
-                        }`}
-                      >
-                        {isSelected && <i className="fa-solid fa-check"></i>}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          )}
 
           {/* Special Customization Instructions */}
           <div className="space-y-1.5 pt-1">
@@ -651,18 +771,18 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               <button
                 type="button"
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={item.isComingSoon || isSoldOut || quantity <= 1}
+                disabled={isSoldOut || quantity <= 1}
                 className="w-8 h-8 rounded-lg bg-white text-stone-800 font-bold hover:bg-stone-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors shadow-sm"
               >
                 <i className="fa-solid fa-minus text-xs"></i>
               </button>
               <span className="font-bold text-base px-2 text-[#2D1B18]">
-                {item.isComingSoon || isSoldOut ? 0 : quantity}
+                {isSoldOut ? 0 : quantity}
               </span>
               <button
                 type="button"
                 onClick={() => setQuantity(Math.min(availableStock, quantity + 1))}
-                disabled={item.isComingSoon || isSoldOut || quantity >= availableStock}
+                disabled={isSoldOut || quantity >= availableStock}
                 className="w-8 h-8 rounded-lg bg-white text-stone-800 font-bold hover:bg-stone-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors shadow-sm"
               >
                 <i className="fa-solid fa-plus text-xs"></i>
@@ -674,15 +794,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
 
         {/* Modal Action Footer */}
         <div className="p-4 bg-stone-50 border-t border-stone-200 flex items-center gap-3 shrink-0">
-          {item.isComingSoon ? (
-            <button
-              disabled
-              className="w-full py-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-900 font-extrabold text-sm cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
-            >
-              <i className="fa-solid fa-clock text-amber-600"></i>
-              <span>Coming Soon • Ordering Disabled</span>
-            </button>
-          ) : isSoldOut ? (
+          {isSoldOut ? (
             <button
               disabled
               className="w-full py-3.5 rounded-2xl bg-stone-200 text-stone-500 font-bold text-sm cursor-not-allowed flex items-center justify-center gap-2"

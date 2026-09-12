@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CartItem, Review } from '../types';
+import { CartItem, Review, ShopMode } from '../types';
 import { STORE_INFO } from '../data/menuData';
 import { isConeCupApplicable } from '../utils/categoryUtils';
 
@@ -20,6 +20,8 @@ interface OrderModalProps {
     notes?: string;
   }) => void;
   onSaveFeedback?: (newFeedback: Omit<Review, 'id' | 'date'>) => void;
+  activeShop?: ShopMode;
+  onSwitchShop?: (shop: ShopMode) => void;
 }
 
 export const OrderModal: React.FC<OrderModalProps> = ({
@@ -31,9 +33,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({
   onClearCart,
   onOrderSubmitted,
   onSaveFeedback,
+  activeShop,
+  onSwitchShop,
 }) => {
-  if (!isOpen) return null;
-
   const [orderType, setOrderType] = useState<'takeaway' | 'dinein' | 'delivery'>('takeaway');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -45,6 +47,8 @@ export const OrderModal: React.FC<OrderModalProps> = ({
   const [serviceRating, setServiceRating] = useState<number>(5);
   const [serviceComment, setServiceComment] = useState<string>('');
   const [includeFeedback, setIncludeFeedback] = useState<boolean>(true);
+
+  if (!isOpen) return null;
 
   const subtotal = cart.reduce((sum, item) => sum + item.totalPrice, 0);
 
@@ -145,8 +149,10 @@ export const OrderModal: React.FC<OrderModalProps> = ({
 
     msg += `\n*ORDER ITEMS:*\n`;
     cart.forEach((item, idx) => {
+      const isGrill = item.menuItem.category === 'fast-food-bbq';
+      const shopPrefix = isGrill ? '🔥 [Frosty\'s Grill]' : '🍦 [Ice Cream Shop]';
       const variantText = item.selectedVariant ? ` (${item.selectedVariant.name})` : item.menuItem.unit ? ` (${item.menuItem.unit})` : '';
-      msg += `${idx + 1}. ${item.menuItem.name}${variantText} x${item.quantity} - Rs. ${item.totalPrice}\n`;
+      msg += `${idx + 1}. ${shopPrefix} ${item.menuItem.name}${variantText} x${item.quantity} - Rs. ${item.totalPrice}\n`;
 
       const customizationLines: string[] = [];
       if (item.selectedContainer && isConeCupApplicable(item.menuItem)) {
@@ -367,12 +373,36 @@ export const OrderModal: React.FC<OrderModalProps> = ({
             </div>
 
             {cart.length === 0 ? (
-              <div className="p-8 text-center bg-stone-50 rounded-2xl border border-dashed border-stone-300 space-y-2">
+              <div className="p-8 text-center bg-stone-50 rounded-2xl border border-dashed border-stone-300 space-y-3">
                 <i className="fa-solid fa-basket-shopping text-3xl text-stone-300"></i>
                 <p className="text-sm font-semibold text-stone-600">Your cart is currently empty</p>
-                <p className="text-xs text-stone-400">
-                  Select ice cream scoops, Banana Splits, sundaes, milkshakes, cold coffee, or soda chillers from our menu to build your order!
+                <p className="text-xs text-stone-400 max-w-sm mx-auto">
+                  Browse our distinct shops to select ice cream scoops, Banana Splits, thick shakes, or hot charcoal burgers and BBQ!
                 </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      if (onSwitchShop) onSwitchShop('ice-cream');
+                    }}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF4B72] to-[#FF85A1] text-white text-xs font-bold shadow-md hover:scale-105 transition-transform flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-ice-cream"></i>
+                    <span>Shop Frosty's Ice Cream</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      if (onSwitchShop) onSwitchShop('grill');
+                    }}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white text-xs font-bold shadow-md hover:scale-105 transition-transform flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-fire text-amber-200"></i>
+                    <span>Shop Frosty's Grill</span>
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="space-y-2.5 max-h-64 overflow-y-auto pr-1">
@@ -391,10 +421,21 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                           className="w-12 h-12 rounded-xl object-cover shrink-0 mt-0.5"
                         />
                         <div className="min-w-0 flex-1">
-                          <h4 className="font-heading font-bold text-sm text-[#2D1B18] truncate">
-                            {item.menuItem.name} {item.selectedVariant && <span className="text-xs font-semibold text-[#FF4B72]">({item.selectedVariant.name})</span>}
-                          </h4>
-                          <span className="text-xs text-stone-500 font-medium block">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <h4 className="font-heading font-bold text-sm text-[#2D1B18] truncate">
+                              {item.menuItem.name} {item.selectedVariant && <span className="text-xs font-semibold text-[#FF4B72]">({item.selectedVariant.name})</span>}
+                            </h4>
+                            {item.menuItem.category === 'fast-food-bbq' ? (
+                              <span className="text-[10px] bg-orange-100 text-orange-800 font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                🔥 Grill
+                              </span>
+                            ) : (
+                              <span className="text-[10px] bg-pink-100 text-[#FF4B72] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                🍦 Ice Cream
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-stone-500 font-medium block mt-0.5">
                             Rs. {item.unitPrice} each
                           </span>
 
@@ -496,6 +537,45 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                     </div>
                   );
                 })}
+
+                {/* Cross-Shop Suggestion Banner */}
+                {onSwitchShop && (
+                  <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">
+                        {cart.some((c) => c.menuItem.category === 'fast-food-bbq') ? '🍦' : '🔥'}
+                      </span>
+                      <span className="text-stone-700 font-semibold text-[11px]">
+                        {cart.some((c) => c.menuItem.category === 'fast-food-bbq')
+                          ? 'Want ice cream scoops or a shake with your food?'
+                          : 'Want burgers, tikka or fries with your ice cream?'}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        onSwitchShop(
+                          cart.some((c) => c.menuItem.category === 'fast-food-bbq')
+                            ? 'ice-cream'
+                            : 'grill'
+                        );
+                      }}
+                      className={`px-3 py-1.5 rounded-xl text-white font-black text-[11px] shadow-sm shrink-0 transition-transform hover:scale-105 flex items-center gap-1.5 cursor-pointer ${
+                        cart.some((c) => c.menuItem.category === 'fast-food-bbq')
+                          ? 'bg-[#FF4B72]'
+                          : 'bg-orange-600'
+                      }`}
+                    >
+                      <span>
+                        {cart.some((c) => c.menuItem.category === 'fast-food-bbq')
+                          ? "Switch to Ice Cream"
+                          : "Switch to Grill"}
+                      </span>
+                      <i className="fa-solid fa-arrow-right text-[9px]"></i>
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

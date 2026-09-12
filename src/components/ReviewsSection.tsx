@@ -29,7 +29,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       : '5.0';
 
   return (
-    <section id="reviews" className="py-20 bg-[#2D1B18] text-white relative overflow-hidden">
+    <section id="reviews" className="py-20 bg-[#2D1B18] dark:bg-[#160E0D] text-white relative overflow-hidden transition-colors duration-200">
       {/* Background Decorative Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#FF4B72]/10 rounded-full blur-3xl pointer-events-none"></div>
 

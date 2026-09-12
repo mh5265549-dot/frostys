@@ -3,7 +3,7 @@ import { STORE_INFO } from '../data/menuData';
 
 export const TrustSection: React.FC = () => {
   return (
-    <section className="bg-gradient-to-b from-[#2D1B18] to-[#221311] text-amber-50 py-10 border-t border-b border-[#3D2522]">
+    <section className="bg-gradient-to-b from-[#2D1B18] to-[#221311] dark:from-[#17100F] dark:to-[#120D0C] text-amber-50 py-10 border-t border-b border-[#3D2522] dark:border-[#2D1E1B] transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           

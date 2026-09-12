@@ -3,7 +3,7 @@ import { STORE_INFO, parlorVibeImg } from '../data/menuData';
 
 export const AboutSection: React.FC = () => {
   return (
-    <section id="about" className="py-20 bg-[#2D1B18] text-white relative overflow-hidden">
+    <section id="about" className="py-20 bg-[#2D1B18] dark:bg-[#160E0D] text-white relative overflow-hidden transition-colors duration-200">
       
       {/* Decorative Glow */}
       <div className="absolute top-0 right-0 w-80 h-80 bg-[#FF4B72]/10 rounded-full blur-3xl pointer-events-none"></div>
