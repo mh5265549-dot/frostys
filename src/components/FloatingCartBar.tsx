@@ -24,81 +24,81 @@ export const FloatingCartBar: React.FC<FloatingCartBarProps> = ({
   const hasIceCreamItems = cart.some((c) => c.menuItem.category !== 'fast-food-bbq');
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 z-40 animate-slideUp">
-      <div className="bg-[#241310] text-white p-3.5 sm:p-4 rounded-3xl shadow-2xl border-2 border-[#FF4B72]/40 max-w-lg mx-auto sm:w-[420px] flex flex-col gap-2.5 backdrop-blur-xl">
+    <aside aria-label="Active order summary" className="fixed bottom-3 left-3 right-3 sm:left-auto sm:right-6 sm:bottom-6 z-40 animate-slideUp">
+      <div className="bg-white/98 text-stone-900 p-3 sm:p-3.5 rounded-2xl sm:rounded-3xl shadow-2xl border border-stone-200 max-w-lg mx-auto sm:w-[400px] flex flex-col gap-2 backdrop-blur-md">
         
         {/* Main Row */}
         <div className="flex items-center justify-between gap-3">
           {/* Left: Cart Info */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <div className="relative cursor-pointer" onClick={onOpenOrderModal}>
               <div
-                className={`w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-lg shadow-md ${
+                className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-base shadow-xs text-white ${
                   isGrill
-                    ? 'bg-gradient-to-tr from-amber-500 to-orange-600 text-white'
-                    : 'bg-gradient-to-tr from-[#FF4B72] to-[#FF85A1] text-white'
+                    ? 'bg-gradient-to-tr from-amber-500 to-orange-600'
+                    : 'bg-gradient-to-tr from-[#FF4B72] to-[#FF85A1]'
                 }`}
               >
-                <i className="fa-solid fa-cart-shopping"></i>
+                <i className="fa-solid fa-cart-shopping text-sm"></i>
               </div>
-              <span className="absolute -top-1.5 -right-1.5 bg-[#38D39F] text-[#2D1B18] text-[11px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-bounce">
+              <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
                 {totalItems}
               </span>
             </div>
 
             <div className="cursor-pointer" onClick={onOpenOrderModal}>
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] text-amber-200/80 font-bold uppercase tracking-wider block">
+                <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider block">
                   {totalItems} {totalItems === 1 ? 'item' : 'items'} in Cart
                 </span>
                 {hasGrillItems && hasIceCreamItems && (
-                  <span className="text-[9px] bg-white/20 text-white font-extrabold px-1.5 py-0.2 rounded-full">
-                    Mixed Order
+                  <span className="text-[9px] bg-orange-100 text-orange-800 font-extrabold px-1.5 py-0.2 rounded-full">
+                    Mixed
                   </span>
                 )}
               </div>
-              <span className="font-heading font-black text-lg text-white">
+              <span className="font-heading font-black text-base sm:text-lg text-stone-900">
                 Rs. {subtotal}
               </span>
             </div>
           </div>
 
-          {/* Right: WhatsApp Checkout Trigger */}
+          {/* Right: Review & Order Trigger */}
           <button
             onClick={onOpenOrderModal}
             id="btn-floating-cart-checkout"
-            className="py-2.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-xs shadow-lg transition-all flex items-center gap-2 shrink-0 hover:scale-105 active:scale-95 cursor-pointer"
+            className="py-2.5 px-3.5 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 shrink-0 hover:scale-105 active:scale-95 cursor-pointer"
           >
-            <i className="fa-brands fa-whatsapp text-lg"></i>
-            <span>Review & Order</span>
-            <i className="fa-solid fa-chevron-right text-[10px]"></i>
+            <i className="fa-brands fa-whatsapp text-base"></i>
+            <span>Checkout</span>
+            <i className="fa-solid fa-chevron-right text-[9px]"></i>
           </button>
         </div>
 
         {/* Cross-Shop Post-Purchase Suggestion Prompt */}
-        <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs">
+        <div className="pt-1.5 border-t border-stone-100 flex items-center justify-between text-xs">
           {isGrill ? (
             <button
               onClick={() => onSwitchShop('ice-cream')}
-              className="text-pink-300 hover:text-pink-200 font-bold flex items-center gap-1.5 text-[11px] group cursor-pointer transition-colors"
+              className="text-[#FF4B72] hover:text-[#E63956] font-bold flex items-center gap-1 text-[11px] group cursor-pointer transition-colors"
             >
-              <i className="fa-solid fa-ice-cream text-pink-400 group-hover:scale-110 transition-transform"></i>
-              <span>Want dessert after burgers? <span className="underline decoration-pink-400">Switch to Frosty's Ice Cream</span></span>
-              <i className="fa-solid fa-arrow-right text-[9px] group-hover:translate-x-0.5 transition-transform"></i>
+              <i className="fa-solid fa-ice-cream text-[#FF4B72]"></i>
+              <span>Want dessert with burgers? <strong className="underline decoration-[#FF4B72]">Switch to Ice Cream</strong></span>
+              <i className="fa-solid fa-arrow-right text-[8px] group-hover:translate-x-0.5 transition-transform"></i>
             </button>
           ) : (
             <button
               onClick={() => onSwitchShop('grill')}
-              className="text-amber-300 hover:text-amber-200 font-bold flex items-center gap-1.5 text-[11px] group cursor-pointer transition-colors"
+              className="text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1 text-[11px] group cursor-pointer transition-colors"
             >
-              <i className="fa-solid fa-fire text-amber-400 group-hover:scale-110 transition-transform"></i>
-              <span>Hungry for fast food too? <span className="underline decoration-amber-400">Switch to Frosty's Grill</span></span>
-              <i className="fa-solid fa-arrow-right text-[9px] group-hover:translate-x-0.5 transition-transform"></i>
+              <i className="fa-solid fa-fire text-orange-500"></i>
+              <span>Hungry for fast food too? <strong className="underline decoration-orange-500">Switch to Grill</strong></span>
+              <i className="fa-solid fa-arrow-right text-[8px] group-hover:translate-x-0.5 transition-transform"></i>
             </button>
           )}
         </div>
 
       </div>
-    </div>
+    </aside>
   );
 };

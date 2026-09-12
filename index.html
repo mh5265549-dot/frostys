@@ -15,8 +15,7 @@
       (function() {
         try {
           var saved = localStorage.getItem('frostys-theme');
-          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          if (saved === 'dark' || (!saved && prefersDark)) {
+          if (saved === 'dark') {
             document.documentElement.classList.add('dark');
           } else {
             document.documentElement.classList.remove('dark');
@@ -25,7 +24,7 @@
       })();
     </script>
   </head>
-  <body class="bg-[#FFFDF7] dark:bg-[#140D0C] text-[#2D1B18] dark:text-[#F7F2EE] font-sans antialiased selection:bg-[#FF4B72] selection:text-white transition-colors duration-200">
+  <body class="bg-[#FAFAF9] text-[#1C1917] font-sans antialiased selection:bg-[#FF4B72] selection:text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

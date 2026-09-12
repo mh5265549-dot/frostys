@@ -9,38 +9,25 @@ export const FloatingHelperButton: React.FC<FloatingHelperButtonProps> = ({ onCl
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="fixed bottom-20 sm:bottom-6 left-4 z-40 flex items-center">
+    <aside aria-label="Quick AI assistance" className="fixed bottom-20 sm:bottom-6 left-4 z-30 flex items-center">
       <motion.button
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.92 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={onClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         id="btn-floating-helper-ai"
-        className="relative w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-gradient-to-tr from-[#2D1B18] via-[#FF4B72] to-[#FF85A1] text-white shadow-xl hover:shadow-2xl border-2 border-white/80 flex items-center justify-center transition-all duration-200 group focus:outline-none"
-        title="Ask Helper AI (شاپ اسسٹنٹ)"
-        aria-label="Open Helper AI"
+        className="relative px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-full bg-white text-stone-800 shadow-md hover:shadow-lg border border-stone-200/90 flex items-center gap-2 transition-all cursor-pointer group"
+        title="Ask Bilingual Helper AI (شاپ اسسٹنٹ)"
+        aria-label="Open AI Assistant"
       >
-        <i className="fa-solid fa-headset text-lg text-white group-hover:rotate-12 transition-transform"></i>
-        
-        {/* Compact AI Badge */}
-        <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-emerald-500 text-white font-black text-[9px] border border-[#2D1B18] shadow">
-          AI
+        <div className="w-6 h-6 rounded-full bg-pink-100 text-[#FF4B72] flex items-center justify-center text-xs">
+          <i className="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <span className="text-xs font-bold text-stone-800">
+          AI Helper <span className="hidden sm:inline text-[10px] text-[#FF4B72] font-semibold">(اردو / Eng)</span>
         </span>
       </motion.button>
-
-      {/* Subtle Tooltip Label on Desktop Hover */}
-      {isHovered && (
-        <motion.div
-          initial={{ opacity: 0, x: -6 }}
-          animate={{ opacity: 1, x: 6 }}
-          className="hidden sm:flex items-center gap-1.5 ml-2 px-3 py-1.5 rounded-xl bg-[#2D1B18]/95 border border-[#FF4B72]/50 text-white text-xs font-bold shadow-lg pointer-events-none whitespace-nowrap"
-        >
-          <span>Ask Helper AI</span>
-          <span className="text-[10px] text-amber-300 font-normal">اردو / Eng</span>
-        </motion.div>
-      )}
-    </div>
+    </aside>
   );
 };
-

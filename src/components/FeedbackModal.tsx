@@ -51,43 +51,43 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-[#2D1B18] text-white w-full max-w-lg rounded-3xl border border-[#52332E] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-white text-stone-900 w-full max-w-lg rounded-3xl border border-stone-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="p-6 bg-[#3D2522] border-b border-[#52332E] flex items-center justify-between">
+        <div className="p-5 sm:p-6 bg-white border-b border-stone-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#FF4B72]/20 border border-[#FF4B72]/40 flex items-center justify-center text-[#FF4B72] text-xl font-bold">
+            <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-500 text-lg font-bold shadow-2xs">
               <i className="fa-solid fa-star"></i>
             </div>
             <div>
-              <h3 className="font-heading font-extrabold text-lg text-amber-50">
+              <h3 className="font-heading font-black text-lg text-stone-900">
                 Share Your Feedback
               </h3>
-              <p className="text-xs text-amber-200/70">
-                Help us make Frosty's even better!
+              <p className="text-xs text-stone-500">
+                Help us make Frosty's & Grill even better!
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-stone-800/80 hover:bg-stone-700 text-stone-300 hover:text-white flex items-center justify-center text-sm transition-colors"
+            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm transition-colors cursor-pointer"
           >
             <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="p-6 overflow-y-auto space-y-5">
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-5">
           {isSuccess ? (
             <div className="py-10 text-center space-y-3 animate-scaleUp">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-3xl mx-auto">
+              <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center text-3xl mx-auto shadow-2xs">
                 <i className="fa-solid fa-circle-check"></i>
               </div>
-              <h4 className="font-heading font-bold text-xl text-emerald-300">
+              <h4 className="font-heading font-black text-xl text-stone-900">
                 Thank You for Your Feedback!
               </h4>
-              <p className="text-xs text-amber-100/80 max-w-xs mx-auto">
+              <p className="text-xs text-stone-600 max-w-xs mx-auto">
                 Your review has been saved and is now published in our customer reviews section.
               </p>
             </div>
@@ -95,8 +95,8 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             <form onSubmit={handleSubmit} className="space-y-4">
               
               {/* Star Rating Input */}
-              <div className="space-y-2 bg-[#3D2522]/50 p-4 rounded-2xl border border-[#52332E] text-center">
-                <label className="text-xs font-bold uppercase tracking-wider text-amber-200/90 block">
+              <div className="space-y-2 bg-stone-50 p-4 rounded-2xl border border-stone-200 text-center">
+                <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block">
                   How was your experience? <span className="text-[#FF4B72]">*</span>
                 </label>
                 <div className="flex items-center justify-center gap-2 py-1">
@@ -107,19 +107,19 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                       onMouseEnter={() => setHoverRating(star)}
                       onMouseLeave={() => setHoverRating(null)}
                       onClick={() => setRating(star)}
-                      className="p-1 focus:outline-none transition-transform hover:scale-125"
+                      className="p-1 focus:outline-none transition-transform hover:scale-125 cursor-pointer"
                     >
                       <i
                         className={`fa-solid fa-star text-2xl transition-colors ${
                           (hoverRating !== null ? star <= hoverRating : star <= rating)
                             ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]'
-                            : 'text-stone-600'
+                            : 'text-stone-300'
                         }`}
                       ></i>
                     </button>
                   ))}
                 </div>
-                <p className="text-[11px] font-semibold text-amber-300/90">
+                <p className="text-[11px] font-bold text-stone-600">
                   {rating === 5 && '🌟 Excellent / Loved it!'}
                   {rating === 4 && '😊 Very Good!'}
                   {rating === 3 && '😐 Average'}
@@ -130,37 +130,37 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
               {/* Customer Name Field (Optional) */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-amber-100 uppercase tracking-wider flex items-center justify-between">
+                <label className="text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center justify-between">
                   <span>Your Name</span>
-                  <span className="text-[10px] text-amber-200/50 normal-case">(Optional)</span>
+                  <span className="text-[10px] text-stone-400 normal-case">(Optional)</span>
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Ali Raza (Defaults to Anonymous Foodie)"
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#1A100E] border border-[#52332E] text-xs text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-[#FF4B72]"
+                  className="w-full px-4 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#FF4B72]"
                 />
               </div>
 
               {/* Favorite Item Field (Optional) */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-amber-100 uppercase tracking-wider flex items-center justify-between">
+                <label className="text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center justify-between">
                   <span>Favorite Item / Dish</span>
-                  <span className="text-[10px] text-amber-200/50 normal-case">(Optional)</span>
+                  <span className="text-[10px] text-stone-400 normal-case">(Optional)</span>
                 </label>
                 <input
                   type="text"
                   value={favItem}
                   onChange={(e) => setFavItem(e.target.value)}
-                  placeholder="e.g. Chocolate Cone, Banana Split, Cold Coffee"
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#1A100E] border border-[#52332E] text-xs text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-[#FF4B72]"
+                  placeholder="e.g. Chocolate Cone, Banana Split, Grilled Burger"
+                  className="w-full px-4 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#FF4B72]"
                 />
               </div>
 
               {/* Text Comment Box */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-amber-100 uppercase tracking-wider">
+                <label className="text-xs font-bold text-stone-700 uppercase tracking-wider">
                   Your Comments & Review <span className="text-[#FF4B72]">*</span>
                 </label>
                 <textarea
@@ -168,14 +168,14 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Tell us what you loved, how the taste was, or any suggestions..."
-                  className="w-full px-4 py-3 rounded-xl bg-[#1A100E] border border-[#52332E] text-xs text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-[#FF4B72]"
+                  className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#FF4B72]"
                 />
               </div>
 
               {/* Error Message */}
               {errorMsg && (
-                <div className="p-3 rounded-xl bg-red-950/80 border border-red-800 text-red-200 text-xs flex items-center gap-2">
-                  <i className="fa-solid fa-triangle-exclamation text-red-400 text-sm shrink-0"></i>
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                  <i className="fa-solid fa-triangle-exclamation text-rose-500 text-sm shrink-0"></i>
                   <span>{errorMsg}</span>
                 </div>
               )}
@@ -185,13 +185,13 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-100 text-xs font-bold transition-colors"
+                  className="px-4 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF4B72] to-[#FF85A1] hover:brightness-110 text-white text-xs font-extrabold shadow-lg shadow-[#FF4B72]/30 transition-all flex items-center gap-2"
+                  className="px-6 py-2.5 rounded-xl bg-[#FF4B72] hover:bg-[#E63956] text-white text-xs font-extrabold shadow-md transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <i className="fa-solid fa-paper-plane"></i>
                   <span>Submit Feedback</span>

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { MenuItem, CartItem, OrderRecord, Review, Complaint, Category, ShopMode } from './types';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
-import { TrustSection } from './components/TrustSection';
 import { MenuSection } from './components/MenuSection';
 import { AboutSection } from './components/AboutSection';
 import { LocationHoursSection } from './components/LocationHoursSection';
@@ -401,9 +400,6 @@ export default function App() {
           activeShop={activeShop}
           onSwitchShop={handleSwitchShop}
         />
-
-        {/* Local Trust Elements Section */}
-        <TrustSection />
 
         {/* Shop-Partitioned Menu Section */}
         <MenuSection

@@ -3,36 +3,30 @@ import { STORE_INFO, parlorVibeImg } from '../data/menuData';
 
 export const AboutSection: React.FC = () => {
   return (
-    <section id="about" className="py-20 bg-[#2D1B18] dark:bg-[#160E0D] text-white relative overflow-hidden transition-colors duration-200">
-      
-      {/* Decorative Glow */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-[#FF4B72]/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#38D39F]/10 rounded-full blur-3xl pointer-events-none"></div>
-
+    <section id="about" className="py-16 sm:py-20 bg-white text-stone-900 relative overflow-hidden border-t border-stone-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
           {/* Left Column Image Gallery */}
           <div className="lg:col-span-6 space-y-4">
-            <div className="relative rounded-3xl overflow-hidden border-2 border-[#3D2522] shadow-2xl group">
+            <div className="relative rounded-3xl overflow-hidden border border-stone-200 shadow-sm group">
               <img
                 src={parlorVibeImg}
                 alt="Frosty's Parlor Interior & Cozy Late Night Vibe in Green City Lahore"
                 referrerPolicy="no-referrer"
-                className="w-full h-[360px] sm:h-[420px] object-cover group-hover:scale-105 transition-transform duration-500"
+                className="w-full h-[320px] sm:h-[400px] object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#2D1B18] via-transparent to-transparent opacity-80"></div>
               
-              <div className="absolute bottom-6 left-6 right-6 bg-[#2D1B18]/90 backdrop-blur-md p-5 rounded-2xl border border-[#52332E] shadow-xl">
+              <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-stone-200 shadow-md">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-[#FF4B72] text-white flex items-center justify-center font-bold text-xl shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[#FF4B72] text-white flex items-center justify-center font-bold text-lg shrink-0">
                     <i className="fa-solid fa-store"></i>
                   </div>
                   <div>
-                    <h4 className="font-heading font-bold text-base text-amber-50">
+                    <h4 className="font-heading font-bold text-sm text-stone-900">
                       Located in Commercial Green City
                     </h4>
-                    <p className="text-xs text-amber-200/80">
+                    <p className="text-xs text-stone-600">
                       8B Commercial Area, Green City, Lahore, Punjab, Pakistan
                     </p>
                   </div>
@@ -42,29 +36,29 @@ export const AboutSection: React.FC = () => {
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="p-4 rounded-2xl bg-[#3D2522]/60 border border-[#52332E] text-center">
-                <span className="font-heading font-black text-2xl text-[#FF4B72] block">
+              <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-center">
+                <span className="font-heading font-black text-xl sm:text-2xl text-[#FF4B72] block">
                   2:00 AM
                 </span>
-                <span className="text-[11px] text-amber-200/80 font-semibold uppercase tracking-wider">
+                <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider">
                   Late Night Daily
                 </span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#3D2522]/60 border border-[#52332E] text-center">
-                <span className="font-heading font-black text-2xl text-[#38D39F] block">
+              <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-center">
+                <span className="font-heading font-black text-xl sm:text-2xl text-emerald-600 block">
                   100%
                 </span>
-                <span className="text-[11px] text-amber-200/80 font-semibold uppercase tracking-wider">
+                <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider">
                   Pure Cream
                 </span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#3D2522]/60 border border-[#52332E] text-center">
-                <span className="font-heading font-black text-2xl text-amber-300 block">
+              <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-center">
+                <span className="font-heading font-black text-xl sm:text-2xl text-amber-500 block">
                   4.9 ★
                 </span>
-                <span className="text-[11px] text-amber-200/80 font-semibold uppercase tracking-wider">
+                <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider">
                   Foodie Rating
                 </span>
               </div>
@@ -73,84 +67,80 @@ export const AboutSection: React.FC = () => {
           </div>
 
           {/* Right Column Content */}
-          <div className="lg:col-span-6 space-y-6">
+          <div className="lg:col-span-6 space-y-5">
             
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#3D2522] border border-[#52332E] text-[#FF85A1] text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-50 border border-pink-200 text-[#FF4B72] text-xs font-bold uppercase tracking-wider">
               <i className="fa-solid fa-heart"></i>
-              <span>About Frosty's</span>
+              <span>About Frosty's & Grill</span>
             </div>
 
-            <h2 className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl text-amber-50 leading-tight">
-              Green City’s Ultimate <br />
-              <span className="text-[#FF4B72]">Late-Night Dessert</span> Spot
+            <h2 className="font-heading font-black text-2xl sm:text-4xl lg:text-5xl text-stone-900 leading-tight">
+              Green City’s Favorite <br />
+              <span className="text-[#FF4B72]">Late-Night Food</span> & Dessert Parlor
             </h2>
 
-            <p className="text-base text-amber-100/90 leading-relaxed font-normal">
-              Founded with a passion for satisfying midnight cravings, <strong>Frosty's</strong> was born right in the heart of Green City Commercial, Lahore. When standard cafes close down, our parlor comes alive—serving artisanal ice cream scoops, signature Banana Splits, ice cream milkshakes, cold coffees, authentic kulfi, and 20 soda chillers until 2:00 AM.
-            </p>
-
-            <p className="text-sm text-amber-200/80 leading-relaxed">
-              Whether you are hanging out with friends after a late dinner, celebrating a midnight birthday, or satisfying a late-night sweet tooth with family, Frosty's offers a cozy, hygienic, and vibrant atmosphere with prompt service and heavenly flavors.
+            <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
+              Founded with a passion for satisfying midnight cravings, <strong>Frosty's</strong> was born right in the heart of Green City Commercial, Lahore. When standard cafes close down, our kitchen and ice cream counter come alive—serving artisanal ice cream scoops, freshly rolled waffle cones, Banana Splits, cold coffees, shakes, as well as juicy flame-grilled chicken burgers, crispy wraps, and loaded fries supreme until 2:00 AM.
             </p>
 
             {/* Feature Highlights */}
-            <div className="space-y-3 pt-2">
+            <div className="space-y-3 pt-1">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#FF4B72]/20 border border-[#FF4B72]/30 text-[#FF4B72] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-8 h-8 rounded-lg bg-pink-50 text-[#FF4B72] flex items-center justify-center shrink-0 mt-0.5 border border-pink-200">
                   <i className="fa-solid fa-shield-halved text-sm"></i>
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-amber-100">100% Quality & Hygiene</h4>
-                  <p className="text-xs text-amber-200/70">
-                    We use only 100% pure dairy cream, fresh fruits, rich espresso, and high quality natural ingredients.
+                  <h4 className="font-bold text-sm text-stone-900">100% Quality & Fresh Preparation</h4>
+                  <p className="text-xs text-stone-600">
+                    We use 100% pure dairy cream for desserts, and freshly marinated chicken for all grill items.
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#38D39F]/20 border border-[#38D39F]/30 text-[#38D39F] flex items-center justify-center shrink-0 mt-0.5">
-                  <i className="fa-solid fa-moon text-sm"></i>
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-200">
+                  <i className="fa-solid fa-clock text-sm"></i>
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-amber-100">Late-Night Operating Hours</h4>
-                  <p className="text-xs text-amber-200/70">
-                    Open every day from 4:00 PM in the evening until 2:00 AM late night.
+                  <h4 className="font-bold text-sm text-stone-900">Late-Night Operating Hours</h4>
+                  <p className="text-xs text-stone-600">
+                    Open every single day from 4:00 PM in the evening until 2:00 AM late night.
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-amber-400/20 border border-amber-400/30 text-amber-300 flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 mt-0.5 border border-amber-200">
                   <i className="fa-solid fa-utensils text-sm"></i>
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-amber-100">Dine-In, Takeaway & Pickup</h4>
-                  <p className="text-xs text-amber-200/70">
-                    Relax inside our air-conditioned parlor or grab your dessert to-go in secure spill-proof packaging.
+                  <h4 className="font-bold text-sm text-stone-900">Dine-In, Takeaway & Fast Delivery</h4>
+                  <p className="text-xs text-stone-600">
+                    Relax inside our parlor or order for prompt delivery across Green City in spill-proof packaging.
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Location CTA */}
-            <div className="pt-4 flex flex-wrap items-center gap-4">
+            <div className="pt-2 flex flex-wrap items-center gap-3">
               <a
                 href={STORE_INFO.googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3.5 rounded-xl bg-white text-[#2D1B18] font-bold text-sm hover:bg-amber-100 transition-colors shadow-md flex items-center gap-2"
+                className="px-5 py-3 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-bold text-xs sm:text-sm transition-colors shadow-2xs flex items-center gap-2"
               >
-                <i className="fa-solid fa-map-location-dot text-[#FF4B72]"></i>
+                <i className="fa-solid fa-map-location-dot text-amber-400"></i>
                 <span>Find Us on Map</span>
               </a>
               <a
-                href={`https://wa.me/${STORE_INFO.whatsapp}?text=Hi%20Frosty's!%20I'd%20like%20to%20know%20more%20about%20your%20desserts.`}
+                href={`https://wa.me/${STORE_INFO.whatsapp}?text=Hi%20Frosty's!%20I'd%20like%20to%20place%20an%20order.`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3.5 rounded-xl bg-[#25D366] text-white font-bold text-sm hover:bg-[#20ba5a] transition-colors shadow-md flex items-center gap-2"
+                className="px-5 py-3 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-xs sm:text-sm transition-colors shadow-2xs flex items-center gap-2"
               >
-                <i className="fa-brands fa-whatsapp text-lg"></i>
-                <span>WhatsApp Us</span>
+                <i className="fa-brands fa-whatsapp text-base"></i>
+                <span>Direct WhatsApp Chat</span>
               </a>
             </div>
 

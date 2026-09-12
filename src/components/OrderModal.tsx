@@ -257,19 +257,19 @@ export const OrderModal: React.FC<OrderModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="bg-white text-[#2D1B18] rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-stone-200 relative flex flex-col max-h-[90vh]">
+      <div className="bg-white text-stone-900 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-stone-200 relative flex flex-col max-h-[90vh]">
         
         {/* Modal Header */}
-        <div className="p-6 bg-[#2D1B18] text-white flex items-center justify-between border-b border-[#3D2522]">
+        <div className="p-5 sm:p-6 bg-white text-stone-900 flex items-center justify-between border-b border-stone-200">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FF4B72] text-white flex items-center justify-center font-bold text-lg">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#FF4B72] to-[#FF85A1] text-white flex items-center justify-center font-bold text-lg shadow-xs">
               <i className="fa-solid fa-bag-shopping"></i>
             </div>
             <div>
-              <h3 className="font-heading font-black text-xl text-amber-50">
-                Your Frosty's Order
+              <h3 className="font-heading font-black text-lg sm:text-xl text-stone-900">
+                Your Frosty's & Grill Order
               </h3>
-              <span className="text-xs text-amber-200/80">
+              <span className="text-xs text-stone-500">
                 8B Commercial, Green City, Lahore • Open 4 PM - 2 AM
               </span>
             </div>
@@ -277,14 +277,14 @@ export const OrderModal: React.FC<OrderModalProps> = ({
 
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-[#3D2522] hover:bg-[#4D302C] text-amber-100 flex items-center justify-center transition-colors"
+            className="w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 flex items-center justify-center transition-colors cursor-pointer"
           >
-            <i className="fa-solid fa-xmark text-lg"></i>
+            <i className="fa-solid fa-xmark text-base"></i>
           </button>
         </div>
 
         {/* Modal Scrollable Body */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1">
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-5 flex-1">
           
           {/* Order Type Toggle */}
           <div>
@@ -298,9 +298,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                   setOrderType('takeaway');
                   setAddressError(null);
                 }}
-                className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   orderType === 'takeaway'
-                    ? 'bg-[#2D1B18] text-white shadow-sm'
+                    ? 'bg-stone-900 text-white shadow-xs'
                     : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
@@ -314,9 +314,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                   setOrderType('dinein');
                   setAddressError(null);
                 }}
-                className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   orderType === 'dinein'
-                    ? 'bg-[#2D1B18] text-white shadow-sm'
+                    ? 'bg-stone-900 text-white shadow-xs'
                     : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
@@ -330,9 +330,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                   setOrderType('delivery');
                   setAddressError(null);
                 }}
-                className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   orderType === 'delivery'
-                    ? 'bg-[#2D1B18] text-white shadow-sm'
+                    ? 'bg-[#FF4B72] text-white shadow-xs'
                     : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
