@@ -258,8 +258,8 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
       q.includes('ghar mangwa')
     ) {
       return {
-        text: "⚠️ Strict Store Policy — No Cones for Home Delivery:\n\nCones are NOT allowed for home delivery under any circumstances. This applies to all cone options (Waffle Cones, Soft Serve, Vanilla, and Chocolate Cones).\n\n• Why? Cones melt rapidly during transport and cannot be safely sealed.\n• Availability: Dine-In and Take-Away only.\n• Safe Alternative: For home delivery, please choose our insulated Cups & Bowls!",
-        urduText: "⚠️ لازمی پالیسی — کونز کی ہوم ڈیلیوری ممنوع ہے:\n\nہوم ڈیلیوری پر کسی بھی قسم کی کون بھیجنے کی اجازت نہیں ہے (وافل کون، ونیلا، یا چاکلیٹ کون)۔\n\n• وجہ: کونز راستے میں بہت جلد پگھل جاتی ہیں۔\n• دستیابی: صرف ڈائن اِن (Dine-In) اور ٹیک اوے (Take-Away) کے لیے۔\n• متبادل: ہوم ڈیلیوری کے لیے براہِ کرم محفوظ کپ (Cup/Bowl) کا انتخاب فرمائیں!",
+        text: "⚠️ Store Delivery Policy — Cones are not available for delivery:\n\nCones are not available for delivery to prevent melting during transit. This applies to all cone options (Waffle Cones, Soft Serve, Vanilla, and Chocolate Cones).\n\n• Why? Cones melt rapidly during transport and cannot be safely sealed.\n• Cones are available for: Dine-In and Takeaway.\n• Safe Alternative: For home delivery, please choose our insulated Cups & Bowls!",
+        urduText: "⚠️ لازمی پالیسی — کونز ڈیلیوری کے لیے دستیاب نہیں ہیں:\n\nکونز ہوم ڈیلیوری کے لیے دستیاب نہیں ہیں (وافل کون، ونیلا، یا چاکلیٹ کون) کیونکہ راستے میں پگھل جاتی ہیں۔\n\n• دستیابی: ڈائن اِن اور ٹیک اوے کے لیے دستیاب ہیں۔\n• ہوم ڈیلیوری کے لیے محفوظ کپ (Cup/Bowl) منتخب فرمائیں!",
         action: {
           label: 'Explore Cups & Scoops',
           action: () => {
@@ -340,16 +340,16 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
     // 5. Waffle Cone
     if (q.includes('waffle') || q.includes('soft serve') || q.includes('سافٹ سرو') || q.includes('وافل')) {
       return {
-        text: "🍦 Waffle Cone (Soft Serve) — Rs. 100:\n\n• Crispy freshly rolled waffle cone with smooth vanilla soft serve ice cream, chocolate drizzle, and 2 FREE toppings!\n• Delivery Rule: Dine-In & Take-Away only (no cones for home delivery to prevent melting).",
-        urduText: "🍦 وافل کون سافٹ سرو (100 روپے):\n\n• تازہ کرسپی وافل کون، اسموتھ ونیلا سافٹ سرو، چاکلیٹ ڈرزل اور 2 مفت ٹاپنگز!\n• ڈیلیوری اصول: صرف ڈائن اِن اور ٹیک اوے کے لیے ہے۔",
+        text: "🍦 Waffle Cone (Soft Serve) — Rs. 100:\n\n• Crispy freshly rolled waffle cone with smooth vanilla soft serve ice cream, chocolate drizzle, and 2 FREE toppings!\n• Delivery Rule: Cones are not available for delivery (cups can be delivered).",
+        urduText: "🍦 وافل کون سافٹ سرو (100 روپے):\n\n• تازہ کرسپی وافل کون، اسموتھ ونیلا سافٹ سرو، چاکلیٹ ڈرزل اور 2 مفت ٹاپنگز!\n• ڈیلیوری اصول: کونز ہوم ڈیلیوری کے لیے دستیاب نہیں ہیں (کپ ڈیلیور ہو سکتے ہیں)۔",
       };
     }
 
     // 6. Free Toppings
     if (q.includes('topping') || q.includes('free') || q.includes('ٹاپنگ') || q.includes('مفت')) {
       return {
-        text: "🍨 2 Free Complimentary Toppings:\n\nEvery waffle cone and artisanal scoop comes with 2 free toppings of your choice:\n• Belgian Chocolate Drizzle\n• Rich Caramel Syrup\n• Crushed Roasted Almonds & Pistachios\n• Colorful Sprinkles & Choco Chips",
-        urduText: "🍨 2 مفت ٹاپنگز کی سہولت:\n\nہر کون اور اسکوپ کے ساتھ آپ کو 2 مفت ٹاپنگز ملتی ہیں! چاکلیٹ ساس، کیریمل، بادام، پستے، یا اسپرنکلز میں سے 2 منتخب کریں۔",
+        text: "🍨 2 Free Complimentary Toppings:\n\nEvery waffle cone and fresh ice cream scoop comes with 2 free toppings of your choice:\n• Belgian Chocolate Drizzle\n• Rich Caramel Syrup\n• Crushed Roasted Almonds & Pistachios\n• Colorful Sprinkles & Choco Chips",
+        urduText: "🍨 2 مفت ٹاپنگز کی سہولت:\n\nہر کون اور تازہ اسکوپ کے ساتھ آپ کو 2 مفت ٹاپنگز ملتی ہیں! چاکلیٹ ساس، کیریمل، بادام، پستے، یا اسپرنکلز میں سے 2 منتخب کریں۔",
       };
     }
 

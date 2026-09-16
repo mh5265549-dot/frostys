@@ -29,7 +29,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminModal }) => {
             </div>
 
             <p className="text-xs text-stone-500 leading-relaxed max-w-sm">
-              Your favorite destination for fresh artisanal ice cream cones, sundaes, cold coffees, plus flame-grilled chicken burgers and loaded fries supreme. Open until 2:00 AM!
+              Your favorite destination for fresh ice cream cones, sundaes, cold coffees, thick shakes, plus flame-grilled chicken burgers and loaded fries supreme. Open until 2:00 AM!
             </p>
 
             {/* Social Links */}

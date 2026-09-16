@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MenuItem, ShopMode } from '../types';
 import { MENU_ITEMS } from '../data/menuData';
+import { isConeCupApplicable } from '../utils/categoryUtils';
 
 interface MenuSectionProps {
   items?: MenuItem[];
@@ -172,12 +173,12 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                 )}
               </div>
               <h2 className="font-heading font-black text-2xl sm:text-3xl text-stone-900 tracking-tight">
-                {isGrill ? "Sizzling Charcoal Burgers & BBQ Menu" : "Handcrafted Artisanal Ice Cream Menu"}
+                {isGrill ? "Sizzling Charcoal Burgers & Grill Menu" : "Fresh Scoops, Sundaes & Shakes Menu"}
               </h2>
               <p className="text-xs sm:text-sm text-stone-600 max-w-xl">
                 {isGrill
-                  ? 'Flame-grilled burgers, tender chicken tikka boti, club sandwiches, wraps & loaded fries supreme.'
-                  : 'Crispy waffle cones, pure cream scoops, Banana Splits, thick shakes, kulfi & fruit soda chillers.'}
+                  ? 'Flame-grilled chicken burgers, tender sandwiches, wraps, loaded fries supreme & chicken BBQ.'
+                  : 'Freshly rolled crispy waffle cones, pure cream scoops, Banana Splits, thick shakes, kulfi & fruit soda chillers.'}
               </p>
             </div>
 
@@ -317,7 +318,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                   Craving Ice Cream, Shakes or Sundaes?
                 </h4>
                 <p className="text-xs text-stone-600">
-                  Artisanal scoops and desserts are available at <strong className="text-[#FF4B72] font-bold">Frosty's Ice Cream</strong>!
+                  Fresh scoops, sundaes and shakes are available at <strong className="text-[#FF4B72] font-bold">Frosty's Ice Cream</strong>!
                 </p>
               </div>
             </div>
@@ -381,7 +382,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
               const itemStock = inventory[item.id] ?? 15;
               const isSoldOut = itemStock === 0;
               const isDeal = item.category === 'deals' || !!item.originalPrice;
-              const isCone = item.isConeCupAllowed === false || item.category === 'scoops';
+              const isCone = item.category === 'scoops' || isConeCupApplicable(item);
 
               return (
                 <div
@@ -468,8 +469,8 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                       {isCone && (
                         <div className="pt-1">
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                            <i className="fa-solid fa-shop text-[9px]"></i>
-                            Dine-In & Takeaway Only (Not deliverable)
+                            <i className="fa-solid fa-triangle-exclamation text-[9px] text-amber-600"></i>
+                            Cones are not available for delivery
                           </span>
                         </div>
                       )}

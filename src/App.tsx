@@ -20,7 +20,6 @@ import { FloatingFeedbackButton } from './components/FloatingFeedbackButton';
 import { FloatingHelperButton } from './components/FloatingHelperButton';
 import { HelperAIModal } from './components/HelperAIModal';
 import { ShopTransitionOverlay } from './components/ShopTransitionOverlay';
-import { FloatingShopSwitcher } from './components/FloatingShopSwitcher';
 import { playShopTransitionSound } from './utils/soundEffects';
 import { validateItemCustomizationContainer } from './utils/categoryUtils';
 import {
@@ -440,12 +439,6 @@ export default function App() {
       <FloatingCartBar
         cart={cart}
         onOpenOrderModal={() => setIsOrderModalOpen(true)}
-        activeShop={activeShop}
-        onSwitchShop={handleSwitchShop}
-      />
-
-      {/* Floating Shop Switcher (Frosty's vs Frosty's Grill) */}
-      <FloatingShopSwitcher
         activeShop={activeShop}
         onSwitchShop={handleSwitchShop}
       />

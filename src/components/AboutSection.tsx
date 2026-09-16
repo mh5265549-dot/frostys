@@ -80,7 +80,7 @@ export const AboutSection: React.FC = () => {
             </h2>
 
             <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
-              Founded with a passion for satisfying midnight cravings, <strong>Frosty's</strong> was born right in the heart of Green City Commercial, Lahore. When standard cafes close down, our kitchen and ice cream counter come alive—serving artisanal ice cream scoops, freshly rolled waffle cones, Banana Splits, cold coffees, shakes, as well as juicy flame-grilled chicken burgers, crispy wraps, and loaded fries supreme until 2:00 AM.
+              Founded with a passion for satisfying midnight cravings, <strong>Frosty's & Grill</strong> was born right in the heart of Green City Commercial, Lahore. When standard cafes close down, our kitchen and ice cream counter come alive—serving fresh pure cream ice cream scoops, freshly rolled waffle cones, Banana Splits, cold coffees, shakes, as well as juicy flame-grilled chicken burgers, crispy wraps, and loaded fries supreme until 2:00 AM.
             </p>
 
             {/* Feature Highlights */}

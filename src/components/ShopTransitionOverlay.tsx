@@ -195,8 +195,8 @@ export const ShopTransitionOverlay: React.FC<ShopTransitionOverlayProps> = ({
             className="text-xs sm:text-sm text-stone-300 font-medium max-w-sm mx-auto mb-6 leading-relaxed"
           >
             {isGrill
-              ? 'Loading juicy smash burgers, BBQ tikka, grilled sandwiches, wraps & loaded fries...'
-              : 'Loading artisanal waffle cones, banana splits, super cups, oreo shakes & soda chillers...'}
+              ? 'Loading juicy flame-grilled burgers, sandwiches, wraps & loaded fries supreme...'
+              : 'Loading fresh waffle cones, banana splits, super cups, thick shakes & fruit chillers...'}
           </motion.p>
 
           {/* Animated Progress Bar */}

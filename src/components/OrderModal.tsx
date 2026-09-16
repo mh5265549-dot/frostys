@@ -112,7 +112,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
     if (orderType === 'delivery') {
       // Cone delivery restriction policy
       if (hasConeInCart) {
-        const coneRejectionMsg = "Order not accepted for delivery: Cones are strictly available for Dine-In or Takeaway only to prevent melting during transit. Please select Cup container or choose Takeaway/Dine-In.";
+        const coneRejectionMsg = "Order not accepted for delivery: Cones are not available for delivery to prevent melting during transit. Please select Cup container or choose Takeaway/Dine-In.";
         setAddressError(coneRejectionMsg);
         alert(coneRejectionMsg);
         return;
@@ -346,9 +346,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({
               <div className="mt-3 p-3.5 rounded-2xl bg-amber-500/15 border-2 border-amber-500/70 text-amber-950 text-xs flex items-start gap-3 animate-fadeIn">
                 <i className="fa-solid fa-triangle-exclamation text-amber-600 text-lg mt-0.5 shrink-0"></i>
                 <div>
-                  <h5 className="font-extrabold text-amber-950">Cones Cannot Be Delivered (Melting Policy)</h5>
+                  <h5 className="font-extrabold text-amber-950">Cones Are Not Available For Delivery</h5>
                   <p className="text-[11px] text-amber-900 leading-relaxed mt-0.5">
-                    Your cart contains crispy ice cream cone(s). Cones are strictly available for <strong>Dine-In</strong> or <strong>Takeaway</strong> only. Only cups and other desserts can be delivered. Please switch your order type to Takeaway/Dine-In or change container to Cup to proceed with delivery.
+                    Your cart contains crispy ice cream cone(s). <strong>Cones are not available for delivery</strong>. Only cups and other desserts can be delivered. Please switch your order type to Takeaway/Dine-In or change container to Cup to proceed with delivery.
                   </p>
                 </div>
               </div>

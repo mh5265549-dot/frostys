@@ -478,7 +478,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                     <span>Crispy Cone</span>
                   </div>
                   <span className="text-[10px] text-amber-400/90 font-bold bg-[#3D2522] px-2 py-0.5 rounded-full">
-                    Dine-In & Takeaway Only
+                    Cones are not available for delivery
                   </span>
                 </button>
 
@@ -503,7 +503,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               {selectedContainer === 'Cone' && (
                 <p className="text-[11px] text-amber-800 font-semibold bg-amber-100/70 border border-amber-200 rounded-xl px-3 py-1.5 flex items-center gap-1.5">
                   <i className="fa-solid fa-triangle-exclamation text-amber-600"></i>
-                  <span>Note: Cones cannot be delivered to homes. Orders with cones are strictly for Dine-In or Take-Away.</span>
+                  <span>Note: Cones are not available for delivery (cups can be delivered).</span>
                 </p>
               )}
             </div>

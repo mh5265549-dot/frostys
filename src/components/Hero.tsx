@@ -1,5 +1,5 @@
 import React from 'react';
-import { STORE_INFO, heroDessertImg, smashBurgerImg } from '../data/menuData';
+import { STORE_INFO, heroDessertImg, grilledChickenBurgerImg } from '../data/menuData';
 import { ShopMode } from '../types';
 
 interface HeroProps {
@@ -48,7 +48,7 @@ export const Hero: React.FC<HeroProps> = ({
     'Super Cup',
     'Cold Coffee',
     'Oreo Shake',
-    'Praline Scoop',
+    'Vanilla Scoop',
   ];
 
   const grillChips = [
@@ -58,7 +58,6 @@ export const Hero: React.FC<HeroProps> = ({
     'Fries Supreme',
     'Grilled Chicken Fries Supreme',
     'Regular Fries',
-    'BBQ Tikka',
   ];
 
   const activeChips = isGrill ? grillChips : iceCreamChips;
@@ -85,7 +84,7 @@ export const Hero: React.FC<HeroProps> = ({
             <span>
               Now Browsing:{' '}
               <strong className="text-stone-900 font-extrabold">
-                {isGrill ? "Frosty's Grill (Burgers & BBQ)" : "Frosty's (Ice Cream & Desserts)"}
+                {isGrill ? "Frosty's Grill (Fresh Fast Food)" : "Frosty's (Fresh Ice Cream & Desserts)"}
               </strong>
             </span>
           </div>
@@ -133,24 +132,24 @@ export const Hero: React.FC<HeroProps> = ({
                   isGrill ? 'text-orange-600' : 'text-[#FF4B72]'
                 }`}
               >
-                {isGrill ? "Frosty's Charcoal Grill & Fast Food" : "Frosty's Handcrafted Ice Cream"}
+                {isGrill ? "Frosty's Grill • Grilled Fresh. Made Right." : "Frosty's Ice Cream • 8B Commercial, Green City"}
               </span>
               <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.12] text-stone-900">
                 {isGrill ? (
                   <>
-                    Juicy Charcoal Burgers & <br className="hidden sm:inline" />
+                    Grilled Fresh. <br className="hidden sm:inline" />
                     <span className="text-orange-600">
-                      Sizzling Fast Food
+                      Made Right.
                     </span>{' '}
-                    Delivered Hot!
+                    Delivered Fast!
                   </>
                 ) : (
                   <>
-                    Artisanal Scoops, Sundaes & <br className="hidden sm:inline" />
+                    Fresh Scoops, Sundaes & <br className="hidden sm:inline" />
                     <span className="text-[#FF4B72]">
                       Pure Cream Treats
                     </span>{' '}
-                    Fresh Daily!
+                    Delivered Fresh!
                   </>
                 )}
               </h1>
@@ -160,13 +159,13 @@ export const Hero: React.FC<HeroProps> = ({
             <p className="text-sm sm:text-base text-stone-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">
               {isGrill ? (
                 <>
-                  Flame-grilled chicken burgers, tender club sandwiches, wraps, loaded fries supreme, and smoky chicken BBQ at{' '}
-                  <strong className="text-stone-900 font-bold">8B Commercial, Green City, Lahore</strong>. Ready for fast delivery or takeaway!
+                  Flame-grilled chicken burgers, tender sandwiches, juicy wraps, and loaded fries supreme at{' '}
+                  <strong className="text-stone-900 font-bold">8B Commercial, Green City, Lahore</strong>. Order online for delivery or takeaway!
                 </>
               ) : (
                 <>
-                  Freshly rolled waffle cones, pure cream artisanal scoops, Banana Splits, shakes, cold coffee, and chilled soda floats at{' '}
-                  <strong className="text-stone-900 font-bold">8B Commercial, Green City, Lahore</strong>. Pure happiness in every bite!
+                  Freshly rolled waffle cones, pure cream fresh scoops, Banana Splits, thick shakes, and chilled soda chillers at{' '}
+                  <strong className="text-stone-900 font-bold">8B Commercial, Green City, Lahore</strong>. Pure dairy delight in every bite!
                 </>
               )}
             </p>
@@ -181,7 +180,7 @@ export const Hero: React.FC<HeroProps> = ({
                   placeholder={
                     isGrill
                       ? 'Search Grilled Chicken Burger, Sandwich, Wrap, Fries Supreme...'
-                      : 'Search Waffle Cones, Banana Split, Scoops, Shakes, Soda Chillers...'
+                      : 'Search Waffle Cones, Banana Split, Fresh Scoops, Shakes...'
                   }
                   className="w-full pl-11 pr-24 py-3.5 rounded-2xl bg-white border-2 border-stone-200 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-400 shadow-xs text-xs sm:text-sm font-semibold transition-all"
                 />
@@ -206,7 +205,7 @@ export const Hero: React.FC<HeroProps> = ({
               {/* Quick Suggestion Chips */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1.5 pt-2.5 text-xs">
                 <span className="text-stone-500 text-[11px] font-semibold mr-1">Popular:</span>
-                {activeChips.slice(0, 5).map((item) => (
+                {activeChips.slice(0, 6).map((item) => (
                   <button
                     key={item}
                     onClick={() => handleQuickChipClick(item)}
@@ -254,8 +253,8 @@ export const Hero: React.FC<HeroProps> = ({
               <div className="bg-white p-3 sm:p-4 rounded-3xl border border-stone-200/90 shadow-md">
                 <div className="relative h-64 sm:h-80 rounded-2xl overflow-hidden bg-stone-100">
                   <img
-                    src={isGrill ? smashBurgerImg : heroDessertImg}
-                    alt={isGrill ? "Frosty's Grilled Chicken Burger" : "Frosty's Handcrafted Ice Cream"}
+                    src={isGrill ? grilledChickenBurgerImg : heroDessertImg}
+                    alt={isGrill ? "Frosty's Grilled Chicken Burger" : "Frosty's Fresh Ice Cream & Sundaes"}
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                   />
@@ -267,10 +266,10 @@ export const Hero: React.FC<HeroProps> = ({
                   <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md p-3 rounded-xl border border-stone-100 shadow-xs flex items-center justify-between">
                     <div>
                       <h4 className="font-heading font-extrabold text-sm text-stone-900">
-                        {isGrill ? 'Flame-Grilled Burgers' : 'Handcrafted Ice Creams'}
+                        {isGrill ? 'Flame-Grilled Burgers' : 'Handmade Ice Creams'}
                       </h4>
                       <p className="text-[11px] text-stone-500">
-                        {isGrill ? 'From Rs. 250 • Available for Delivery' : 'Fresh Cones, Cups & Splits'}
+                        {isGrill ? 'From Rs. 250 • We Deliver in Green City' : 'Fresh Cones, Cups & Splits'}
                       </p>
                     </div>
                     <a
