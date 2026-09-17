@@ -1,12 +1,13 @@
 import { MenuItem, Category, Review } from '../types';
 import heroDessertImg from '../assets/images/hero_menu_spread_1786712734990.jpg';
-import parlorVibeImg from '../assets/images/frostys_parlor_vibe_1785429178264.jpg';
+import outdoorRestaurantImg from '../assets/images/frostys_outdoor_restaurant_1789574647347.jpg';
 import waffleConeImg from '../assets/images/waffle_cone_vanilla_1786712752569.jpg';
 import superCupImg from '../assets/images/frosty_super_cup_1786712766136.jpg';
 import oreoShakeImg from '../assets/images/oreo_shake_frosty_1786712781481.jpg';
 import sundaeCupsImg from '../assets/images/sundae_cups_flavors_1786712799225.jpg';
 import signatureSundaeImg from '../assets/images/mango_signature_sundae_1786712813814.jpg';
-import bananaSplitImg from '../assets/images/banana_split_boat_1786712829612.jpg';
+import simpleBananaSplitImg from '../assets/images/simple_banana_split_1789575200162.jpg';
+import bananaSplitDeluxeImg from '../assets/images/banana_split_deluxe_1789575217205.jpg';
 import layeredSundaeImg from '../assets/images/layered_super_sundae_1786712844405.jpg';
 import kulfiImg from '../assets/images/kulfi_traditional_1786712862075.jpg';
 import iceCreamShakeImg from '../assets/images/ice_cream_shake_tall_1786712877433.jpg';
@@ -25,20 +26,25 @@ import grilledChickenWrapImg from '../assets/images/grilled_chicken_wrap_1789378
 import friesSupremeImg from '../assets/images/fries_supreme_1789378751779.jpg';
 import chickenFriesSupremeImg from '../assets/images/chicken_fries_sup_1789378771407.jpg';
 import grilledSandwichImg from '../assets/images/grilled_sandwich_1789378785905.jpg';
-import bananaSplitDeluxeImg from '../assets/images/banana_split_deluxe_1789378803615.jpg';
 import waffleConeFreshImg from '../assets/images/waffle_cone_fresh_1789378821921.jpg';
 import regularFriesImg from '../assets/images/regular_fries_1789378838165.jpg';
+import tripleDeckerSandwichImg from '../assets/images/triple_decker_sandwich_1789655038591.jpg';
+import frostysBrandedFriesBoxImg from '../assets/images/frostys_branded_fries_box_1789655390541.jpg';
+import frostysDealsComboSodasImg from '../assets/images/frostys_deals_combo_sodas_1789655422401.jpg';
+import frostysDealsSodasImg from '../assets/images/frostys_deals_sodas_1789655408017.jpg';
 
 export {
   heroDessertImg,
-  parlorVibeImg,
+  outdoorRestaurantImg,
+  outdoorRestaurantImg as parlorVibeImg,
   waffleConeImg,
   waffleConeFreshImg,
   superCupImg,
   oreoShakeImg,
   sundaeCupsImg,
   signatureSundaeImg,
-  bananaSplitImg,
+  simpleBananaSplitImg,
+  simpleBananaSplitImg as bananaSplitImg,
   bananaSplitDeluxeImg,
   layeredSundaeImg,
   kulfiImg,
@@ -47,6 +53,8 @@ export {
   coldCoffeeImg,
   sodaChillersImg,
   dealsComboImg,
+  frostysDealsComboSodasImg,
+  frostysDealsSodasImg,
   scoopsSpreadImg,
   pistachioKulfaImg,
   smashBurgerImg,
@@ -58,7 +66,9 @@ export {
   friesSupremeImg,
   chickenFriesSupremeImg,
   grilledSandwichImg,
+  tripleDeckerSandwichImg,
   regularFriesImg,
+  frostysBrandedFriesBoxImg,
 };
 
 export const CATEGORIES: Category[] = [
@@ -69,7 +79,7 @@ export const CATEGORIES: Category[] = [
     description: 'Rich, pure cream ice cream in freshly rolled waffle cones or cups with 2 free syrups & toppings included.',
     image: waffleConeFreshImg,
     badge: '10 Fresh Flavors',
-    startingPrice: 'Rs. 100',
+    startingPrice: 'Rs. 150',
     tagline: '10 Fresh Flavors + 2 Free Toppings',
   },
   {
@@ -79,7 +89,7 @@ export const CATEGORIES: Category[] = [
     description: "Frosty's Super Cup, Deluxe Banana Splits, Mango & Strawberry Purée Cups, and Layered Super Sundaes.",
     image: bananaSplitDeluxeImg,
     badge: 'House Signature',
-    startingPrice: 'Rs. 320',
+    startingPrice: 'Rs. 300',
     tagline: 'Super Cups, Fruit Purees & Banana Splits',
   },
   {
@@ -87,7 +97,7 @@ export const CATEGORIES: Category[] = [
     name: 'Special Deals & Combos',
     icon: 'fa-solid fa-tags',
     description: 'Family Deals, Friends Deals & Super Sundae Combos with scoops and chilled sodas.',
-    image: dealsComboImg,
+    image: frostysDealsComboSodasImg,
     badge: 'Save Up to 200 PKR',
     startingPrice: 'Rs. 499',
     tagline: 'Promotional Ice Cream & Soda Combos',
@@ -108,8 +118,8 @@ export const CATEGORIES: Category[] = [
     icon: 'fa-solid fa-candy-cane',
     description: 'Authentic traditional Pakistani rich and creamy Kulfi on a stick.',
     image: kulfiImg,
-    badge: 'Traditional Special',
-    startingPrice: 'Rs. 80',
+    badge: 'Large Rs. 100',
+    startingPrice: 'Rs. 100',
     tagline: 'Pure Cream Traditional Kulfi on a Stick',
   },
   {
@@ -176,17 +186,17 @@ export const MENU_ITEMS: MenuItem[] = [
     id: 'waffle-cone-classic',
     name: 'Waffle Cone (Soft Serve)',
     category: 'scoops',
-    price: 100,
-    description: 'Freshly rolled crispy waffle cone or cup with smooth vanilla soft serve ice cream. Available in Rs. 100 (crispy cone/cup & soft serve with 2 free toppings) or Rs. 150 (cone/cup with rich chocolate inside the cone & on the ice cream plus 2 free toppings). (Cones are not available for delivery).',
+    price: 150,
+    description: 'Freshly rolled crispy waffle cone or cup with smooth vanilla soft serve ice cream. Special Rs. 150 (cone/cup with rich chocolate inside the cone & on the ice cream plus 2 free toppings) or Regular Rs. 100 (crispy cone/cup & soft serve with 2 free toppings). (Cones are not available for delivery).',
     image: waffleConeFreshImg,
     popular: true,
-    badge: 'Popular Cone',
+    badge: 'Special 150 / Reg 100',
     rating: 4.9,
-    unit: 'Rs. 100 / Rs. 150',
+    unit: 'Special (Rs. 150) / Regular (Rs. 100)',
     tags: ['Waffle Cone (Soft Serve)', 'Waffle Cone', 'Soft Serve', 'Cone', 'Cones', 'Ice Cream Cone', 'Free Toppings'],
     variants: [
-      { name: 'Regular - Cone & Ice Cream with 2 Toppings Free (Rs. 100)', price: 100, scoopsCount: 1 },
       { name: 'Special - Chocolate Inside Cone & On Top with 2 Toppings (Rs. 150)', price: 150, scoopsCount: 1 },
+      { name: 'Regular - Cone & Ice Cream with 2 Toppings Free (Rs. 100)', price: 100, scoopsCount: 1 },
     ],
     allowFlavors: true,
     defaultFlavor: 'Vanilla Soft Serve',
@@ -453,37 +463,37 @@ export const MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'sundae-banana-split',
-    name: 'Simple Banana Split',
+    name: 'Banana Split',
     category: 'sundaes',
-    price: 350,
-    description: 'Classic fresh ripe banana split served with two fresh scoops of your choice, rich chocolate syrup drizzle, and sweet syrup. (Dine-In & Take-Away friendly).',
-    image: bananaSplitDeluxeImg,
+    price: 300,
+    description: 'Chocolate Syrup, Sprinkles. Classic banana split with ice cream scoops cradled between fresh split banana, drizzled with chocolate syrup and colorful sprinkles. (Two Scoop: Rs. 300 | Three Scoop: Rs. 400).',
+    image: simpleBananaSplitImg,
     popular: true,
-    badge: 'Classic Banana Split',
+    badge: 'Chocolate & Sprinkles',
     rating: 4.8,
-    unit: 'Two Scoops (350 PKR)',
-    tags: ['Simple Banana Split', 'Banana Split', 'Sundae', 'Chocolate Syrup'],
+    unit: 'Two Scoop (300 PKR)',
+    tags: ['Banana Split', 'Simple Banana Split', 'Chocolate Syrup', 'Sprinkles', 'Sundae'],
     variants: [
-      { name: 'Simple Banana Split (2 Scoops)', price: 350, scoopsCount: 2 },
-      { name: 'Three Scoop Banana Split', price: 400, scoopsCount: 3 },
+      { name: 'Two Scoop (Chocolate Syrup & Sprinkles)', price: 300, scoopsCount: 2 },
+      { name: 'Three Scoop (Chocolate Syrup & Sprinkles)', price: 400, scoopsCount: 3 },
     ],
     allowFlavors: true,
   },
   {
     id: 'sundae-banana-split-deluxe',
-    name: 'Deluxe Banana Split',
+    name: 'Banana Split Deluxe',
     category: 'sundaes',
     price: 450,
-    description: 'Loaded deluxe banana split with 3 custom scoops, fresh banana, chocolate syrup, colorful sprinkles, rich whipped cream, and fruit puree. (Mango Chunks = Extra 50 PKR).',
+    description: 'Chocolate Syrup, Sprinkles, Whipped Cream, Strawberry/Mango Puree. Fully loaded deluxe banana split with fresh banana, scoops, towering whipped cream, fruit puree ribbons, chocolate syrup & sprinkles. (Two Scoop: Rs. 450 | Three Scoop: Rs. 550 | Mango Chunks: +Rs. 50).',
     image: bananaSplitDeluxeImg,
     popular: true,
-    badge: 'Deluxe Special',
+    badge: 'Whipped Cream & Puree',
     rating: 5.0,
-    unit: 'Deluxe Boat (450 PKR)',
-    tags: ['Deluxe Banana Split', 'Banana Split', 'Whipped Cream', 'Puree', 'Deluxe'],
+    unit: 'Two Scoop (450 PKR)',
+    tags: ['Banana Split Deluxe', 'Whipped Cream', 'Strawberry Puree', 'Mango Puree', 'Sprinkles', 'Chocolate Syrup', 'Deluxe'],
     variants: [
-      { name: 'Deluxe Banana Split (3 Scoops + Cream + Sprinkles)', price: 450, scoopsCount: 3 },
-      { name: 'Deluxe Banana Split with Extra Scoop (4 Scoops)', price: 550, scoopsCount: 4 },
+      { name: 'Two Scoop (Whipped Cream, Puree & Sprinkles)', price: 450, scoopsCount: 2 },
+      { name: 'Three Scoop (Whipped Cream, Puree & Sprinkles)', price: 550, scoopsCount: 3 },
     ],
     allowFlavors: true,
   },
@@ -513,7 +523,7 @@ export const MENU_ITEMS: MenuItem[] = [
     price: 950,
     originalPrice: 1150,
     description: '5 Single Scoops of ice cream (choose 5 flavors) + 2 Soda Chillers (choose 2 soda flavors). Save 200 PKR!',
-    image: dealsComboImg,
+    image: frostysDealsComboSodasImg,
     popular: true,
     badge: 'SPECIAL COMBO',
     rating: 5.0,
@@ -531,7 +541,7 @@ export const MENU_ITEMS: MenuItem[] = [
     price: 950,
     originalPrice: 1150,
     description: '3 Double Scoops (6 scoops total, choose up to 6 flavors) + 2 Soda Chillers (choose 2 soda flavors). Save 200 PKR!',
-    image: dealsComboImg,
+    image: frostysDealsComboSodasImg,
     popular: true,
     badge: 'MEGA SAVINGS',
     rating: 5.0,
@@ -617,17 +627,18 @@ export const MENU_ITEMS: MenuItem[] = [
     id: 'kulfi-traditional',
     name: 'Authentic Creamy Kulfi',
     category: 'kulfi',
-    price: 80,
-    description: 'Authentic traditional creamy Pakistani Kulfi on a wooden stick, prepared with condensed milk, roasted pistachios, and aromatic cardamom.',
+    price: 100,
+    description: 'Authentic traditional creamy Pakistani Kulfi on a wooden stick, prepared with condensed milk, roasted pistachios, and aromatic cardamom. (Large: Rs. 100 | Medium: Rs. 70 | Small: Rs. 50).',
     image: kulfiImg,
     popular: true,
-    badge: 'Traditional Stick',
+    badge: 'Large Rs. 100',
     rating: 5.0,
-    unit: 'Regular (80) / Large (100)',
+    unit: 'Large (100) / Med (70) / Small (50)',
     tags: ['Kulfi', 'Traditional', 'Creamy', 'Stick'],
     variants: [
-      { name: 'Regular Kulfi', price: 80 },
       { name: 'Large Kulfi', price: 100 },
+      { name: 'Medium Kulfi', price: 70 },
+      { name: 'Small Kulfi', price: 50 },
     ],
   },
 
@@ -717,32 +728,18 @@ export const MENU_ITEMS: MenuItem[] = [
     tags: ['Grill', 'Burger', 'Chicken Burger', 'Grilled Chicken', 'Fast Food', 'Burgers'],
   },
   {
-    id: 'ff-beef-smash-burger',
-    name: 'Charcoal Grill Beef Smash Burger',
-    category: 'fast-food-bbq',
-    price: 650,
-    description: 'Double juicy smashed beef patties seared over hot coals with melted cheddar cheese, caramelized onions, house pickles, and signature barbecue sauce on a toasted brioche bun.',
-    image: smashBurgerImg,
-    popular: true,
-    badge: '🔥 Charcoal Grill',
-    rating: 5.0,
-    unit: 'Double Patty Meal (650 PKR)',
-    isConeCupAllowed: false,
-    tags: ['Grill', 'Burger', 'Beef Burger', 'Smash Burger', 'Charcoal', 'Fast Food', 'Burgers'],
-  },
-  {
     id: 'ff-grilled-sandwich',
     name: 'Grilled Chicken Sandwich',
     category: 'fast-food-bbq',
     price: 450,
-    description: 'Tender spiced chicken breast grilled to perfection, layered in golden toasted bread with garden lettuce, fresh tomatoes, sliced cheese, and garlic herb spread.',
-    image: grilledSandwichImg,
-    popular: false,
-    badge: '🔥 Grill Classic',
+    description: 'Triple-layer club grilled sandwich: first toasted bread slice, savory grilled spiced chicken, middle toasted bread slice, followed by juicy sliced tomatoes, garden lettuce, cheese & house dressing, topped with the final golden toasted bread slice.',
+    image: tripleDeckerSandwichImg,
+    popular: true,
+    badge: '🔥 Triple-Decker',
     rating: 4.8,
     unit: 'Full Sandwich (450 PKR)',
     isConeCupAllowed: false,
-    tags: ['Grill', 'Sandwich', 'Chicken Sandwich', 'Fast Food', 'Sandwiches'],
+    tags: ['Grill', 'Sandwich', 'Chicken Sandwich', 'Triple Decker', 'Fast Food', 'Sandwiches'],
   },
   {
     id: 'ff-striped-grill-wrap',
@@ -763,10 +760,10 @@ export const MENU_ITEMS: MenuItem[] = [
     name: 'Regular Fries',
     category: 'fast-food-bbq',
     price: 250,
-    description: 'Hot, golden & crispy salted shoestring fries fried fresh to order. Add melted cheese (+Rs. 70), extra sauce (+Rs. 70), or upgrade to combo (+Rs. 300)!',
-    image: regularFriesImg,
+    description: 'Hot, golden & crispy salted shoestring fries fried fresh to order, served in Frosty\'s signature navy blue takeout meal box (0325 4826051). Add melted cheese (+Rs. 70), extra sauce (+Rs. 70), or upgrade to combo (+Rs. 300)!',
+    image: frostysBrandedFriesBoxImg,
     popular: true,
-    badge: '🔥 Hot & Crispy',
+    badge: '🔥 Branded Box',
     rating: 4.8,
     unit: 'Single Box (250 PKR)',
     isConeCupAllowed: false,
@@ -835,7 +832,7 @@ export const REVIEWS: Review[] = [
     id: 'rev-1',
     name: 'Hamza Malik',
     rating: 5,
-    comment: 'Frosty\'s is our official 1 AM midnight spot in Green City! The Banana Split Deluxe and Grilled Chicken Burger are unbelievable. Super clean parlor and quick service.',
+    comment: 'Frosty\'s is our official 1 AM midnight spot in Green City! The Banana Split Deluxe and Grilled Chicken Burger are unbelievable. Great outdoor dining atmosphere and quick service.',
     date: '2 days ago',
     favItem: 'Banana Split Deluxe',
     tag: 'Verified Late-Night Visitor',

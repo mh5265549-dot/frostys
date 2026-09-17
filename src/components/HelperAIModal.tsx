@@ -300,16 +300,38 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
         };
       }
 
-      if (q.includes('charcoal')) {
+      if (q.includes('sandwich') || q.includes('سینڈوچ')) {
         return {
-          text: "🍔 Charcoal Grill Burger:\n\n• Description: Double charcoal-grilled patties with special pickles, onions, ripe tomatoes & signature smoked sauce.\n• Delivery: Available for Home Delivery, Dine-In & Take-Away!\n• Price: Rs. 600\n• Combo: Add fries & drink for +Rs. 300\n📞 Grill Delivery Hotline: 0325 4826051",
-          urduText: "🍔 چارکول گرل برگر:\n\n• تفصیل: کوئلوں پر گرل کی گئی ڈبل پیٹیز، اسپیشل اچار، پیاز، ٹماٹر اور اسموکڈ ساس۔\n• ڈیلیوری: ہوم ڈیلیوری، ڈائن اِن اور ٹیک اوے کے لیے دستیاب ہے۔\n• قیمت: 600 روپے (کمبو: +300 روپے)\n📞 گرل ڈیلیوری ہاٹ لائن: 03254826051",
+          text: "🥪 Grilled Chicken Sandwich (Rs. 450):\n\n• Structure: Authentic triple-decker club style!\n  1. First golden toasted bread\n  2. Spiced tender grilled chicken\n  3. Middle toasted bread\n  4. Fresh sliced tomatoes, garden lettuce, cheese & house dressing\n  5. Third golden toasted bread\n• Make it a Combo: Add hot fries in our branded box + chilled drink for +Rs. 300\n📞 Grill Delivery Hotline: 0325 4826051",
+          urduText: "🥪 گرلڈ چکن سینڈوچ (450 روپے):\n\n• ساخت: لذیذ ٹرپل ڈیکر کلب اسٹائل!\n  1. پہلی ٹوسٹڈ ڈبل روٹی\n  2. لذیذ میرینیٹڈ گرلڈ چکن\n  3. درمیانی ٹوسٹڈ ڈبل روٹی\n  4. تازہ ٹماٹر، سلاد پتہ، چیز اور ساس\n  5. اوپر تیسری ٹوسٹڈ ڈبل روٹی\n• کمبو بنائیں: فراسٹیز برانڈڈ باکس فرائز + مشروب +300 روپے میں\n📞 گرل ہاٹ لائن: 03254826051",
+          action: {
+            label: "Go to Frosty's Grill Menu 🔥",
+            action: () => {
+              if (onSelectCategory) onSelectCategory('fast-food-bbq');
+              setIsMinimized(true);
+            },
+            icon: 'fa-fire-flame-curved',
+          },
+        };
+      }
+
+      if (q.includes('fries') || q.includes('فرائز')) {
+        return {
+          text: "🍟 Frosty's Crispy Fries:\n\n• Regular Fries (Rs. 250): Fresh golden shoestring fries served in Frosty's custom navy blue takeout meal box (0325 4826051).\n• Fries Supreme (Rs. 350): Melted cheese sauce, jalapeños, onions, tomatoes & chipotle sauce.\n• Grilled Chicken Fries Supreme (Rs. 500): Loaded with flame-grilled chicken chunks & melted cheese!\n• Make it a Combo: +Rs. 300 for fries & drink with any main.",
+          urduText: "🍟 فراسٹیز فرائز مینو:\n\n• ریگولر فرائز (250 روپے): تازہ گرم فرائز فراسٹیز کے مخصوص نیوی بلیو باکس میں۔\n• فرائز سپریم (350 روپے): پگھلی ہوئی چیز ساس اور جاپالینو کے ساتھ۔\n• چکن فرائز سپریم (500 روپے): گرلڈ چکن کے ٹکڑوں سے بھرپور!",
+        };
+      }
+
+      if (q.includes('charcoal') || q.includes('chicken burger')) {
+        return {
+          text: "🍔 Grilled Chicken Burger:\n\n• Description: Juicy, flame-grilled marinated chicken breast fillet with crisp lettuce, sliced tomatoes, melted cheddar & signature smoked sauce on a warm toasted sesame bun.\n• Delivery: Available for Home Delivery, Dine-In & Take-Away!\n• Price: Rs. 600\n• Combo: Add fries & drink for +Rs. 300\n📞 Grill Delivery Hotline: 0325 4826051",
+          urduText: "🍔 گرلڈ چکن برگر:\n\n• تفصیل: لذیذ فلیم گرلڈ میرینیٹڈ چکن بریسٹ فلے، تازہ سلاد پتہ، ٹماٹر، چیز اور اسموکڈ ساس۔\n• ڈیلیوری: ہوم ڈیلیوری، ڈائن اِن اور ٹیک اوے کے لیے دستیاب ہے۔\n• قیمت: 600 روپے (کمبو: +300 روپے)\n📞 گرل ڈیلیوری ہاٹ لائن: 03254826051",
         };
       }
 
       return {
-        text: "🔥 Frosty's Grill Menu & Pricing (WE DELIVER!):\n\n🍔 Mains & Burgers:\n• Grilled Chicken Burger (Rs. 600)\n• Charcoal Grill Burger (Rs. 600)\n• Grilled Chicken Sandwich (Rs. 450)\n• Grilled Chicken Wrap (Rs. 700)\n• Striped Grill Chicken Wrap with Louisiana Chipotle Sauce (Rs. 700)\n\n🍟 Fries Supreme:\n• Regular Fries (Rs. 250)\n• Fries Supreme (Rs. 350)\n• Grilled Chicken Fries Supreme (Rs. 500)\n\n✨ Combos & Extras:\n• Make it a Combo: Add Fries + Drink for +Rs. 300\n• Extra Cheese / Sauce: +Rs. 70\n📞 Grill Hotline: 0325 4826051",
-        urduText: "🔥 فراسٹیز گرل مینو اور قیمتیں (ہوم ڈیلیوری دستیاب ہے!):\n\n🍔 برگرز اور ریپس:\n• گرلڈ چکن برگر (600 روپے)\n• چارکول گرل برگر (600 روپے)\n• گرلڈ چکن سینڈوچ (450 روپے)\n• گرلڈ چکن ریپ (700 روپے)\n• اسٹرائپڈ گرلڈ چکن ریپ بمعہ لوزیانا ساس (700 روپے)\n\n🍟 فرائز سپریم:\n• ریگولر فرائز (250 روپے) | فرائز سپریم (350 روپے) | چکن لوڈڈ سپریم (500 روپے)\n• کمبو بنائیں: فرائز + ڈرنک شامل کریں +300 روپے میں\n📞 گرل ہاٹ لائن: 03254826051",
+        text: "🔥 Frosty's Grill Menu & Pricing (WE DELIVER!):\n\n🍔 Mains & Burgers:\n• Grilled Chicken Burger (Rs. 600)\n• Grilled Chicken Sandwich (Rs. 450)\n• Grilled Chicken Wrap (Rs. 700)\n• Striped Grill Chicken Wrap with Louisiana Chipotle Sauce (Rs. 700)\n\n🍟 Fries Supreme:\n• Regular Fries (Rs. 250)\n• Fries Supreme (Rs. 350)\n• Grilled Chicken Fries Supreme (Rs. 500)\n\n✨ Combos & Extras:\n• Make it a Combo: Add Fries + Drink for +Rs. 300\n• Extra Cheese / Sauce: +Rs. 70\n📞 Grill Hotline: 0325 4826051",
+        urduText: "🔥 فراسٹیز گرل مینو اور قیمتیں (ہوم ڈیلیوری دستیاب ہے!):\n\n🍔 برگرز اور ریپس:\n• گرلڈ چکن برگر (600 روپے)\n• گرلڈ چکن سینڈوچ (450 روپے)\n• گرلڈ چکن ریپ (700 روپے)\n• اسٹرائپڈ گرلڈ چکن ریپ بمعہ لوزیانا ساس (700 روپے)\n\n🍟 فرائز سپریم:\n• ریگولر فرائز (250 روپے) | فرائز سپریم (350 روپے) | چکن لوڈڈ سپریم (500 روپے)\n• کمبو بنائیں: فرائز + ڈرنک شامل کریں +300 روپے میں\n📞 گرل ہاٹ لائن: 03254826051",
         action: {
           label: "Go to Frosty's Grill Menu 🔥",
           action: () => {
@@ -324,8 +346,8 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
     // 4. Banana Splits
     if (q.includes('banana') || q.includes('split') || q.includes('بنانا') || q.includes('اسپلٹ')) {
       return {
-        text: "🍌 Banana Split Variations at Frosty's:\n\n1. Simple Banana Split (Rs. 350):\n• 2 scoops of ice cream, fresh banana slices, dessert syrup (No whipped cream or sprinkles).\n\n2. Deluxe Banana Split (Rs. 450):\n• 3 rich scoops of ice cream, fresh banana slices, rich whipped cream, colorful sprinkles, and premium sauces.",
-        urduText: "🍌 بنانا اسپلٹ کی اقسام:\n\n1. سمپل بنانا اسپلٹ (350 روپے): 2 اسکوپ آئس کریم، تازہ کیلا اور ساس۔ (وہپڈ کریم شامل نہیں)۔\n2. ڈیلکس بنانا اسپلٹ (450 روپے): 3 بڑے اسکوپ، تازہ کیلا، وافر وہپڈ کریم، رنگ برنگے اسپرنکلز اور اسپیشل ساسز۔",
+        text: "🍌 Banana Split Variations at Frosty's:\n\n1. Banana Split (Simple):\n• Ingredients: Chocolate Syrup & Sprinkles\n• Two Scoop: Rs. 300 | Three Scoop: Rs. 400\n• Classic split banana with ice cream scoops, chocolate syrup & sprinkles (no whipped cream or puree).\n\n2. Banana Split Deluxe:\n• Ingredients: Chocolate Syrup, Sprinkles, Whipped Cream, Strawberry/Mango Puree\n• Two Scoop: Rs. 450 | Three Scoop: Rs. 550\n• Extra Mango Chunks: +Rs. 50\n• Loaded with towering whipped cream, fruit puree ribbons, chocolate syrup & sprinkles!",
+        urduText: "🍌 بنانا اسپلٹ کی اقسام:\n\n1. سمپل بنانا اسپلٹ:\n• اجزاء: چاکلیٹ سیرپ اور اسپرنکلز\n• 2 اسکوپ: 300 روپے | 3 اسکوپ: 400 روپے (وہپڈ کریم اور پیوری شامل نہیں)\n\n2. بنانا اسپلٹ ڈیلکس:\n• اجزاء: چاکلیٹ سیرپ، اسپرنکلز، وہپڈ کریم، اسٹرابیری/مینگو پیوری\n• 2 اسکوپ: 450 روپے | 3 اسکوپ: 550 روپے\n• ایکسٹرا مینگو چنکس: +50 روپے",
         action: {
           label: 'View Sundaes Section',
           action: () => {
@@ -340,8 +362,8 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
     // 5. Waffle Cone
     if (q.includes('waffle') || q.includes('soft serve') || q.includes('سافٹ سرو') || q.includes('وافل')) {
       return {
-        text: "🍦 Waffle Cone (Soft Serve) — Rs. 100:\n\n• Crispy freshly rolled waffle cone with smooth vanilla soft serve ice cream, chocolate drizzle, and 2 FREE toppings!\n• Delivery Rule: Cones are not available for delivery (cups can be delivered).",
-        urduText: "🍦 وافل کون سافٹ سرو (100 روپے):\n\n• تازہ کرسپی وافل کون، اسموتھ ونیلا سافٹ سرو، چاکلیٹ ڈرزل اور 2 مفت ٹاپنگز!\n• ڈیلیوری اصول: کونز ہوم ڈیلیوری کے لیے دستیاب نہیں ہیں (کپ ڈیلیور ہو سکتے ہیں)۔",
+        text: "🍦 Waffle Cone (Soft Serve):\n\n• Special (Rs. 150): Rich chocolate inside the cone & on top with 2 FREE toppings!\n• Regular (Rs. 100): Crispy rolled cone with smooth soft serve & 2 FREE toppings!\n• Delivery Rule: Cones are not available for delivery (cups can be delivered).",
+        urduText: "🍦 وافل کون سافٹ سرو:\n\n• اسپیشل (150 روپے): کون کے اندر اور اوپر چاکلیٹ کے ساتھ 2 مفت ٹاپنگز!\n• ریگولر (100 روپے): تازہ کرسپی وافل کون اور آئس کریم 2 مفت ٹاپنگز کے ساتھ۔\n• ڈیلیوری اصول: کونز ہوم ڈیلیوری کے لیے دستیاب نہیں ہیں (کپ ڈیلیور ہو سکتے ہیں)۔",
       };
     }
 
@@ -372,7 +394,23 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
       };
     }
 
-    // 8. WhatsApp Ordering
+    // 8. Kulfi
+    if (q.includes('kulfi') || q.includes('قلفی')) {
+      return {
+        text: "🍢 Authentic Creamy Kulfi on a Stick:\n\n• Small Kulfi: Rs. 50\n• Medium Kulfi: Rs. 70\n• Large Kulfi: Rs. 100\n• Traditional rich condensed milk kulfi infused with roasted pistachios and fragrant cardamom.",
+        urduText: "🍢 روایتی کریمی قلفی کی تازہ ترین قیمتیں:\n\n• چھوٹی قلفی (Small): 50 روپے\n• درمیانی قلفی (Medium): 70 روپے\n• بڑی قلفی (Large): 100 روپے\n• پستے، زعفران اور گاڑھے دودھ سے تیار کردہ خالص روایتی قلفی۔",
+        action: {
+          label: 'View Kulfi in Menu',
+          action: () => {
+            if (onSelectCategory) onSelectCategory('kulfi');
+            onClose();
+          },
+          icon: 'fa-candy-cane',
+        },
+      };
+    }
+
+    // 9. WhatsApp Ordering
     if (q.includes('whatsapp') || q.includes('order') || q.includes('آرڈر') || q.includes('واٹس')) {
       return {
         text: "📱 How to Order via Website & WhatsApp:\n\n1. Select your favorite Grill meals or Ice Cream desserts from the menu.\n2. Tap the floating Bag / Cart button.\n3. Choose your order type: Delivery, Takeaway, or Dine-In.\n4. Click 'Confirm via WhatsApp' — your receipt opens ready to send in WhatsApp!\n• Grill hotline for fast phone orders: 0325 4826051.",
@@ -390,7 +428,7 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
 
     // Default
     return {
-      text: "I am right here to help you! You can ask me about:\n• Frosty's Grill Menu: Burgers (Rs. 600), Sandwiches (Rs. 450), Wraps (Rs. 700), Fries Supreme & Combos\n• Delivery Policy: No Cones for Home Delivery (Dine-in/Take-away only; Cups deliverable)\n• Banana Splits: Simple (Rs. 350) vs Deluxe (Rs. 450)\n• Switching between Ice Cream and Grill\n• Store Location (8B Commercial, Green City, Lahore) & Grill Hotline (0325 4826051)",
+      text: "I am right here to help you! You can ask me about:\n• Frosty's Grill Menu: Burgers (Rs. 600), Sandwiches (Rs. 450), Wraps (Rs. 700), Fries Supreme & Combos\n• Delivery Policy: Cones are not available for delivery (Cups deliverable)\n• Banana Splits: Simple (Rs. 300) vs Deluxe (Rs. 450)\n• Switching between Ice Cream and Grill\n• Store Location (8B Commercial, Green City, Lahore) & Grill Hotline (0325 4826051)",
       urduText: "میں آپ کی مکمل مدد کے لیے حاضر ہوں! آپ مجھ سے فراسٹیز گرل کے برگرز، سینڈوچز، ریپس اور فرائز کی قیمتیں، کونز کی ہوم ڈیلیوری پالیسی، بنانا اسپلٹ کی اقسام، شاپ سوئچ کرنے کا طریقہ، یا گرل ہاٹ لائن (03254826051) کے بارے میں کچھ بھی پوچھ سکتے ہیں۔",
     };
   };

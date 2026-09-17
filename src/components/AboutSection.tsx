@@ -1,5 +1,5 @@
 import React from 'react';
-import { STORE_INFO, parlorVibeImg } from '../data/menuData';
+import { STORE_INFO, outdoorRestaurantImg } from '../data/menuData';
 
 export const AboutSection: React.FC = () => {
   return (
@@ -11,8 +11,8 @@ export const AboutSection: React.FC = () => {
           <div className="lg:col-span-6 space-y-4">
             <div className="relative rounded-3xl overflow-hidden border border-stone-200 shadow-sm group">
               <img
-                src={parlorVibeImg}
-                alt="Frosty's Parlor Interior & Cozy Late Night Vibe in Green City Lahore"
+                src={outdoorRestaurantImg}
+                alt="Frosty's Outdoor Restaurant & Open-Air Dining Vibe in Green City Lahore"
                 referrerPolicy="no-referrer"
                 className="w-full h-[320px] sm:h-[400px] object-cover group-hover:scale-105 transition-transform duration-500"
               />
@@ -20,7 +20,7 @@ export const AboutSection: React.FC = () => {
               <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-stone-200 shadow-md">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-[#FF4B72] text-white flex items-center justify-center font-bold text-lg shrink-0">
-                    <i className="fa-solid fa-store"></i>
+                    <i className="fa-solid fa-tree"></i>
                   </div>
                   <div>
                     <h4 className="font-heading font-bold text-sm text-stone-900">
@@ -76,11 +76,11 @@ export const AboutSection: React.FC = () => {
 
             <h2 className="font-heading font-black text-2xl sm:text-4xl lg:text-5xl text-stone-900 leading-tight">
               Green City’s Favorite <br />
-              <span className="text-[#FF4B72]">Late-Night Food</span> & Dessert Parlor
+              <span className="text-[#FF4B72]">Late-Night Outdoor Restaurant</span> & Grill
             </h2>
 
             <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
-              Founded with a passion for satisfying midnight cravings, <strong>Frosty's & Grill</strong> was born right in the heart of Green City Commercial, Lahore. When standard cafes close down, our kitchen and ice cream counter come alive—serving fresh pure cream ice cream scoops, freshly rolled waffle cones, Banana Splits, cold coffees, shakes, as well as juicy flame-grilled chicken burgers, crispy wraps, and loaded fries supreme until 2:00 AM.
+              Founded with a passion for satisfying midnight cravings, <strong>Frosty's & Grill</strong> was born right in the heart of Green City Commercial, Lahore. When standard eateries close down, our outdoor restaurant and ice cream counter come alive—serving fresh pure cream ice cream scoops, freshly rolled waffle cones, Banana Splits, cold coffees, shakes, as well as juicy flame-grilled chicken burgers, crispy wraps, and loaded fries supreme until 2:00 AM under the evening sky.
             </p>
 
             {/* Feature Highlights */}
@@ -111,12 +111,12 @@ export const AboutSection: React.FC = () => {
 
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 mt-0.5 border border-amber-200">
-                  <i className="fa-solid fa-utensils text-sm"></i>
+                  <i className="fa-solid fa-chair text-sm"></i>
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-stone-900">Dine-In, Takeaway & Fast Delivery</h4>
+                  <h4 className="font-bold text-sm text-stone-900">Outdoor Dining, Takeaway & Fast Delivery</h4>
                   <p className="text-xs text-stone-600">
-                    Relax inside our parlor or order for prompt delivery across Green City in spill-proof packaging.
+                    Enjoy pleasant open-air dining at our outdoor seating or order for prompt delivery across Green City in spill-proof packaging.
                   </p>
                 </div>
               </div>

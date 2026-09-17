@@ -93,8 +93,10 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const [quantity, setQuantity] = useState(1);
   const [instructions, setInstructions] = useState('');
 
-  // Variant selection (e.g., Single, Double, Triple scoop)
-  const defaultVariant = item?.variants && item.variants.length > 0 ? item.variants[0] : undefined;
+  // Variant selection (e.g., Single, Double, Triple scoop, or Special 150 / Regular 100)
+  const defaultVariant = item?.variants && item.variants.length > 0
+    ? (item.variants.find((v) => v.price === item.price) || item.variants[0])
+    : undefined;
   const [selectedVariant, setSelectedVariant] = useState<
     { name: string; price: number; scoopsCount?: number } | undefined
   >(defaultVariant);
@@ -125,7 +127,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
       setQuantity(1);
       setInstructions('');
       setSelectedContainer('Cone');
-      const defVar = item.variants && item.variants.length > 0 ? item.variants[0] : undefined;
+      const defVar = item.variants && item.variants.length > 0
+        ? (item.variants.find((v) => v.price === item.price) || item.variants[0])
+        : undefined;
       setSelectedVariant(defVar);
       if (item.defaultFlavor) {
         setSelectedFlavors([item.defaultFlavor]);
@@ -516,7 +520,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                 <i className="fa-solid fa-layer-group text-amber-600"></i>
                 <span>Choose Serving Size / Variant</span>
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className={`grid grid-cols-1 ${item.variants.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} gap-2.5`}>
                 {item.variants.map((v) => {
                   const isSelected = selectedVariant?.name === v.name;
                   return (
@@ -529,14 +533,19 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                           setSelectedFlavors([]);
                         }
                       }}
-                      className={`p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex flex-col justify-between ${
+                      className={`p-3 rounded-xl border text-left text-xs font-bold transition-all flex flex-col justify-between relative cursor-pointer ${
                         isSelected
-                          ? 'bg-[#2D1B18] text-white border-[#2D1B18] shadow-sm'
+                          ? 'bg-[#2D1B18] text-white border-[#2D1B18] shadow-sm ring-2 ring-amber-400/50'
                           : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-400'
                       }`}
                     >
-                      <span className="truncate">{v.name}</span>
-                      <span className={`text-[11px] font-extrabold mt-1 ${isSelected ? 'text-amber-300' : 'text-[#FF4B72]'}`}>
+                      <div className="flex items-start justify-between gap-1.5 w-full">
+                        <span className="leading-snug text-xs font-semibold">{v.name}</span>
+                        {isSelected && (
+                          <i className="fa-solid fa-circle-check text-amber-300 text-xs shrink-0 mt-0.5"></i>
+                        )}
+                      </div>
+                      <span className={`text-xs font-black mt-2 ${isSelected ? 'text-amber-300' : 'text-[#FF4B72]'}`}>
                         Rs. {v.price}
                       </span>
                     </button>

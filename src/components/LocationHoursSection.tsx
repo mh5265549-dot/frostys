@@ -165,7 +165,7 @@ export const LocationHoursSection: React.FC<LocationHoursSectionProps> = ({
 
               {/* Iframe Map */}
               <iframe
-                title="Frosty's Dessert Parlor Map Location Green City Lahore"
+                title="Frosty's Restaurant Map Location Green City Lahore"
                 src={STORE_INFO.mapEmbedIframeSrc}
                 width="100%"
                 height="100%"

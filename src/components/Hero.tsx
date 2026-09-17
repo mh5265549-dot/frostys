@@ -43,8 +43,8 @@ export const Hero: React.FC<HeroProps> = ({
 
   const iceCreamChips = [
     'Waffle Cone',
-    'Simple Banana Split',
-    'Deluxe Banana Split',
+    'Banana Split',
+    'Banana Split Deluxe',
     'Super Cup',
     'Cold Coffee',
     'Oreo Shake',

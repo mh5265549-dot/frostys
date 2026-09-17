@@ -77,7 +77,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminModal }) => {
               </li>
               <li>
                 <a href="#about" className="hover:text-[#FF4B72] transition-colors">
-                  About Frosty's Parlor
+                  About Frosty's Restaurant
                 </a>
               </li>
               <li>
