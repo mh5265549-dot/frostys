@@ -32,6 +32,10 @@ import tripleDeckerSandwichImg from '../assets/images/triple_decker_sandwich_178
 import frostysBrandedFriesBoxImg from '../assets/images/frostys_branded_fries_box_1789655390541.jpg';
 import frostysDealsComboSodasImg from '../assets/images/frostys_deals_combo_sodas_1789655422401.jpg';
 import frostysDealsSodasImg from '../assets/images/frostys_deals_sodas_1789655408017.jpg';
+import shamiBurgerImg from '../assets/images/shami_burger_1789734977501.jpg';
+import groundChickenBurgerImg from '../assets/images/ground_chicken_burger_1789734994508.jpg';
+import tacos2PcsImg from '../assets/images/grilled_tacos_two_1789735009844.jpg';
+import karakChaiImg from '../assets/images/karak_chai_matka_1789734957616.jpg';
 
 export {
   heroDessertImg,
@@ -69,6 +73,10 @@ export {
   tripleDeckerSandwichImg,
   regularFriesImg,
   frostysBrandedFriesBoxImg,
+  shamiBurgerImg,
+  groundChickenBurgerImg,
+  tacos2PcsImg,
+  karakChaiImg,
 };
 
 export const CATEGORIES: Category[] = [
@@ -146,11 +154,11 @@ export const CATEGORIES: Category[] = [
     id: 'fast-food-bbq',
     name: "Frosty's Grill",
     icon: 'fa-solid fa-fire-flame-curved',
-    description: 'Grilled Chicken Burgers, Sandwiches, Wraps, Fries Supreme & Chicken BBQ Tikka.',
+    description: 'Tacos (2 Pcs), Shami Burgers, Ground Chicken Burgers, Wraps, Sandwiches, Fries Supreme, BBQ Tikka & Karak Chai.',
     image: grilledChickenBurgerImg,
     badge: 'Now Live 🔥',
-    startingPrice: 'Rs. 250',
-    tagline: 'Grilled Fresh. Made Right. (We Deliver in Green City & Paragon!)',
+    startingPrice: 'Rs. 150',
+    tagline: 'Grilled Fresh. Made Right. (We Deliver: 0325 4826051)',
   },
   {
     id: 'all',
@@ -172,7 +180,9 @@ export const ICE_CREAM_CATEGORIES: Category[] = CATEGORIES.filter(
 // Dedicated Frosty's Grill Sub-Categories & Tags
 export const GRILL_TAG_FILTERS = [
   { id: 'all', name: 'All Grill Items', icon: 'fa-solid fa-fire-flame-curved' },
-  { id: 'burger', name: 'Charcoal Burgers', icon: 'fa-solid fa-burger' },
+  { id: 'burger', name: 'Burgers', icon: 'fa-solid fa-burger' },
+  { id: 'tacos', name: 'Tacos (2 Pcs)', icon: 'fa-solid fa-shapes' },
+  { id: 'chai', name: 'Karak Chai', icon: 'fa-solid fa-mug-hot' },
   { id: 'sandwich', name: 'Sandwiches', icon: 'fa-solid fa-bread-slice' },
   { id: 'wrap', name: 'Wraps', icon: 'fa-solid fa-scroll' },
   { id: 'bbq', name: 'BBQ Tikka', icon: 'fa-solid fa-drumstick-bite' },
@@ -713,6 +723,66 @@ export const MENU_ITEMS: MenuItem[] = [
   },
 
   // 8. Live Fast Food & BBQ Items (Frosty's Grill - We Deliver!)
+  {
+    id: 'ff-shami-burger',
+    name: 'Shami Burger',
+    category: 'fast-food-bbq',
+    price: 300,
+    comboPrice: 200,
+    description: 'Traditional spiced chicken shami kabab patty on a toasted sesame bun, layered with fresh lettuce, sliced tomatoes, onions, and Frosty\'s signature grill sauce. Add Cheese (+Rs. 70), Extra Sauce (+Rs. 70), or Make it a Meal with Fries & Drink (+Rs. 200)!',
+    image: shamiBurgerImg,
+    popular: true,
+    badge: '🔥 Rs. 300 Value',
+    rating: 4.9,
+    unit: 'Single Burger (300 PKR)',
+    isConeCupAllowed: false,
+    tags: ['Grill', 'Burger', 'Shami Burger', 'Chicken Shami', 'Fast Food', 'Burgers'],
+  },
+  {
+    id: 'ff-ground-chicken-burger',
+    name: 'Ground Chicken Burger',
+    category: 'fast-food-bbq',
+    price: 350,
+    comboPrice: 200,
+    description: 'Juicy, seasoned minced chicken patty grilled to perfection with crisp lettuce, fresh tomato slices, crunchy onions, and signature house grill sauce on a soft toasted sesame bun. Add Cheese (+Rs. 70), Extra Sauce (+Rs. 70), or Make it a Meal with Fries & Drink (+Rs. 200)!',
+    image: groundChickenBurgerImg,
+    popular: true,
+    badge: '🔥 Rs. 350 Special',
+    rating: 4.9,
+    unit: 'Single Burger (350 PKR)',
+    isConeCupAllowed: false,
+    tags: ['Grill', 'Burger', 'Ground Chicken Burger', 'Chicken Burger', 'Fast Food', 'Burgers'],
+  },
+  {
+    id: 'ff-grilled-chicken-tacos',
+    name: 'Tacos (2 Pcs)',
+    category: 'fast-food-bbq',
+    price: 700,
+    comboPrice: 300,
+    description: 'Two crispy grilled tacos filled with succulent grilled chicken pieces, shredded lettuce, diced tomatoes, chopped onions, and Frosty\'s zesty signature sauce with a lemon wedge. Add Cheese (+Rs. 70), Extra Sauce (+Rs. 70), or Make it a Combo with Fries & Drink (+Rs. 300)!',
+    image: tacos2PcsImg,
+    popular: true,
+    badge: '🔥 2 Pcs Deal (700)',
+    rating: 5.0,
+    unit: '2 Pcs Tacos (700 PKR)',
+    isConeCupAllowed: false,
+    tags: ['Grill', 'Tacos', 'Chicken Tacos', 'Taco', 'Mexican', 'Fast Food', 'Grilled Chicken'],
+  },
+  {
+    id: 'ff-karak-chai',
+    name: 'Karak Chai',
+    category: 'fast-food-bbq',
+    price: 150,
+    isBeverage: true,
+    description: 'Authentic Pakistani hot Karak Chai brewed fresh with whole creamy milk, strong tea leaves, cardamom, and cinnamon, served steaming hot in a rustic clay matka cup. The perfect hot pairing for Frosty\'s Grill!',
+    image: karakChaiImg,
+    popular: true,
+    badge: '☕ Hot Matka Chai',
+    rating: 5.0,
+    unit: 'Clay Matka Cup (150 PKR)',
+    isConeCupAllowed: false,
+    tags: ['Grill', 'Chai', 'Karak Chai', 'Tea', 'Matka Chai', 'Hot Drinks', 'Beverages'],
+  },
   {
     id: 'ff-grilled-chicken-burger',
     name: 'Grilled Chicken Burger',

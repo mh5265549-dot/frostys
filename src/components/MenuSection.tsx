@@ -69,6 +69,9 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
       q.includes('bbq') ||
       q.includes('wrap') ||
       q.includes('taco') ||
+      q.includes('shami') ||
+      q.includes('chai') ||
+      q.includes('tea') ||
       q.includes('fries') ||
       q.includes('grill') ||
       q.includes('zinger'));
@@ -103,6 +106,11 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
       const qIsGrillTag =
         q === 'burger' ||
         q === 'burgers' ||
+        q === 'taco' ||
+        q === 'tacos' ||
+        q === 'chai' ||
+        q === 'tea' ||
+        q === 'shami' ||
         q === 'sandwich' ||
         q === 'wrap' ||
         q === 'bbq' ||
@@ -139,7 +147,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
   });
 
   const iceCreamTags = ['All', 'Cone', 'Vanilla', 'Chocolate', 'Banana Split', 'Sundae', 'Shake', 'Kulfi', 'Soda Chiller', 'Deal'];
-  const grillTags = ['All', 'Burger', 'Sandwich', 'Wrap', 'Tikka', 'Fries', 'Combo'];
+  const grillTags = ['All', 'Burger', 'Tacos', 'Chai', 'Sandwich', 'Wrap', 'Tikka', 'Fries', 'Combo'];
   const activeTagsList = isGrill ? grillTags : iceCreamTags;
 
   return (

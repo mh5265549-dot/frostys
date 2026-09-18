@@ -116,7 +116,10 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
 
   // Specialized Grill State
   const isGrillItem = item?.category === 'fast-food-bbq';
+  const isBeverage = !!item?.isBeverage;
+  const comboPrice = item?.comboPrice ?? 300;
   const [spiceLevel, setSpiceLevel] = useState<'Mild' | 'Medium' | 'Hot & Spicy'>('Medium');
+  const [teaPreference, setTeaPreference] = useState<'Normal' | 'Less Sugar' | 'Kadak (Strong)' | 'Sugar Free'>('Normal');
   const [extraCheese, setExtraCheese] = useState(false);
   const [extraSauce, setExtraSauce] = useState(false);
   const [makeCombo, setMakeCombo] = useState(false);
@@ -140,6 +143,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
       setSelectedSyrups([]);
       setSelectedToppings([]);
       setSpiceLevel('Medium');
+      setTeaPreference('Normal');
       setExtraCheese(false);
       setExtraSauce(false);
       setMakeCombo(false);
@@ -220,8 +224,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const premiumExtraCharges = premiumCount * 50;
 
   const dessertExtraCharges = standardExtraCharges + premiumExtraCharges;
-  const grillExtraCharges =
-    (extraCheese ? 70 : 0) + (extraSauce ? 70 : 0) + (makeCombo ? 300 : 0);
+  const grillExtraCharges = isBeverage
+    ? 0
+    : (extraCheese ? 70 : 0) + (extraSauce ? 70 : 0) + (makeCombo ? comboPrice : 0);
 
   const extraCharges = isGrillItem ? grillExtraCharges : dessertExtraCharges;
 
@@ -232,12 +237,18 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     if (isSoldOut) return;
 
     let standardIndex = selectedSyrups.length;
+    const comboLabel = comboPrice === 200
+      ? 'Meal Upgrade (Hot Fries + Chilled Drink)'
+      : 'Combo Meal (Regular Fries + Chilled Drink)';
+
     const toppingsWithPrice = isGrillItem
-      ? [
-          ...(extraCheese ? [{ name: 'Extra Melted Cheese', price: 70 }] : []),
-          ...(extraSauce ? [{ name: 'Extra Signature Chipotle Sauce', price: 70 }] : []),
-          ...(makeCombo ? [{ name: 'Combo Meal (Regular Fries + Chilled Drink)', price: 300 }] : []),
-        ]
+      ? isBeverage
+        ? []
+        : [
+            ...(extraCheese ? [{ name: 'Extra Melted Cheese', price: 70 }] : []),
+            ...(extraSauce ? [{ name: 'Extra Signature Sauce', price: 70 }] : []),
+            ...(makeCombo ? [{ name: comboLabel, price: comboPrice }] : []),
+          ]
       : selectedToppings.map((name) => {
           const isPremium = PREMIUM_CHUNKS.includes(name);
           if (isPremium) {
@@ -251,7 +262,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
 
     const validatedContainer = validateItemCustomizationContainer(item, selectedContainer);
     const combinedInstructions = isGrillItem
-      ? `Spice: ${spiceLevel}${instructions ? ` | Note: ${instructions}` : ''}`
+      ? isBeverage
+        ? `Tea Sweetness: ${teaPreference}${instructions ? ` | Note: ${instructions}` : ''}`
+        : `Spice: ${spiceLevel}${instructions ? ` | Note: ${instructions}` : ''}`
       : instructions;
 
     onAddToCart(item, quantity, {
@@ -374,86 +387,123 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
           {/* GRILL SPECIFIC CUSTOMIZATION */}
           {isGrillItem && (
             <>
-              {/* Spice Level */}
-              <div className="space-y-2 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
-                <label className="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <i className="fa-solid fa-pepper-hot text-red-500"></i>
-                  <span>Spice Level Preference</span>
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['Mild', 'Medium', 'Hot & Spicy'] as const).map((lvl) => (
-                    <button
-                      key={lvl}
-                      type="button"
-                      onClick={() => setSpiceLevel(lvl)}
-                      className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
-                        spiceLevel === lvl
-                          ? 'bg-[#2D1B18] text-amber-300 border-[#2D1B18] shadow-sm'
-                          : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
-                      }`}
-                    >
-                      {lvl === 'Hot & Spicy' ? '🌶️ Hot & Spicy' : lvl === 'Medium' ? '👌 Medium' : '🌿 Mild'}
-                    </button>
-                  ))}
+              {isBeverage ? (
+                /* Hot Tea / Beverage Customization */
+                <div className="space-y-2.5 bg-amber-50/80 p-3.5 rounded-2xl border border-amber-200">
+                  <label className="text-xs font-extrabold text-amber-950 uppercase tracking-wider flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <i className="fa-solid fa-mug-hot text-amber-700"></i>
+                      <span>Tea Sweetness & Strength</span>
+                    </span>
+                    <span className="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold">
+                      {teaPreference}
+                    </span>
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {(['Normal', 'Less Sugar', 'Kadak (Strong)', 'Sugar Free'] as const).map((pref) => (
+                      <button
+                        key={pref}
+                        type="button"
+                        onClick={() => setTeaPreference(pref)}
+                        className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all text-center ${
+                          teaPreference === pref
+                            ? 'bg-[#2D1B18] text-amber-300 border-[#2D1B18] shadow-sm'
+                            : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300'
+                        }`}
+                      >
+                        {pref === 'Normal' ? '☕ Normal' : pref === 'Less Sugar' ? '🍃 Less Sugar' : pref === 'Kadak (Strong)' ? '🔥 Kadak' : '🚫 Sugar Free'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <>
+                  {/* Spice Level */}
+                  <div className="space-y-2 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
+                    <label className="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <i className="fa-solid fa-pepper-hot text-red-500"></i>
+                      <span>Spice Level Preference</span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(['Mild', 'Medium', 'Hot & Spicy'] as const).map((lvl) => (
+                        <button
+                          key={lvl}
+                          type="button"
+                          onClick={() => setSpiceLevel(lvl)}
+                          className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
+                            spiceLevel === lvl
+                              ? 'bg-[#2D1B18] text-amber-300 border-[#2D1B18] shadow-sm'
+                              : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
+                          }`}
+                        >
+                          {lvl === 'Hot & Spicy' ? '🌶️ Hot & Spicy' : lvl === 'Medium' ? '👌 Medium' : '🌿 Mild'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-              {/* Grill Addons */}
-              <div className="space-y-2 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
-                <label className="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <i className="fa-solid fa-plus-circle text-orange-600"></i>
-                  <span>Grill Add-ons & Meal Upgrades</span>
-                </label>
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => setExtraCheese(!extraCheese)}
-                    className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
-                      extraCheese
-                        ? 'bg-amber-100 text-amber-950 border-amber-400 shadow-sm'
-                        : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300'
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="text-base">🧀</span>
-                      <span>Extra Melted Cheese</span>
-                    </span>
-                    <span className="font-extrabold text-amber-900">+Rs. 70</span>
-                  </button>
+                  {/* Grill Addons */}
+                  <div className="space-y-2 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
+                    <label className="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <i className="fa-solid fa-plus-circle text-orange-600"></i>
+                      <span>Grill Add-ons & Meal Upgrades</span>
+                    </label>
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => setExtraCheese(!extraCheese)}
+                        className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
+                          extraCheese
+                            ? 'bg-amber-100 text-amber-950 border-amber-400 shadow-sm'
+                            : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="text-base">🧀</span>
+                          <span>Extra Melted Cheese</span>
+                        </span>
+                        <span className="font-extrabold text-amber-900">+Rs. 70</span>
+                      </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setExtraSauce(!extraSauce)}
-                    className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
-                      extraSauce
-                        ? 'bg-amber-100 text-amber-950 border-amber-400 shadow-sm'
-                        : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300'
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="text-base">🥫</span>
-                      <span>Extra Signature Chipotle Sauce</span>
-                    </span>
-                    <span className="font-extrabold text-amber-900">+Rs. 70</span>
-                  </button>
+                      <button
+                        type="button"
+                        onClick={() => setExtraSauce(!extraSauce)}
+                        className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
+                          extraSauce
+                            ? 'bg-amber-100 text-amber-950 border-amber-400 shadow-sm'
+                            : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="text-base">🥫</span>
+                          <span>Extra Signature Sauce</span>
+                        </span>
+                        <span className="font-extrabold text-amber-900">+Rs. 70</span>
+                      </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setMakeCombo(!makeCombo)}
-                    className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
-                      makeCombo
-                        ? 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-950 border-orange-400 shadow-sm'
-                        : 'bg-white text-stone-700 border-stone-200 hover:border-orange-300'
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="text-base">🍟🥤</span>
-                      <span>Make it a Combo (Add Regular Fries + Chilled Drink)</span>
-                    </span>
-                    <span className="font-extrabold text-orange-700">+Rs. 300</span>
-                  </button>
-                </div>
-              </div>
+                      <button
+                        type="button"
+                        onClick={() => setMakeCombo(!makeCombo)}
+                        className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
+                          makeCombo
+                            ? 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-950 border-orange-400 shadow-sm'
+                            : 'bg-white text-stone-700 border-stone-200 hover:border-orange-300'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="text-base">🍟🥤</span>
+                          <span>
+                            {comboPrice === 200
+                              ? 'Make it a Meal (Add Hot Fries + Chilled Drink)'
+                              : 'Make it a Combo (Add Regular Fries + Chilled Drink)'}
+                          </span>
+                        </span>
+                        <span className="font-extrabold text-orange-700">+Rs. {comboPrice}</span>
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </>
           )}
 

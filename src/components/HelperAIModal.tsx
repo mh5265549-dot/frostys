@@ -322,6 +322,66 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
         };
       }
 
+      if (q.includes('taco') || q.includes('ٹیکو')) {
+        return {
+          text: "🌮 Tacos (2 Pcs) — Rs. 700:\n\n• Two crispy grilled chicken tacos packed with tender seasoned chicken chunks, fresh shredded lettuce, diced tomatoes, chopped onions & zesty signature sauce with lemon wedge!\n• Add-ons: Cheese (+Rs. 70) | Extra Sauce (+Rs. 70)\n• Make it a Combo: Add Fries and Drink for +Rs. 300\n📞 Delivery Hotline: 0325 4826051",
+          urduText: "🌮 ٹیکوز (2 عدد) — 700 روپے:\n\n• دو خستہ گرلڈ چکن ٹیکوز، لذیذ گرلڈ چکن، تازہ سلاد پتہ، ٹماٹر، پیاز اور مخصوص ساس کے ساتھ۔\n• اضافی: چیز (+70 روپے) | ایکسٹرا ساس (+70 روپے)\n• کمبو بنائیں: فرائز + ڈرنک شامل کریں +300 روپے میں\n📞 ہاٹ لائن: 03254826051",
+          action: {
+            label: "Order Tacos (2 Pcs) 🔥",
+            action: () => {
+              if (onSelectCategory) onSelectCategory('fast-food-bbq');
+              setIsMinimized(true);
+            },
+            icon: 'fa-shapes',
+          },
+        };
+      }
+
+      if (q.includes('chai') || q.includes('tea') || q.includes('چائے') || q.includes('کرک چائے')) {
+        return {
+          text: "☕ Karak Chai (Rs. 150):\n\n• Authentic Pakistani hot Karak Chai brewed fresh with whole creamy milk, strong tea leaves, cardamom, and cinnamon, served steaming hot in an authentic earthenware clay matka cup.\n• Options: Normal, Less Sugar, Kadak (Strong), or Sugar Free!\n• The perfect companion for Frosty's Grill meals.",
+          urduText: "☕ کڑک چائے (150 روپے):\n\n• روایتی گرما گرم کڑک چائے، خالص دودھ، الائچی اور دارچینی کے ساتھ مٹکا کپ میں پیش کی جاتی ہے۔\n• آپشنز: نارمل، کم میٹھا، کڑک، یا شوگر فری۔",
+          action: {
+            label: "Order Karak Chai ☕",
+            action: () => {
+              if (onSelectCategory) onSelectCategory('fast-food-bbq');
+              setIsMinimized(true);
+            },
+            icon: 'fa-mug-hot',
+          },
+        };
+      }
+
+      if (q.includes('shami') || q.includes('شامی')) {
+        return {
+          text: "🍔 Shami Burger — Rs. 300:\n\n• Golden spiced chicken shami patty layered with fresh lettuce, ripe tomatoes, onions & signature grill sauce on a toasted sesame bun.\n• Add-ons: Cheese (+Rs. 70) | Extra Sauce (+Rs. 70)\n• Make it a Meal: Add Fries and Drink for +Rs. 200!\n📞 Delivery Hotline: 0325 4826051",
+          urduText: "🍔 شامی برگر — 300 روپے:\n\n• لذیذ چکن شامی پیٹی، تازہ سلاد پتہ، ٹماٹر، پیاز اور مخصوص گرل ساس تل والے بن میں۔\n• اضافی: چیز (+70 روپے) | ایکسٹرا ساس (+70 روپے)\n• میل بنائیں: فرائز + ڈرنک شامل کریں +200 روپے میں!\n📞 ہاٹ لائن: 03254826051",
+          action: {
+            label: "Order Shami Burger 🔥",
+            action: () => {
+              if (onSelectCategory) onSelectCategory('fast-food-bbq');
+              setIsMinimized(true);
+            },
+            icon: 'fa-burger',
+          },
+        };
+      }
+
+      if (q.includes('ground chicken') || q.includes('گراؤنڈ چکن')) {
+        return {
+          text: "🍔 Ground Chicken Burger — Rs. 350:\n\n• Juicy, seasoned minced chicken patty grilled to perfection with crisp lettuce, fresh tomato slices, crunchy onions & house grill sauce on toasted sesame bun.\n• Add-ons: Cheese (+Rs. 70) | Extra Sauce (+Rs. 70)\n• Make it a Meal: Add Fries and Drink for +Rs. 200!\n📞 Delivery Hotline: 0325 4826051",
+          urduText: "🍔 گراؤنڈ چکن برگر — 350 روپے:\n\n• لذیذ قیمہ چکن پیٹی، تازہ سلاد پتہ، ٹماٹر، پیاز اور مخصوص ساس۔\n• اضافی: چیز (+70 روپے) | ایکسٹرا ساس (+70 روپے)\n• میل بنائیں: فرائز + ڈرنک شامل کریں +200 روپے میں!\n📞 ہاٹ لائن: 03254826051",
+          action: {
+            label: "Order Ground Chicken Burger 🔥",
+            action: () => {
+              if (onSelectCategory) onSelectCategory('fast-food-bbq');
+              setIsMinimized(true);
+            },
+            icon: 'fa-burger',
+          },
+        };
+      }
+
       if (q.includes('charcoal') || q.includes('chicken burger')) {
         return {
           text: "🍔 Grilled Chicken Burger:\n\n• Description: Juicy, flame-grilled marinated chicken breast fillet with crisp lettuce, sliced tomatoes, melted cheddar & signature smoked sauce on a warm toasted sesame bun.\n• Delivery: Available for Home Delivery, Dine-In & Take-Away!\n• Price: Rs. 600\n• Combo: Add fries & drink for +Rs. 300\n📞 Grill Delivery Hotline: 0325 4826051",
@@ -330,8 +390,8 @@ export const HelperAIModal: React.FC<HelperAIModalProps> = ({
       }
 
       return {
-        text: "🔥 Frosty's Grill Menu & Pricing (WE DELIVER!):\n\n🍔 Mains & Burgers:\n• Grilled Chicken Burger (Rs. 600)\n• Grilled Chicken Sandwich (Rs. 450)\n• Grilled Chicken Wrap (Rs. 700)\n• Striped Grill Chicken Wrap with Louisiana Chipotle Sauce (Rs. 700)\n\n🍟 Fries Supreme:\n• Regular Fries (Rs. 250)\n• Fries Supreme (Rs. 350)\n• Grilled Chicken Fries Supreme (Rs. 500)\n\n✨ Combos & Extras:\n• Make it a Combo: Add Fries + Drink for +Rs. 300\n• Extra Cheese / Sauce: +Rs. 70\n📞 Grill Hotline: 0325 4826051",
-        urduText: "🔥 فراسٹیز گرل مینو اور قیمتیں (ہوم ڈیلیوری دستیاب ہے!):\n\n🍔 برگرز اور ریپس:\n• گرلڈ چکن برگر (600 روپے)\n• گرلڈ چکن سینڈوچ (450 روپے)\n• گرلڈ چکن ریپ (700 روپے)\n• اسٹرائپڈ گرلڈ چکن ریپ بمعہ لوزیانا ساس (700 روپے)\n\n🍟 فرائز سپریم:\n• ریگولر فرائز (250 روپے) | فرائز سپریم (350 روپے) | چکن لوڈڈ سپریم (500 روپے)\n• کمبو بنائیں: فرائز + ڈرنک شامل کریں +300 روپے میں\n📞 گرل ہاٹ لائن: 03254826051",
+        text: "🔥 Frosty's Grill Menu & Pricing (WE DELIVER!):\n\n🍔 Burgers & Mains:\n• Shami Burger: Rs. 300 (Meal with Fries & Drink +Rs. 200)\n• Ground Chicken Burger: Rs. 350 (Meal with Fries & Drink +Rs. 200)\n• Grilled Chicken Burger: Rs. 600 (Combo +Rs. 300)\n• Tacos (2 Pcs): Rs. 700 (Combo +Rs. 300)\n• Grilled Chicken Sandwich: Rs. 450 (Triple Decker)\n• Grilled Chicken Wrap: Rs. 700\n• Smoky BBQ Chicken Tikka Boti: Rs. 750\n\n🍟 Fries Supreme & Hot Drinks:\n• Regular Fries: Rs. 250 (Branded Box)\n• Fries Supreme: Rs. 350\n• Grilled Chicken Fries Supreme: Rs. 500\n• Karak Chai: Rs. 150 (Clay Matka Cup)\n\n✨ Add-ons: Cheese +Rs. 70 | Extra Sauce +Rs. 70\n📞 Grill Hotline: 0325 4826051",
+        urduText: "🔥 فراسٹیز گرل مینو اور قیمتیں (ہوم ڈیلیوری دستیاب ہے!):\n\n🍔 برگرز اور مینز:\n• شامی برگر: 300 روپے (میل فرائز اور ڈرنک +200 روپے)\n• گراؤنڈ چکن برگر: 350 روپے (میل فرائز اور ڈرنک +200 روپے)\n• گرلڈ چکن برگر: 600 روپے (کمبو +300 روپے)\n• ٹیکوز (2 عدد): 700 روپے (کمبو +300 روپے)\n• گرلڈ چکن سینڈوچ: 450 روپے\n• گرلڈ چکن ریپ: 700 روپے\n• بی بی کیو چکن تکہ بوٹی: 750 روپے\n\n🍟 فرائز اور گرم چائے:\n• ریگولر فرائز: 250 روپے | فرائز سپریم: 350 روپے | چکن فرائز سپریم: 500 روپے\n• کڑک چائے: 150 روپے (مٹکا کپ)\n\n📞 گرل ہاٹ لائن: 03254826051",
         action: {
           label: "Go to Frosty's Grill Menu 🔥",
           action: () => {

@@ -22,6 +22,8 @@ export interface MenuItem {
   allowSodas?: boolean;
   maxSodas?: number;
   isConeCupAllowed?: boolean;
+  comboPrice?: number;
+  isBeverage?: boolean;
   customizations?: {
     name: string;
     options: { label: string; price: number }[];
