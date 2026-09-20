@@ -4,6 +4,7 @@ export interface MenuItem {
   category: 'scoops' | 'sundaes' | 'deals' | 'fast-food-bbq' | 'shakes' | 'kulfi' | 'coffees' | 'sodas';
   price: number; // In PKR
   originalPrice?: number; // Original PKR price before discount
+  makingCost?: number; // In PKR - raw ingredient & preparation cost to make product
   description: string;
   image: string;
   popular?: boolean;

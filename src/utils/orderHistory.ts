@@ -1,6 +1,7 @@
-import { OrderRecord } from '../types';
+import { OrderRecord, MenuItem } from '../types';
 
 const ORDER_HISTORY_STORAGE_KEY = 'frostys_order_history_v2';
+const SIMULATE_AFTER_3AM_KEY = 'frostys_after_3am_reset_v1';
 
 const now = new Date();
 const todayIso = now.toISOString();
@@ -117,6 +118,71 @@ const INITIAL_DEMO_ORDERS: OrderRecord[] = [
 ];
 
 /**
+ * Get the exact 3:00 AM business day cutoff time.
+ * In the restaurant cycle:
+ * - If current time is >= 3:00 AM, today's business day started at 3:00 AM today.
+ * - If current time is < 3:00 AM, today's business day started at 3:00 AM yesterday.
+ * After 3:00 AM, all orders placed before 3:00 AM move to past order history,
+ * and Today's section starts empty until new orders are logged.
+ */
+export function getBusinessDayStartTime(referenceDate: Date = new Date()): Date {
+  const start = new Date(referenceDate);
+  if (referenceDate.getHours() < 3) {
+    start.setDate(start.getDate() - 1);
+  }
+  start.setHours(3, 0, 0, 0);
+  return start;
+}
+
+/**
+ * Check if manual "After 3:00 AM Reset" simulation toggle is active
+ */
+export function isAfter3amResetActive(): boolean {
+  try {
+    return localStorage.getItem(SIMULATE_AFTER_3AM_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Toggle or set manual 3:00 AM reset simulation
+ */
+export function setAfter3amResetSimulation(active: boolean): void {
+  try {
+    if (active) {
+      localStorage.setItem(SIMULATE_AFTER_3AM_KEY, 'true');
+    } else {
+      localStorage.removeItem(SIMULATE_AFTER_3AM_KEY);
+    }
+  } catch (e) {
+    console.error('Failed to set after 3am simulation:', e);
+  }
+}
+
+/**
+ * Helper to calculate or retrieve the making cost of a product
+ * Food industry standard benchmark: raw ingredients & prep cost is ~40% of retail price
+ */
+export function getItemMakingCost(
+  itemId: string,
+  itemName: string,
+  price: number,
+  menuItems?: MenuItem[]
+): number {
+  if (menuItems && menuItems.length > 0) {
+    const match = menuItems.find(
+      (m) => m.id === itemId || m.name.toLowerCase() === itemName.toLowerCase()
+    );
+    if (match && typeof match.makingCost === 'number' && match.makingCost > 0) {
+      return match.makingCost;
+    }
+  }
+  // Realistic standard preparation & ingredients cost benchmark (40%)
+  return Math.round((price || 400) * 0.4);
+}
+
+/**
  * Read list of order records from localStorage
  */
 export function getStoredOrderHistory(): OrderRecord[] {
@@ -204,39 +270,70 @@ export const updateOrderStatus = updateOrderStatusInStore;
 
 /**
  * Calculate Day, Month, and Overall Sales & Revenue Metrics
+ * with 3:00 AM daily reset, making cost, and net revenue subtraction.
  */
-export function calculateSalesAndRevenue(orders: OrderRecord[]) {
+export function calculateSalesAndRevenue(orders: OrderRecord[], menuItems?: MenuItem[]) {
   const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const simulatedAfter3am = isAfter3amResetActive();
+  
+  // 3:00 AM cutoff threshold for the active business day
+  const businessDayStart = getBusinessDayStartTime(now).getTime();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
 
   let todaySalesCount = 0;
   let todayRevenue = 0;
+  let todayMakingCost = 0;
+
   let monthSalesCount = 0;
   let monthRevenue = 0;
+  let monthMakingCost = 0;
+
   let totalSalesCount = 0;
   let totalRevenue = 0;
+  let totalMakingCost = 0;
 
   const todayOrders: OrderRecord[] = [];
+  const historyOrders: OrderRecord[] = [];
   const monthOrders: OrderRecord[] = [];
 
   for (const order of orders) {
     const isNotCancelled = order.status !== 'Cancelled';
     const orderTime = order.createdAt ? new Date(order.createdAt).getTime() : 0;
 
-    // Total metrics
+    // Calculate order's total making cost across all items
+    let orderMakingCost = 0;
+    if (order.items && Array.isArray(order.items)) {
+      for (const item of order.items) {
+        const unitCost = getItemMakingCost(item.id, item.name, item.price, menuItems);
+        orderMakingCost += unitCost * (item.quantity || 1);
+      }
+    } else {
+      orderMakingCost = Math.round(order.totalAmount * 0.4);
+    }
+
+    // All-time metrics
     if (isNotCancelled) {
       totalSalesCount += 1;
       totalRevenue += order.totalAmount;
+      totalMakingCost += orderMakingCost;
     }
 
-    // Today metrics
-    if (orderTime >= startOfToday) {
+    // 3:00 AM Daily Rule:
+    // If simulatedAfter3am is active, OR if order was created before 3:00 AM cutoff,
+    // it belongs to the past Order History section and NOT today.
+    // If order was created at or after 3:00 AM (and not simulated reset), it is Today's order!
+    const isTodayOrder = !simulatedAfter3am && orderTime >= businessDayStart;
+
+    if (isTodayOrder) {
       todayOrders.push(order);
       if (isNotCancelled) {
         todaySalesCount += 1;
         todayRevenue += order.totalAmount;
+        todayMakingCost += orderMakingCost;
       }
+    } else {
+      // Shifter to order history section
+      historyOrders.push(order);
     }
 
     // Month metrics
@@ -245,32 +342,38 @@ export function calculateSalesAndRevenue(orders: OrderRecord[]) {
       if (isNotCancelled) {
         monthSalesCount += 1;
         monthRevenue += order.totalAmount;
+        monthMakingCost += orderMakingCost;
       }
     }
   }
 
-  // Fallback: If no order happened today in simulated state, give a minimum realistic snapshot from the latest active orders
-  if (todayOrders.length === 0 && orders.length > 0) {
-    // Take the first 2 orders as today's fallback for display
-    const sampleToday = orders.slice(0, 2);
-    sampleToday.forEach((o) => {
-      todayOrders.push(o);
-      if (o.status !== 'Cancelled') {
-        todaySalesCount += 1;
-        todayRevenue += o.totalAmount;
-      }
-    });
-  }
+  // Net revenue = Gross Revenue minus Total Making Cost
+  const todayNetRevenue = todayRevenue - todayMakingCost;
+  const monthNetRevenue = monthRevenue - monthMakingCost;
+  const totalNetRevenue = totalRevenue - totalMakingCost;
 
   return {
     todaySalesCount,
     todayRevenue,
+    todayMakingCost,
+    todayNetRevenue,
     monthSalesCount,
     monthRevenue,
+    monthMakingCost,
+    monthNetRevenue,
     totalSalesCount,
     totalRevenue,
+    totalMakingCost,
+    totalNetRevenue,
     todayOrders,
+    historyOrders,
     monthOrders,
+    businessDayCutoffTime: getBusinessDayStartTime(now).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }),
+    isAfter3amResetActive: simulatedAfter3am,
   };
 }
 

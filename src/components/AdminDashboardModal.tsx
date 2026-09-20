@@ -5,7 +5,12 @@ import {
   saveAdminPassword,
   checkAdminPassword,
 } from '../utils/menuStore';
-import { calculateSalesAndRevenue } from '../utils/orderHistory';
+import {
+  calculateSalesAndRevenue,
+  getItemMakingCost,
+  setAfter3amResetSimulation,
+  isAfter3amResetActive,
+} from '../utils/orderHistory';
 
 interface AdminDashboardModalProps {
   isOpen: boolean;
@@ -130,6 +135,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [newProdName, setNewProdName] = useState('');
   const [newProdCategory, setNewProdCategory] = useState<MenuItem['category']>('fast-food-bbq');
   const [newProdPrice, setNewProdPrice] = useState<number | ''>('');
+  const [newProdMakingCost, setNewProdMakingCost] = useState<number | ''>('');
   const [newProdOriginalPrice, setNewProdOriginalPrice] = useState<number | ''>('');
   const [newProdDescription, setNewProdDescription] = useState('');
   const [newProdBadge, setNewProdBadge] = useState('');
@@ -142,12 +148,25 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   // Item detail editing state (for editing options directly in kitchen inventory)
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [editPrice, setEditPrice] = useState<number | ''>('');
+  const [editMakingCost, setEditMakingCost] = useState<number | ''>('');
   const [editOriginalPrice, setEditOriginalPrice] = useState<number | ''>('');
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editBadge, setEditBadge] = useState('');
   const [editStockUnits, setEditStockUnits] = useState<number>(15);
   const [editSuccessMsg, setEditSuccessMsg] = useState('');
+
+  // Category selection for product sales & making cost analysis: 'grill' | 'ice-cream'
+  const [productAnalysisCategory, setProductAnalysisCategory] = useState<'grill' | 'ice-cream'>('grill');
+
+  // 3:00 AM Reset simulation toggle state
+  const [is3amResetSimulated, setIs3amResetSimulated] = useState<boolean>(() => isAfter3amResetActive());
+
+  const handleToggle3amSimulation = () => {
+    const nextVal = !is3amResetSimulated;
+    setAfter3amResetSimulation(nextVal);
+    setIs3amResetSimulated(nextVal);
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -178,10 +197,54 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     return reviews.filter((r) => r.rating >= 4);
   }, [reviews]);
 
+  // Product-by-product sales, making cost, and net revenue calculations
+  const productFinancials = useMemo(() => {
+    const salesMap: Record<string, { unitsSold: number; totalSales: number }> = {};
+    for (const order of orders) {
+      if (order.status === 'Cancelled') continue;
+      if (!order.items || !Array.isArray(order.items)) continue;
+      for (const item of order.items) {
+        if (!salesMap[item.id]) {
+          salesMap[item.id] = { unitsSold: 0, totalSales: 0 };
+        }
+        salesMap[item.id].unitsSold += item.quantity || 1;
+        salesMap[item.id].totalSales += (item.price || 0) * (item.quantity || 1);
+      }
+    }
+
+    return menuItems.map((item) => {
+      const isGrill = item.category === 'fast-food-bbq';
+      const salesData = salesMap[item.id] || { unitsSold: 0, totalSales: 0 };
+      const unitsSold = salesData.unitsSold;
+      const totalSales = salesData.totalSales;
+      const unitMakingCost = getItemMakingCost(item.id, item.name, item.price, menuItems);
+      const totalMakingCost = unitsSold * unitMakingCost;
+      const netRevenue = totalSales - totalMakingCost;
+
+      return {
+        ...item,
+        isGrill,
+        unitsSold,
+        totalSales,
+        unitMakingCost,
+        totalMakingCost,
+        netRevenue,
+      };
+    });
+  }, [menuItems, orders]);
+
+  const grillFinancialProducts = useMemo(() => {
+    return productFinancials.filter((p) => p.isGrill);
+  }, [productFinancials]);
+
+  const iceCreamFinancialProducts = useMemo(() => {
+    return productFinancials.filter((p) => !p.isGrill);
+  }, [productFinancials]);
+
   if (!isOpen) return null;
 
-  // Calculate day + month sales & revenue
-  const salesMetrics = calculateSalesAndRevenue(orders);
+  // Calculate day + month sales & revenue with 3:00 AM cutoff rule
+  const salesMetrics = calculateSalesAndRevenue(orders, menuItems);
 
   // Authentication Login Handler
   const handleLogin = (e: React.FormEvent) => {
@@ -299,6 +362,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       name: newProdName.trim(),
       category: newProdCategory,
       price: Number(newProdPrice),
+      makingCost: newProdMakingCost !== '' && Number(newProdMakingCost) >= 0 ? Number(newProdMakingCost) : Math.round(Number(newProdPrice) * 0.4),
       originalPrice: newProdOriginalPrice ? Number(newProdOriginalPrice) : undefined,
       description: newProdDescription.trim() || `${newProdName.trim()} freshly prepared with quality ingredients.`,
       image: newProdPicture.trim(),
@@ -318,6 +382,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     // Reset form
     setNewProdName('');
     setNewProdPrice('');
+    setNewProdMakingCost('');
     setNewProdOriginalPrice('');
     setNewProdDescription('');
     setNewProdBadge('');
@@ -327,6 +392,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const handleOpenEditItem = (item: MenuItem) => {
     setEditingItem(item);
     setEditPrice(item.price);
+    setEditMakingCost(item.makingCost ?? Math.round(item.price * 0.4));
     setEditOriginalPrice(item.originalPrice ?? '');
     setEditName(item.name);
     setEditDescription(item.description);
@@ -346,6 +412,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       ...editingItem,
       name: editName.trim(),
       price: Number(editPrice),
+      makingCost: editMakingCost !== '' && Number(editMakingCost) >= 0 ? Number(editMakingCost) : undefined,
       originalPrice: editOriginalPrice ? Number(editOriginalPrice) : undefined,
       description: editDescription.trim(),
       badge: editBadge.trim() || undefined,
@@ -644,148 +711,218 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
             )}
 
             {/* HIGH-LEVEL SALES & REVENUE KPI CARDS (DAY + MONTH) - ALL CLICKABLE TO JUMP TO SECTIONS */}
-            <div className="shrink-0 p-3 sm:p-4 bg-[#160E0D] border-b border-stone-800 grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-              
-              {/* Today's Sales & Revenue Card */}
-              <div 
-                onClick={() => {
-                  setActiveTab('sales');
-                  setSalesTimeRange('today');
-                }}
-                className={`p-3.5 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden ${
-                  activeTab === 'sales' && salesTimeRange === 'today'
-                    ? 'bg-[#2a1b18] border-amber-500 shadow-md shadow-amber-500/10'
-                    : 'bg-[#241715] hover:bg-[#2c1d1a] border-amber-900/40 hover:border-amber-500/70'
-                }`}
-                title="Click to view Today's detailed sales breakdown"
-              >
-                <div className="flex items-center justify-between text-stone-400 text-xs mb-1">
-                  <span className="font-bold text-amber-400 flex items-center gap-1.5 group-hover:text-amber-300">
-                    <i className="fa-solid fa-sun text-xs text-amber-400"></i>
-                    Today's Revenue
-                  </span>
-                  <span className="bg-amber-500/20 text-amber-300 text-[10px] font-black px-1.5 py-0.5 rounded">
-                    DAY
-                  </span>
+            <div className="shrink-0 p-3 sm:p-4 bg-[#160E0D] border-b border-stone-800 space-y-3">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+                
+                {/* 1. Today's Revenue Box */}
+                <div 
+                  onClick={() => {
+                    setActiveTab('sales');
+                    setSalesTimeRange('today');
+                  }}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden ${
+                    activeTab === 'sales' && salesTimeRange === 'today'
+                      ? 'bg-[#2a1b18] border-amber-500 shadow-md shadow-amber-500/10 ring-1 ring-amber-400/40'
+                      : 'bg-[#241715] hover:bg-[#2c1d1a] border-amber-900/40 hover:border-amber-500/70'
+                  }`}
+                  title="Click to view Today's active sales and revenue portion"
+                >
+                  <div className="flex items-center justify-between text-stone-400 text-xs mb-1">
+                    <span className="font-bold text-amber-400 flex items-center gap-1.5 group-hover:text-amber-300">
+                      <i className="fa-solid fa-sun text-xs text-amber-400"></i>
+                      Today's Revenue
+                    </span>
+                    <span className="bg-amber-500/20 text-amber-300 text-[10px] font-black px-1.5 py-0.5 rounded">
+                      DAY
+                    </span>
+                  </div>
+                  <div className="font-heading font-black text-lg sm:text-2xl text-amber-300">
+                    Rs. {salesMetrics.todayRevenue.toLocaleString()}
+                  </div>
+                  <div className="text-[11px] text-stone-400 mt-0.5 flex items-center justify-between font-semibold">
+                    <span className="flex items-center gap-1">
+                      <i className="fa-solid fa-receipt text-[10px] text-amber-500"></i>
+                      {salesMetrics.todaySalesCount} orders today
+                    </span>
+                    <span className="text-[10px] text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                      View &rarr;
+                    </span>
+                  </div>
                 </div>
-                <div className="font-heading font-black text-lg sm:text-2xl text-amber-300">
-                  Rs. {salesMetrics.todayRevenue.toLocaleString()}
+
+                {/* 2. Total Cost to Make Products Box (Next to Today's Box as requested) */}
+                <div 
+                  onClick={() => {
+                    setActiveTab('sales');
+                    setSalesTimeRange('today');
+                  }}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden ${
+                    activeTab === 'sales' && salesTimeRange === 'today'
+                      ? 'bg-[#14231b] border-emerald-500 shadow-md shadow-emerald-500/10 ring-1 ring-emerald-400/40'
+                      : 'bg-[#18231c] hover:bg-[#1c2c22] border-emerald-900/50 hover:border-emerald-500/70'
+                  }`}
+                  title="Total Cost to Make Products: Amount after subtracting making cost from total revenue"
+                >
+                  <div className="flex items-center justify-between text-stone-400 text-xs mb-1">
+                    <span className="font-bold text-emerald-400 flex items-center gap-1.5 group-hover:text-emerald-300">
+                      <i className="fa-solid fa-calculator text-xs text-emerald-400"></i>
+                      Total Cost to Make Products
+                    </span>
+                    <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-black px-1.5 py-0.5 rounded">
+                      NET
+                    </span>
+                  </div>
+                  <div className="font-heading font-black text-lg sm:text-2xl text-emerald-300">
+                    Rs. {salesMetrics.todayNetRevenue.toLocaleString()}
+                  </div>
+                  <div className="text-[11px] text-stone-400 mt-0.5 flex items-center justify-between font-semibold">
+                    <span className="flex items-center gap-1 text-emerald-400/90 truncate">
+                      <i className="fa-solid fa-circle-minus text-[9px] text-rose-400"></i>
+                      After -Rs. {salesMetrics.todayMakingCost.toLocaleString()} making cost
+                    </span>
+                    <span className="text-[10px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                      View &rarr;
+                    </span>
+                  </div>
                 </div>
-                <div className="text-[11px] text-stone-400 mt-0.5 flex items-center justify-between font-semibold">
-                  <span className="flex items-center gap-1">
-                    <i className="fa-solid fa-receipt text-[10px] text-amber-500"></i>
-                    {salesMetrics.todaySalesCount} orders today
-                  </span>
-                  <span className="text-[10px] text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    View &rarr;
-                  </span>
+
+                {/* 3. This Month's Revenue Box */}
+                <div 
+                  onClick={() => {
+                    setActiveTab('sales');
+                    setSalesTimeRange('month');
+                  }}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden ${
+                    activeTab === 'sales' && salesTimeRange === 'month'
+                      ? 'bg-[#182333] border-blue-500 shadow-md shadow-blue-500/10 ring-1 ring-blue-400/40'
+                      : 'bg-[#241715] hover:bg-[#1a2333] border-blue-900/40 hover:border-blue-500/70'
+                  }`}
+                  title="Click to view This Month's detailed sales breakdown"
+                >
+                  <div className="flex items-center justify-between text-stone-400 text-xs mb-1">
+                    <span className="font-bold text-blue-400 flex items-center gap-1.5 group-hover:text-blue-300">
+                      <i className="fa-solid fa-calendar-days text-xs text-blue-400"></i>
+                      This Month's Revenue
+                    </span>
+                    <span className="bg-blue-500/20 text-blue-300 text-[10px] font-black px-1.5 py-0.5 rounded">
+                      MONTH
+                    </span>
+                  </div>
+                  <div className="font-heading font-black text-lg sm:text-2xl text-blue-200">
+                    Rs. {salesMetrics.monthRevenue.toLocaleString()}
+                  </div>
+                  <div className="text-[11px] text-stone-400 mt-0.5 flex items-center justify-between font-semibold">
+                    <span className="flex items-center gap-1">
+                      <i className="fa-solid fa-chart-line text-[10px] text-blue-400"></i>
+                      {salesMetrics.monthSalesCount} orders this month
+                    </span>
+                    <span className="text-[10px] text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                      View &rarr;
+                    </span>
+                  </div>
                 </div>
+
+                {/* 4. Monthly Total Cost & Net Revenue Box */}
+                <div 
+                  onClick={() => {
+                    setActiveTab('sales');
+                    setSalesTimeRange('month');
+                  }}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden ${
+                    activeTab === 'sales' && salesTimeRange === 'month'
+                      ? 'bg-[#231b2e] border-purple-500 shadow-md shadow-purple-500/10'
+                      : 'bg-[#241715] hover:bg-[#231b2e] border-purple-900/40 hover:border-purple-500/70'
+                  }`}
+                  title="Click to view Monthly Net Profit after subtracting making costs"
+                >
+                  <div className="flex items-center justify-between text-stone-400 text-xs mb-1">
+                    <span className="font-bold text-purple-300 flex items-center gap-1.5 group-hover:text-purple-200">
+                      <i className="fa-solid fa-scale-balanced text-xs text-purple-400"></i>
+                      Monthly Cost & Net
+                    </span>
+                    <span className="bg-purple-500/20 text-purple-300 text-[10px] font-black px-1.5 py-0.5 rounded">
+                      MONTH NET
+                    </span>
+                  </div>
+                  <div className="font-heading font-black text-lg sm:text-2xl text-purple-200">
+                    Rs. {salesMetrics.monthNetRevenue.toLocaleString()}
+                  </div>
+                  <div className="text-[11px] text-stone-400 mt-0.5 flex items-center justify-between font-semibold">
+                    <span className="flex items-center gap-1 text-purple-300/80 truncate">
+                      <i className="fa-solid fa-circle-minus text-[9px] text-rose-400"></i>
+                      Cost: Rs. {salesMetrics.monthMakingCost.toLocaleString()}
+                    </span>
+                    <span className="text-[10px] text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                      View &rarr;
+                    </span>
+                  </div>
+                </div>
+
               </div>
 
-              {/* This Month's Sales & Revenue Card */}
-              <div 
-                onClick={() => {
-                  setActiveTab('sales');
-                  setSalesTimeRange('month');
-                }}
-                className={`p-3.5 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden ${
-                  activeTab === 'sales' && salesTimeRange === 'month'
-                    ? 'bg-[#182333] border-blue-500 shadow-md shadow-blue-500/10'
-                    : 'bg-[#241715] hover:bg-[#1a2333] border-blue-900/40 hover:border-blue-500/70'
-                }`}
-                title="Click to view This Month's detailed sales breakdown"
-              >
-                <div className="flex items-center justify-between text-stone-400 text-xs mb-1">
-                  <span className="font-bold text-blue-400 flex items-center gap-1.5 group-hover:text-blue-300">
-                    <i className="fa-solid fa-calendar-days text-xs text-blue-400"></i>
-                    This Month's Revenue
+              {/* Status Sub-Bar: 3:00 AM Register Status + Compliments & Stock Quick Navigation */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 px-3.5 py-2.5 bg-[#140D0C] border border-stone-800 rounded-xl text-xs">
+                
+                {/* 3:00 AM Register Rollover Notice & Simulation Button */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="flex items-center gap-1.5 font-bold text-stone-300">
+                    <i className="fa-solid fa-clock text-amber-400"></i>
+                    <span>3:00 AM Daily Reset:</span>
                   </span>
-                  <span className="bg-blue-500/20 text-blue-300 text-[10px] font-black px-1.5 py-0.5 rounded">
-                    MONTH
-                  </span>
-                </div>
-                <div className="font-heading font-black text-lg sm:text-2xl text-blue-200">
-                  Rs. {salesMetrics.monthRevenue.toLocaleString()}
-                </div>
-                <div className="text-[11px] text-stone-400 mt-0.5 flex items-center justify-between font-semibold">
-                  <span className="flex items-center gap-1">
-                    <i className="fa-solid fa-chart-line text-[10px] text-blue-400"></i>
-                    {salesMetrics.monthSalesCount} orders this month
-                  </span>
-                  <span className="text-[10px] text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    View &rarr;
-                  </span>
-                </div>
-              </div>
+                  {is3amResetSimulated ? (
+                    <span className="bg-emerald-950/80 text-emerald-300 border border-emerald-800/80 px-2 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      3:00 AM Reset Active (Today is Empty, Orders in History)
+                    </span>
+                  ) : (
+                    <span className="bg-stone-800/80 text-stone-300 border border-stone-700 px-2 py-0.5 rounded-full text-[11px] font-medium flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                      Active Day (Past orders move to History at 3:00 AM)
+                    </span>
+                  )}
 
-              {/* Compliments vs Complaints Ratio Card */}
-              <div 
-                onClick={() => setActiveTab('compliments')}
-                className={`p-3.5 rounded-2xl border transition-all cursor-pointer group ${
-                  activeTab === 'compliments' || activeTab === 'complaints'
-                    ? 'bg-[#182620] border-emerald-500 shadow-md shadow-emerald-500/10'
-                    : 'bg-[#241715] hover:bg-[#1c2a23] border-emerald-900/40 hover:border-emerald-500/70'
-                }`}
-                title="Click to view Customer Praise and Feedback"
-              >
-                <div className="flex items-center justify-between text-stone-400 text-xs mb-1">
-                  <span className="font-bold text-emerald-400 flex items-center gap-1.5 group-hover:text-emerald-300">
-                    <i className="fa-solid fa-heart text-xs text-emerald-400"></i>
-                    Compliments
-                  </span>
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActiveTab('complaints');
-                    }}
-                    className="bg-rose-950/80 hover:bg-rose-900 text-rose-300 text-[10px] font-bold px-1.5 py-0.5 rounded border border-rose-900/50 cursor-pointer"
-                    title="Jump to Complaints"
+                    onClick={handleToggle3amSimulation}
+                    className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600 hover:border-amber-400 flex items-center gap-1"
+                    title="Toggle to simulate 3:00 AM automatic register reset"
                   >
-                    {complaints.length} Complaints
+                    <i className="fa-solid fa-arrows-rotate text-amber-400"></i>
+                    <span>{is3amResetSimulated ? 'Restore Active Day Orders' : 'Simulate 3:00 AM Reset'}</span>
                   </button>
                 </div>
-                <div className="font-heading font-black text-lg sm:text-2xl text-emerald-300">
-                  {complimentsList.length} Praise
-                </div>
-                <div className="text-[11px] text-stone-400 mt-0.5 flex items-center justify-between font-semibold">
-                  <span>{complaints.filter((c) => c.status === 'Resolved').length} complaints resolved</span>
-                  <span className="text-[10px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    View &rarr;
-                  </span>
-                </div>
-              </div>
 
-              {/* Kitchen Physical Stock Card */}
-              <div 
-                onClick={() => setActiveTab('inventory')}
-                className={`p-3.5 rounded-2xl border transition-all cursor-pointer group ${
-                  activeTab === 'inventory'
-                    ? 'bg-[#2b1c18] border-orange-500 shadow-md shadow-orange-500/10'
-                    : 'bg-[#241715] hover:bg-[#2b1c18] border-orange-900/40 hover:border-orange-500/70'
-                }`}
-                title="Click to manage Kitchen Stock and Out-of-Stock items"
-              >
-                <div className="flex items-center justify-between text-stone-400 text-xs mb-1">
-                  <span className="font-bold text-orange-400 flex items-center gap-1.5 group-hover:text-orange-300">
-                    <i className="fa-solid fa-boxes-stacked text-xs text-orange-400"></i>
-                    Kitchen Stock
-                  </span>
-                  <span className="text-[10px] text-stone-400 font-bold">
-                    {menuItems.length} Products
-                  </span>
-                </div>
-                <div className="font-heading font-black text-lg sm:text-2xl text-orange-300">
-                  {menuItems.filter((i) => (inventory[i.id] ?? 15) <= 0).length} Out of Stock
-                </div>
-                <div className="text-[11px] text-stone-400 mt-0.5 flex items-center justify-between font-semibold">
-                  <span>{menuItems.filter((i) => (inventory[i.id] ?? 15) > 0 && (inventory[i.id] ?? 15) <= 5).length} items running low</span>
-                  <span className="text-[10px] text-orange-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Manage &rarr;
-                  </span>
-                </div>
-              </div>
+                {/* Quick Secondary Links */}
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('compliments')}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-950/40 hover:bg-emerald-950 text-emerald-300 border border-emerald-800/40 text-[11px] font-bold cursor-pointer transition-colors flex items-center gap-1"
+                  >
+                    <i className="fa-solid fa-heart text-[10px]"></i>
+                    <span>{complimentsList.length} Praise</span>
+                  </button>
 
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('complaints')}
+                    className="px-2.5 py-1 rounded-lg bg-rose-950/40 hover:bg-rose-950 text-rose-300 border border-rose-800/40 text-[11px] font-bold cursor-pointer transition-colors flex items-center gap-1"
+                  >
+                    <i className="fa-solid fa-circle-exclamation text-[10px]"></i>
+                    <span>{complaints.length} Complaints</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('inventory')}
+                    className="px-2.5 py-1 rounded-lg bg-orange-950/40 hover:bg-orange-950 text-orange-300 border border-orange-800/40 text-[11px] font-bold cursor-pointer transition-colors flex items-center gap-1"
+                  >
+                    <i className="fa-solid fa-boxes-stacked text-[10px]"></i>
+                    <span>{menuItems.length} Stock</span>
+                  </button>
+                </div>
+
+              </div>
             </div>
 
             {/* ADMIN NAVIGATION TABS - NEVER COLLAPSES, ALWAYS VISIBLE & INTERACTIVE */}
@@ -894,105 +1031,170 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
             {/* TAB CONTENTS CONTAINER */}
             <div className="p-4 sm:p-6 flex-1 min-h-0 overflow-y-auto">
               
-              {/* TAB 1: SALES & REVENUE (DAY + MONTH DETAILED BREAKDOWN) */}
+              {/* TAB 1: SALES & REVENUE (SEPARATED TODAY, MONTHLY, 3 AM ORDER HISTORY, AND CATEGORY PRODUCT ANALYSIS) */}
               {activeTab === 'sales' && (
-                <div className="space-y-6 animate-panel-enter">
+                <div className="space-y-8 animate-panel-enter">
                   
-                  {/* Filter Sub-Bar for Day vs Month */}
+                  {/* Top Navigation & Jump Anchors */}
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#140D0C] p-4 rounded-2xl border border-stone-800">
                     <div>
                       <h3 className="font-heading font-black text-lg text-amber-100 flex items-center gap-2">
                         <i className="fa-solid fa-money-bill-trend-up text-amber-400"></i>
-                        <span>Sales & Revenue Tracker</span>
+                        <span>Sales, Revenue & Making Cost Portal</span>
                       </h3>
                       <p className="text-xs text-stone-400">
-                        Select a timeframe to inspect detailed order revenue and physical kitchen sales.
+                        Separated daily & monthly revenue registers, 3:00 AM order archiving, and category product cost analysis.
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1.5 bg-stone-900 p-1 rounded-xl border border-stone-700">
-                      <button
-                        onClick={() => setSalesTimeRange('today')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                          salesTimeRange === 'today'
-                            ? 'bg-amber-500 text-stone-950 shadow-sm'
-                            : 'text-stone-400 hover:text-white'
-                        }`}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <a
+                        href="#todays-revenue-portion"
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30 transition-all flex items-center gap-1.5"
                       >
-                        Today ({salesMetrics.todayOrders.length})
-                      </button>
-                      <button
-                        onClick={() => setSalesTimeRange('month')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                          salesTimeRange === 'month'
-                            ? 'bg-blue-500 text-white shadow-sm'
-                            : 'text-stone-400 hover:text-white'
-                        }`}
+                        <i className="fa-solid fa-sun text-[11px]"></i>
+                        <span>Today's Portion</span>
+                      </a>
+                      <a
+                        href="#monthly-revenue-portion"
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 border border-blue-500/30 transition-all flex items-center gap-1.5"
                       >
-                        This Month ({salesMetrics.monthOrders.length})
-                      </button>
-                      <button
-                        onClick={() => setSalesTimeRange('all')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                          salesTimeRange === 'all'
-                            ? 'bg-stone-700 text-white shadow-sm'
-                            : 'text-stone-400 hover:text-white'
-                        }`}
+                        <i className="fa-solid fa-calendar-days text-[11px]"></i>
+                        <span>Monthly Portion</span>
+                      </a>
+                      <a
+                        href="#order-history-section"
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-800 text-stone-300 hover:text-white border border-stone-700 transition-all flex items-center gap-1.5"
                       >
-                        All Time ({orders.length})
-                      </button>
+                        <i className="fa-solid fa-clock-rotate-left text-[11px]"></i>
+                        <span>Order History</span>
+                      </a>
+                      <a
+                        href="#product-category-analysis"
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-orange-600 to-pink-600 text-white hover:opacity-90 shadow-sm transition-all flex items-center gap-1.5"
+                      >
+                        <i className="fa-solid fa-burger text-[11px]"></i>
+                        <span>Grill vs Ice Cream</span>
+                      </a>
                     </div>
                   </div>
 
-                  {/* Orders List for selected Time Range */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-bold text-sm text-stone-300 flex items-center gap-2">
-                        <span>
-                          {salesTimeRange === 'today'
-                            ? "Today's Orders & Transactions"
-                            : salesTimeRange === 'month'
-                            ? "This Month's Orders & Transactions"
-                            : 'All Order History Records'}
-                        </span>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-stone-800 text-stone-400">
-                          {salesTimeRange === 'today'
-                            ? salesMetrics.todayOrders.length
-                            : salesTimeRange === 'month'
-                            ? salesMetrics.monthOrders.length
-                            : orders.length} orders
-                        </span>
-                      </h4>
+                  {/* ========================================================================= */}
+                  {/* 1. SEPARATED PORTION: TODAY'S REVENUE PORTION */}
+                  {/* ========================================================================= */}
+                  <div id="todays-revenue-portion" className="bg-[#181110] border-2 border-amber-500/50 rounded-3xl p-5 sm:p-6 shadow-xl space-y-5">
+                    
+                    {/* Portion Header */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-amber-900/40 pb-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-7 h-7 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm font-black">
+                            ☀️
+                          </span>
+                          <h4 className="font-heading font-black text-lg sm:text-xl text-amber-100">
+                            Today's Revenue Portion
+                          </h4>
+                          <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            Daily Register (3:00 AM – 3:00 AM)
+                          </span>
+                        </div>
+                        <p className="text-xs text-stone-400 mt-1">
+                          Current day active sales. At 3:00 AM, all orders automatically move to Order History and this section resets to empty.
+                        </p>
+                      </div>
 
-                      <div className="text-xs text-amber-300 font-bold">
-                        Period Revenue: Rs.{' '}
-                        {salesTimeRange === 'today'
-                          ? salesMetrics.todayRevenue.toLocaleString()
-                          : salesTimeRange === 'month'
-                          ? salesMetrics.monthRevenue.toLocaleString()
-                          : salesMetrics.totalRevenue.toLocaleString()}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleToggle3amSimulation}
+                          className="px-3 py-1.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+                          title="Simulate 3:00 AM reset to verify today's section empties into order history"
+                        >
+                          <i className="fa-solid fa-arrows-rotate text-amber-400"></i>
+                          <span>{is3amResetSimulated ? 'Exit 3 AM Sim' : 'Simulate 3 AM Reset'}</span>
+                        </button>
                       </div>
                     </div>
 
-                    {/* Orders Table */}
-                    <div className="bg-[#140D0C] rounded-2xl border border-stone-800 overflow-hidden shadow">
-                      {(salesTimeRange === 'today'
-                        ? salesMetrics.todayOrders
-                        : salesTimeRange === 'month'
-                        ? salesMetrics.monthOrders
-                        : orders
-                      ).length === 0 ? (
-                        <div className="p-8 text-center text-stone-500 text-xs">
-                          No orders logged in this timeframe.
+                    {/* Today's 3 Financial Metric Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                      
+                      {/* Today's Gross Revenue */}
+                      <div className="p-4 rounded-2xl bg-[#241715] border border-amber-900/50">
+                        <span className="text-xs font-bold text-amber-400 block mb-1">
+                          Today's Gross Revenue
+                        </span>
+                        <div className="font-heading font-black text-2xl text-amber-300">
+                          Rs. {salesMetrics.todayRevenue.toLocaleString()}
+                        </div>
+                        <div className="text-[11px] text-stone-400 mt-1 flex items-center gap-1">
+                          <i className="fa-solid fa-receipt text-[10px] text-amber-500"></i>
+                          <span>{salesMetrics.todaySalesCount} orders logged today</span>
+                        </div>
+                      </div>
+
+                      {/* Today's Total Making Cost */}
+                      <div className="p-4 rounded-2xl bg-[#20151a] border border-rose-950">
+                        <span className="text-xs font-bold text-rose-300 block mb-1">
+                          Total Cost to Make Products (Today)
+                        </span>
+                        <div className="font-heading font-black text-2xl text-rose-300">
+                          Rs. {salesMetrics.todayMakingCost.toLocaleString()}
+                        </div>
+                        <div className="text-[11px] text-stone-400 mt-1 flex items-center gap-1">
+                          <i className="fa-solid fa-fire-burner text-[10px] text-rose-400"></i>
+                          <span>Ingredient & preparation expenditure</span>
+                        </div>
+                      </div>
+
+                      {/* Today's Net Revenue After Subtracting Making Cost */}
+                      <div className="p-4 rounded-2xl bg-[#14231b] border-2 border-emerald-500/60 shadow-md shadow-emerald-500/10">
+                        <span className="text-xs font-bold text-emerald-300 block mb-1 flex items-center justify-between">
+                          <span>Amount After Subtracting Making Cost</span>
+                          <span className="bg-emerald-500/20 text-emerald-300 text-[9px] font-black px-1.5 py-0.5 rounded">
+                            TODAY NET
+                          </span>
+                        </span>
+                        <div className="font-heading font-black text-2xl sm:text-3xl text-emerald-300">
+                          Rs. {salesMetrics.todayNetRevenue.toLocaleString()}
+                        </div>
+                        <div className="text-[11px] text-emerald-400/90 mt-1 font-semibold flex items-center gap-1 truncate">
+                          <i className="fa-solid fa-check text-[10px]"></i>
+                          <span>Gross (Rs. {salesMetrics.todayRevenue.toLocaleString()}) - Making Cost (Rs. {salesMetrics.todayMakingCost.toLocaleString()})</span>
+                        </div>
+                      </div>
+
+                    </div>
+
+                    {/* Today's Orders Register */}
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-bold text-xs uppercase tracking-wider text-stone-300 flex items-center gap-2">
+                          <span>Today's Active Orders Register</span>
+                          <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-black">
+                            {salesMetrics.todayOrders.length}
+                          </span>
+                        </h5>
+                        <span className="text-xs text-stone-400">
+                          Active window from {salesMetrics.businessDayCutoffTime}
+                        </span>
+                      </div>
+
+                      {salesMetrics.todayOrders.length === 0 ? (
+                        <div className="p-8 rounded-2xl bg-[#120B0A] border border-stone-800 text-center space-y-2">
+                          <div className="w-12 h-12 rounded-full bg-stone-900 text-amber-400 flex items-center justify-center mx-auto text-lg border border-stone-800">
+                            <i className="fa-solid fa-clock-rotate-left"></i>
+                          </div>
+                          <h6 className="font-heading font-bold text-sm text-stone-300">
+                            Today's Section is Empty
+                          </h6>
+                          <p className="text-xs text-stone-500 max-w-md mx-auto">
+                            It is past the 3:00 AM daily reset cutoff time. All orders from before 3:00 AM have moved into the Order History section below. New customer orders placed today will appear here.
+                          </p>
                         </div>
                       ) : (
-                        <div className="divide-y divide-stone-800">
-                          {(salesTimeRange === 'today'
-                            ? salesMetrics.todayOrders
-                            : salesTimeRange === 'month'
-                            ? salesMetrics.monthOrders
-                            : orders
-                          ).map((order) => (
+                        <div className="bg-[#120B0A] rounded-2xl border border-stone-800 overflow-hidden divide-y divide-stone-800/80">
+                          {salesMetrics.todayOrders.map((order) => (
                             <div
                               key={order.id}
                               className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:bg-stone-900/40 transition-colors"
@@ -1015,9 +1217,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                                 <div className="text-xs text-stone-400">
                                   {order.items.map((i) => `${i.quantity}x ${i.name}`).join(', ')}
                                 </div>
-                                <div className="text-[10px] text-stone-500">
-                                  <i className="fa-solid fa-clock text-[9px] mr-1"></i>
-                                  {order.timestamp}
+                                <div className="text-[10px] text-stone-500 flex items-center gap-1">
+                                  <i className="fa-solid fa-clock text-[9px]"></i>
+                                  <span>{order.timestamp}</span>
                                 </div>
                               </div>
 
@@ -1053,6 +1255,470 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         </div>
                       )}
                     </div>
+
+                  </div>
+
+                  {/* ========================================================================= */}
+                  {/* 2. SEPARATED PORTION: MONTHLY REVENUE PORTION */}
+                  {/* ========================================================================= */}
+                  <div id="monthly-revenue-portion" className="bg-[#101826] border-2 border-blue-600/50 rounded-3xl p-5 sm:p-6 shadow-xl space-y-5">
+                    
+                    {/* Portion Header */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-blue-950 pb-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-7 h-7 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-sm font-black">
+                            📅
+                          </span>
+                          <h4 className="font-heading font-black text-lg sm:text-xl text-blue-100">
+                            Monthly Revenue Portion
+                          </h4>
+                          <span className="bg-blue-500/20 text-blue-300 border border-blue-500/40 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            Calendar Month Overview
+                          </span>
+                        </div>
+                        <p className="text-xs text-stone-400 mt-1">
+                          Consolidated monthly sales figures, making cost expenditures, and net earnings for {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}.
+                        </p>
+                      </div>
+
+                      <div className="text-xs font-bold text-blue-300 bg-blue-950/60 px-3 py-1.5 rounded-xl border border-blue-800/40">
+                        {salesMetrics.monthSalesCount} Monthly Transactions
+                      </div>
+                    </div>
+
+                    {/* Monthly 3 Financial Metric Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                      
+                      {/* Monthly Gross Revenue */}
+                      <div className="p-4 rounded-2xl bg-[#142033] border border-blue-900/50">
+                        <span className="text-xs font-bold text-blue-300 block mb-1">
+                          Monthly Gross Revenue
+                        </span>
+                        <div className="font-heading font-black text-2xl text-blue-200">
+                          Rs. {salesMetrics.monthRevenue.toLocaleString()}
+                        </div>
+                        <div className="text-[11px] text-stone-400 mt-1 flex items-center gap-1">
+                          <i className="fa-solid fa-chart-line text-[10px] text-blue-400"></i>
+                          <span>{salesMetrics.monthSalesCount} orders this month</span>
+                        </div>
+                      </div>
+
+                      {/* Monthly Total Making Cost */}
+                      <div className="p-4 rounded-2xl bg-[#1e1728] border border-purple-950">
+                        <span className="text-xs font-bold text-purple-300 block mb-1">
+                          Total Cost to Make Products (Month)
+                        </span>
+                        <div className="font-heading font-black text-2xl text-purple-200">
+                          Rs. {salesMetrics.monthMakingCost.toLocaleString()}
+                        </div>
+                        <div className="text-[11px] text-stone-400 mt-1 flex items-center gap-1">
+                          <i className="fa-solid fa-circle-minus text-[10px] text-rose-400"></i>
+                          <span>Total raw material & preparation cost</span>
+                        </div>
+                      </div>
+
+                      {/* Monthly Net Revenue After Subtracting Making Cost */}
+                      <div className="p-4 rounded-2xl bg-[#0f2a24] border-2 border-emerald-500/60 shadow-md shadow-emerald-500/10">
+                        <span className="text-xs font-bold text-emerald-300 block mb-1 flex items-center justify-between">
+                          <span>Amount After Subtracting Making Cost</span>
+                          <span className="bg-emerald-500/20 text-emerald-300 text-[9px] font-black px-1.5 py-0.5 rounded">
+                            MONTH NET
+                          </span>
+                        </span>
+                        <div className="font-heading font-black text-2xl sm:text-3xl text-emerald-300">
+                          Rs. {salesMetrics.monthNetRevenue.toLocaleString()}
+                        </div>
+                        <div className="text-[11px] text-emerald-400/90 mt-1 font-semibold flex items-center gap-1 truncate">
+                          <i className="fa-solid fa-check text-[10px]"></i>
+                          <span>Gross (Rs. {salesMetrics.monthRevenue.toLocaleString()}) - Making Cost (Rs. {salesMetrics.monthMakingCost.toLocaleString()})</span>
+                        </div>
+                      </div>
+
+                    </div>
+
+                    {/* Monthly Orders Register List */}
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-bold text-xs uppercase tracking-wider text-stone-300 flex items-center gap-2">
+                          <span>This Month's Orders Register</span>
+                          <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[11px] font-black">
+                            {salesMetrics.monthOrders.length}
+                          </span>
+                        </h5>
+                      </div>
+
+                      {salesMetrics.monthOrders.length === 0 ? (
+                        <div className="p-8 rounded-2xl bg-[#0b121e] border border-blue-950 text-center text-stone-500 text-xs">
+                          No orders registered in the current month yet.
+                        </div>
+                      ) : (
+                        <div className="bg-[#0b121e] rounded-2xl border border-blue-950 overflow-hidden divide-y divide-blue-950/80 max-h-72 overflow-y-auto">
+                          {salesMetrics.monthOrders.map((order) => (
+                            <div
+                              key={order.id}
+                              className="p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:bg-blue-950/30 transition-colors"
+                            >
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-mono font-black text-xs text-blue-300">
+                                    #{order.id}
+                                  </span>
+                                  <span className="text-xs font-bold text-stone-200">
+                                    {order.customerName}
+                                  </span>
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-950 text-blue-200 uppercase">
+                                    {order.orderType}
+                                  </span>
+                                </div>
+                                <div className="text-xs text-stone-400">
+                                  {order.items.map((i) => `${i.quantity}x ${i.name}`).join(', ')}
+                                </div>
+                                <div className="text-[10px] text-stone-500">
+                                  {order.timestamp}
+                                </div>
+                              </div>
+
+                              <div className="text-right shrink-0">
+                                <div className="font-heading font-black text-base text-blue-200">
+                                  Rs. {order.totalAmount}
+                                </div>
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                  order.status === 'Completed'
+                                    ? 'bg-emerald-950 text-emerald-300'
+                                    : 'bg-amber-950 text-amber-300'
+                                }`}>
+                                  {order.status}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+
+                  {/* ========================================================================= */}
+                  {/* 3. ORDER HISTORY SECTION (ORDERS ARCHIVED PAST 3:00 AM) */}
+                  {/* ========================================================================= */}
+                  <div id="order-history-section" className="bg-[#140D0C] border border-stone-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
+                    
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-800 pb-3.5">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-7 h-7 rounded-xl bg-stone-800 text-amber-400 flex items-center justify-center text-sm font-black">
+                            <i className="fa-solid fa-clock-rotate-left"></i>
+                          </span>
+                          <h4 className="font-heading font-black text-lg text-stone-100">
+                            Order History Section
+                          </h4>
+                          <span className="bg-stone-800 text-stone-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            {salesMetrics.historyOrders.length} Archived Orders
+                          </span>
+                        </div>
+                        <p className="text-xs text-stone-400 mt-1">
+                          Orders automatically shifted after the 3:00 AM daily cutoff time, preserving full transaction records without cluttering Today's register.
+                        </p>
+                      </div>
+
+                      <div className="text-xs text-amber-400 font-bold">
+                        Archived Volume: Rs. {salesMetrics.historyOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0).toLocaleString()}
+                      </div>
+                    </div>
+
+                    {salesMetrics.historyOrders.length === 0 ? (
+                      <div className="p-8 text-center text-stone-500 text-xs bg-stone-900/40 rounded-2xl border border-stone-800">
+                        No orders have been archived to history yet. Once the clock hits 3:00 AM (or if you click "Simulate 3 AM Reset"), completed and past orders will show here.
+                      </div>
+                    ) : (
+                      <div className="bg-[#100A09] rounded-2xl border border-stone-800 overflow-hidden divide-y divide-stone-800/80 max-h-80 overflow-y-auto">
+                        {salesMetrics.historyOrders.map((order) => (
+                          <div
+                            key={order.id}
+                            className="p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:bg-stone-900/30 transition-colors"
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-mono font-black text-xs text-stone-400">
+                                  #{order.id}
+                                </span>
+                                <span className="text-xs font-bold text-stone-200">
+                                  {order.customerName}
+                                </span>
+                                <span className="text-[11px] text-stone-400">
+                                  ({order.customerPhone})
+                                </span>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-800 text-stone-300 uppercase">
+                                  {order.orderType}
+                                </span>
+                              </div>
+                              <div className="text-xs text-stone-400">
+                                {order.items.map((i) => `${i.quantity}x ${i.name}`).join(', ')}
+                              </div>
+                              <div className="text-[10px] text-stone-500">
+                                <i className="fa-solid fa-clock text-[9px] mr-1"></i>
+                                {order.timestamp}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
+                              <div className="text-right">
+                                <div className="font-heading font-black text-base text-amber-300">
+                                  Rs. {order.totalAmount}
+                                </div>
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                  order.status === 'Completed'
+                                    ? 'bg-emerald-950 text-emerald-300'
+                                    : 'bg-stone-800 text-stone-400'
+                                }`}>
+                                  {order.status}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                  </div>
+
+                  {/* ========================================================================= */}
+                  {/* 4. PRODUCT OPTIONS: GRILL VS ICE CREAM WITH COST & SALES BREAKDOWN */}
+                  {/* ========================================================================= */}
+                  <div id="product-category-analysis" className="bg-[#160E0D] border-2 border-stone-700/80 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-6">
+                    
+                    {/* Header */}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 text-stone-950 flex items-center justify-center text-base font-black">
+                          <i className="fa-solid fa-layer-group"></i>
+                        </span>
+                        <div>
+                          <h4 className="font-heading font-black text-lg sm:text-xl text-stone-100">
+                            Product Making Cost & Total Sales Analysis
+                          </h4>
+                          <p className="text-xs text-stone-400">
+                            Instead of showing every product mixed together, select Grill or Ice Cream below. Each product is shown in its own separate section with making cost per unit, total sales, and net revenue after subtracting making cost.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Category Options: Grill vs Ice Cream (User requested options) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      
+                      {/* Option 1: Frosty's Grill */}
+                      <button
+                        type="button"
+                        onClick={() => setProductAnalysisCategory('grill')}
+                        className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-center justify-between group ${
+                          productAnalysisCategory === 'grill'
+                            ? 'bg-gradient-to-r from-amber-950/70 via-orange-950/60 to-stone-900 border-orange-500 shadow-lg shadow-orange-500/15 ring-2 ring-orange-400/40'
+                            : 'bg-[#1C1312] border-stone-800 hover:border-orange-500/50 hover:bg-[#221715]'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-black shadow-inner transition-transform group-hover:scale-105 ${
+                            productAnalysisCategory === 'grill'
+                              ? 'bg-orange-500 text-stone-950'
+                              : 'bg-stone-800 text-orange-400'
+                          }`}>
+                            <i className="fa-solid fa-fire"></i>
+                          </div>
+                          <div>
+                            <span className="text-xs font-black uppercase tracking-wider text-orange-400 block">
+                              Category Option
+                            </span>
+                            <h5 className="font-heading font-black text-base sm:text-lg text-stone-100">
+                              Frosty's Grill Items
+                            </h5>
+                            <p className="text-[11px] text-stone-400">
+                              Burgers, Tacos, Wraps, BBQ & Loaded Fries ({grillFinancialProducts.length} items)
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider ${
+                          productAnalysisCategory === 'grill'
+                            ? 'bg-orange-500 text-stone-950'
+                            : 'bg-stone-800 text-stone-400'
+                        }`}>
+                          {productAnalysisCategory === 'grill' ? 'Active' : 'Select'}
+                        </div>
+                      </button>
+
+                      {/* Option 2: Ice Cream & Desserts */}
+                      <button
+                        type="button"
+                        onClick={() => setProductAnalysisCategory('ice-cream')}
+                        className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-center justify-between group ${
+                          productAnalysisCategory === 'ice-cream'
+                            ? 'bg-gradient-to-r from-pink-950/70 via-rose-950/60 to-stone-900 border-pink-500 shadow-lg shadow-pink-500/15 ring-2 ring-pink-400/40'
+                            : 'bg-[#1C1312] border-stone-800 hover:border-pink-500/50 hover:bg-[#221715]'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-black shadow-inner transition-transform group-hover:scale-105 ${
+                            productAnalysisCategory === 'ice-cream'
+                              ? 'bg-pink-500 text-stone-950'
+                              : 'bg-stone-800 text-pink-400'
+                          }`}>
+                            <i className="fa-solid fa-ice-cream"></i>
+                          </div>
+                          <div>
+                            <span className="text-xs font-black uppercase tracking-wider text-pink-400 block">
+                              Category Option
+                            </span>
+                            <h5 className="font-heading font-black text-base sm:text-lg text-stone-100">
+                              Ice Cream & Desserts
+                            </h5>
+                            <p className="text-[11px] text-stone-400">
+                              Scoops, Sundaes, Shakes, Kulfi & Drinks ({iceCreamFinancialProducts.length} items)
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider ${
+                          productAnalysisCategory === 'ice-cream'
+                            ? 'bg-pink-500 text-stone-950'
+                            : 'bg-stone-800 text-stone-400'
+                        }`}>
+                          {productAnalysisCategory === 'ice-cream' ? 'Active' : 'Select'}
+                        </div>
+                      </button>
+
+                    </div>
+
+                    {/* Pop-up Product Grid for the Selected Category */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-heading font-black text-sm text-stone-200 flex items-center gap-2">
+                          <i className={`fa-solid ${productAnalysisCategory === 'grill' ? 'fa-fire text-orange-400' : 'fa-ice-cream text-pink-400'}`}></i>
+                          <span>
+                            {productAnalysisCategory === 'grill'
+                              ? `All Grill Items (${grillFinancialProducts.length} Products Pop-up)`
+                              : `All Ice Cream & Dessert Items (${iceCreamFinancialProducts.length} Products Pop-up)`}
+                          </span>
+                        </h5>
+                        <span className="text-xs text-stone-400">
+                          Every product displayed in a separate section with making cost & total sales
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4">
+                        {(productAnalysisCategory === 'grill' ? grillFinancialProducts : iceCreamFinancialProducts).map((product) => (
+                          <div
+                            key={product.id}
+                            className="bg-[#120B0A] border border-stone-800 hover:border-stone-700 rounded-2xl p-4 sm:p-5 transition-all shadow-md space-y-4"
+                          >
+                            {/* Product Header Row */}
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-800/80 pb-3">
+                              <div className="flex items-center gap-3.5">
+                                <img
+                                  src={product.image}
+                                  alt={product.name}
+                                  referrerPolicy="no-referrer"
+                                  className="w-14 h-14 rounded-xl object-cover border border-stone-700 shrink-0"
+                                />
+                                <div>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <h6 className="font-heading font-black text-base text-stone-100">
+                                      {product.name}
+                                    </h6>
+                                    {product.badge && (
+                                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                                        {product.badge}
+                                      </span>
+                                    )}
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-800 text-stone-400 uppercase">
+                                      {product.category}
+                                    </span>
+                                  </div>
+                                  <div className="text-xs text-stone-400 mt-0.5 flex items-center gap-3">
+                                    <span>Selling Price: <strong className="text-amber-300 font-bold">Rs. {product.price}</strong></span>
+                                    <span>Stock in Kitchen: <strong className="text-stone-300 font-bold">{inventory[product.id] ?? 15} units</strong></span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenEditItem(product)}
+                                  className="px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-semibold flex items-center gap-1 border border-stone-700 cursor-pointer"
+                                >
+                                  <i className="fa-solid fa-pen-to-square text-[10px]"></i>
+                                  <span>Edit Options</span>
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* 4 Separate Highlighted Sections with Explicit Headings (As User Requested) */}
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                              
+                              {/* 1. Total Sales */}
+                              <div className="p-3 rounded-xl bg-stone-900/90 border border-stone-800">
+                                <span className="text-[11px] font-bold text-amber-400 block mb-0.5">
+                                  Total Sales
+                                </span>
+                                <div className="font-heading font-black text-lg sm:text-xl text-amber-300">
+                                  Rs. {product.totalSales.toLocaleString()}
+                                </div>
+                                <span className="text-[10px] text-stone-400 mt-0.5 block font-medium">
+                                  {product.unitsSold} units sold
+                                </span>
+                              </div>
+
+                              {/* 2. Total Making Cost of Per */}
+                              <div className="p-3 rounded-xl bg-stone-900/90 border border-stone-800">
+                                <span className="text-[11px] font-bold text-rose-300 block mb-0.5">
+                                  Total Making Cost of Per
+                                </span>
+                                <div className="font-heading font-black text-lg sm:text-xl text-rose-300">
+                                  Rs. {product.unitMakingCost.toLocaleString()}
+                                </div>
+                                <span className="text-[10px] text-stone-400 mt-0.5 block font-medium">
+                                  per {product.unit || 'unit'} prep cost
+                                </span>
+                              </div>
+
+                              {/* 3. Total Making Cost */}
+                              <div className="p-3 rounded-xl bg-stone-900/90 border border-stone-800">
+                                <span className="text-[11px] font-bold text-rose-400 block mb-0.5">
+                                  Total Making Cost
+                                </span>
+                                <div className="font-heading font-black text-lg sm:text-xl text-rose-400">
+                                  Rs. {product.totalMakingCost.toLocaleString()}
+                                </div>
+                                <span className="text-[10px] text-stone-400 mt-0.5 block font-medium">
+                                  Rs. {product.unitMakingCost} × {product.unitsSold} sold
+                                </span>
+                              </div>
+
+                              {/* 4. Total Cost: Amount After Subtracting Making Cost from Total Revenue */}
+                              <div className="p-3 rounded-xl bg-[#14231b] border-2 border-emerald-500/60 shadow-sm shadow-emerald-500/10">
+                                <span className="text-[11px] font-bold text-emerald-300 block mb-0.5 flex items-center justify-between">
+                                  <span>Total Cost (Net Profit)</span>
+                                  <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-black">
+                                    NET
+                                  </span>
+                                </span>
+                                <div className="font-heading font-black text-lg sm:text-xl text-emerald-300">
+                                  Rs. {product.netRevenue.toLocaleString()}
+                                </div>
+                                <span className="text-[10px] text-emerald-400/90 mt-0.5 block font-semibold truncate">
+                                  Sales - Making Cost = Rs. {product.netRevenue.toLocaleString()}
+                                </span>
+                              </div>
+
+                            </div>
+
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
                   </div>
 
                 </div>
@@ -1129,6 +1795,96 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     </div>
                   </div>
 
+                  {/* Primary Category Quick Selector: Grill vs Ice Cream */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setInventoryFilter('grill')}
+                      className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                        inventoryFilter === 'grill'
+                          ? 'bg-gradient-to-r from-orange-950/80 to-amber-950/80 border-orange-500 shadow-md shadow-orange-950/30'
+                          : 'bg-[#140D0C] border-stone-800 hover:border-stone-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-base">
+                          <i className="fa-solid fa-fire"></i>
+                        </div>
+                        <div>
+                          <h4 className="font-heading font-black text-sm text-orange-100">
+                            Grill Items Only
+                          </h4>
+                          <span className="text-[11px] text-stone-400">
+                            {grillFinancialProducts.length} Hot Grill & BBQ dishes
+                          </span>
+                        </div>
+                      </div>
+                      <span className={`text-xs font-mono font-black px-2 py-0.5 rounded-full ${
+                        inventoryFilter === 'grill' ? 'bg-orange-500 text-stone-950' : 'bg-stone-800 text-stone-300'
+                      }`}>
+                        {grillFinancialProducts.length}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setInventoryFilter('ice-cream')}
+                      className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                        inventoryFilter === 'ice-cream'
+                          ? 'bg-gradient-to-r from-pink-950/80 to-rose-950/80 border-[#FF4B72] shadow-md shadow-pink-950/30'
+                          : 'bg-[#140D0C] border-stone-800 hover:border-stone-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-pink-500/20 text-[#FF4B72] flex items-center justify-center text-base">
+                          <i className="fa-solid fa-ice-cream"></i>
+                        </div>
+                        <div>
+                          <h4 className="font-heading font-black text-sm text-pink-100">
+                            Ice Cream Only
+                          </h4>
+                          <span className="text-[11px] text-stone-400">
+                            {iceCreamFinancialProducts.length} Cold scoops, cones & shakes
+                          </span>
+                        </div>
+                      </div>
+                      <span className={`text-xs font-mono font-black px-2 py-0.5 rounded-full ${
+                        inventoryFilter === 'ice-cream' ? 'bg-[#FF4B72] text-white' : 'bg-stone-800 text-stone-300'
+                      }`}>
+                        {iceCreamFinancialProducts.length}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setInventoryFilter('all')}
+                      className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                        inventoryFilter === 'all'
+                          ? 'bg-stone-900 border-stone-600 shadow-md'
+                          : 'bg-[#140D0C] border-stone-800 hover:border-stone-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-stone-800 text-stone-300 flex items-center justify-center text-base">
+                          <i className="fa-solid fa-utensils"></i>
+                        </div>
+                        <div>
+                          <h4 className="font-heading font-black text-sm text-stone-200">
+                            All Menu Products
+                          </h4>
+                          <span className="text-[11px] text-stone-400">
+                            {productFinancials.length} Total catalog products
+                          </span>
+                        </div>
+                      </div>
+                      <span className={`text-xs font-mono font-black px-2 py-0.5 rounded-full ${
+                        inventoryFilter === 'all' ? 'bg-stone-200 text-stone-950' : 'bg-stone-800 text-stone-300'
+                      }`}>
+                        {productFinancials.length}
+                      </span>
+                    </button>
+                  </div>
+
                   {/* Search and Filters */}
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <div className="relative flex-1">
@@ -1136,7 +1892,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         type="text"
                         value={inventorySearch}
                         onChange={(e) => setInventorySearch(e.target.value)}
-                        placeholder="Search product by name..."
+                        placeholder="Search product by name or category..."
                         className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-[#140D0C] border border-stone-700 text-xs text-stone-100 placeholder:text-stone-500 focus:outline-none focus:border-orange-500"
                       />
                       <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 text-xs"></i>
@@ -1166,17 +1922,23 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   </div>
 
                   {/* Inventory Products Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-4">
                     {filteredInventoryItems.map((item) => {
                       const stock = inventory[item.id] ?? 15;
                       const isOutOfStock = stock <= 0;
                       const isLowStock = stock > 0 && stock <= 5;
                       const isGrill = item.category === 'fast-food-bbq';
+                      const fin = productFinancials.find((p) => p.id === item.id);
+                      const unitsSold = fin?.unitsSold ?? 0;
+                      const totalSales = fin?.totalSales ?? 0;
+                      const unitMakingCost = fin?.unitMakingCost ?? (item.makingCost ?? Math.round(item.price * 0.4));
+                      const totalMakingCost = fin?.totalMakingCost ?? (unitsSold * unitMakingCost);
+                      const netRevenue = fin?.netRevenue ?? (totalSales - totalMakingCost);
 
                       return (
                         <div
                           key={item.id}
-                          className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                          className={`p-4 rounded-2xl border transition-all space-y-3.5 ${
                             isOutOfStock
                               ? 'bg-rose-950/20 border-rose-900/60'
                               : isLowStock
@@ -1184,105 +1946,119 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                               : 'bg-[#140D0C] border-stone-800'
                           }`}
                         >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              referrerPolicy="no-referrer"
-                              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover shrink-0 ${
-                                isOutOfStock ? 'grayscale opacity-60' : ''
-                              }`}
-                            />
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <h4 className="font-heading font-black text-sm text-stone-100 truncate">
-                                  {item.name}
-                                </h4>
-                                <span
-                                  className={`text-[9px] font-bold px-1.5 py-0.2 rounded uppercase ${
-                                    isGrill
-                                      ? 'bg-orange-500/20 text-orange-300'
-                                      : 'bg-pink-500/20 text-[#FF4B72]'
-                                  }`}
-                                >
-                                  {isGrill ? 'Grill' : 'Ice Cream'}
-                                </span>
-                              </div>
-                              <div className="text-xs text-amber-300 font-bold mt-0.5">
-                                Rs. {item.price}
-                              </div>
-                              <div className="mt-1 flex items-center gap-2">
-                                <span
-                                  className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                                    isOutOfStock
-                                      ? 'bg-rose-600 text-white animate-pulse'
-                                      : isLowStock
-                                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                                      : 'bg-emerald-500/20 text-emerald-300'
-                                  }`}
-                                >
-                                  {isOutOfStock
-                                    ? 'OUT OF STOCK'
-                                    : `${stock} Units in Kitchen`}
-                                </span>
+                          {/* Item Header & Controls */}
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                referrerPolicy="no-referrer"
+                                className={`w-14 h-14 rounded-2xl object-cover shrink-0 ${
+                                  isOutOfStock ? 'grayscale opacity-60' : ''
+                                }`}
+                              />
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <h4 className="font-heading font-black text-sm sm:text-base text-stone-100 truncate">
+                                    {item.name}
+                                  </h4>
+                                  <span
+                                    className={`text-[9px] font-bold px-1.5 py-0.2 rounded uppercase ${
+                                      isGrill
+                                        ? 'bg-orange-500/20 text-orange-300'
+                                        : 'bg-pink-500/20 text-[#FF4B72]'
+                                    }`}
+                                  >
+                                    {isGrill ? 'Grill' : 'Ice Cream'}
+                                  </span>
+                                  {item.badge && (
+                                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                      {item.badge}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <span className="text-xs font-black text-amber-300">
+                                    Selling Price: Rs. {item.price}
+                                  </span>
+                                  {item.originalPrice && (
+                                    <span className="text-[11px] line-through text-stone-500">
+                                      Rs. {item.originalPrice}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
 
-                          {/* Stock Controls & Out of Stock Toggles */}
-                          <div className="flex flex-col items-end gap-2 shrink-0">
-                            {/* Fast Out-of-Stock Toggle */}
-                            {isOutOfStock ? (
-                              <button
-                                onClick={() => onUpdateStock(item.id, 15)}
-                                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow cursor-pointer flex items-center gap-1"
-                                title="Set stock to 15"
+                            {/* Stock & Quick Toggle Controls */}
+                            <div className="flex items-center gap-2 flex-wrap shrink-0 self-end sm:self-center">
+                              <span
+                                className={`text-[10px] font-black px-2.5 py-1 rounded-full ${
+                                  isOutOfStock
+                                    ? 'bg-rose-600 text-white animate-pulse'
+                                    : isLowStock
+                                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                    : 'bg-emerald-500/20 text-emerald-300'
+                                }`}
                               >
-                                <i className="fa-solid fa-circle-check text-xs"></i>
-                                <span>Add Back In Stock</span>
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => onUpdateStock(item.id, 0)}
-                                className="px-3 py-1.5 rounded-xl bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 font-black text-xs cursor-pointer flex items-center gap-1"
-                                title="Instantly mark 0 stock in kitchen"
-                              >
-                                <i className="fa-solid fa-ban text-xs text-rose-400"></i>
-                                <span>Mark Out of Stock</span>
-                              </button>
-                            )}
-
-                            {/* Stepper +/- */}
-                            <div className="flex items-center gap-1 bg-stone-900 p-1 rounded-xl border border-stone-800">
-                              <button
-                                onClick={() => onUpdateStock(item.id, Math.max(0, stock - 1))}
-                                className="w-6 h-6 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs flex items-center justify-center font-bold cursor-pointer"
-                                title="Decrease 1 unit"
-                              >
-                                -
-                              </button>
-                              <span className="w-8 text-center text-xs font-mono font-bold text-amber-200">
-                                {stock}
+                                {isOutOfStock ? 'OUT OF STOCK' : `${stock} Units in Kitchen`}
                               </span>
-                              <button
-                                onClick={() => onUpdateStock(item.id, stock + 1)}
-                                className="w-6 h-6 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs flex items-center justify-center font-bold cursor-pointer"
-                                title="Increase 1 unit"
-                              >
-                                +
-                              </button>
-                            </div>
 
-                            {/* Actions: Edit Options & Remove */}
-                            <div className="flex items-center gap-2 pt-1">
+                              {/* 1-Click Out of Stock Toggle */}
+                              {isOutOfStock ? (
+                                <button
+                                  type="button"
+                                  onClick={() => onUpdateStock(item.id, 15)}
+                                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow cursor-pointer flex items-center gap-1"
+                                  title="Add back 15 units into stock"
+                                >
+                                  <i className="fa-solid fa-circle-check text-xs"></i>
+                                  <span>Restock 15</span>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => onUpdateStock(item.id, 0)}
+                                  className="px-3 py-1.5 rounded-xl bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 font-black text-xs cursor-pointer flex items-center gap-1"
+                                  title="Mark 0 stock in kitchen"
+                                >
+                                  <i className="fa-solid fa-ban text-xs text-rose-400"></i>
+                                  <span>Mark Out of Stock</span>
+                                </button>
+                              )}
+
+                              {/* Stepper +/- */}
+                              <div className="flex items-center gap-1 bg-stone-900 p-1 rounded-xl border border-stone-800">
+                                <button
+                                  type="button"
+                                  onClick={() => onUpdateStock(item.id, Math.max(0, stock - 1))}
+                                  className="w-6 h-6 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs flex items-center justify-center font-bold cursor-pointer"
+                                  title="Decrease 1 unit"
+                                >
+                                  -
+                                </button>
+                                <span className="w-8 text-center text-xs font-mono font-bold text-amber-200">
+                                  {stock}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => onUpdateStock(item.id, stock + 1)}
+                                  className="w-6 h-6 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs flex items-center justify-center font-bold cursor-pointer"
+                                  title="Increase 1 unit"
+                                >
+                                  +
+                                </button>
+                              </div>
+
+                              {/* Edit Options Button */}
                               <button
                                 type="button"
                                 onClick={() => handleOpenEditItem(item)}
-                                className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
-                                title="Change price, discount, name, badge or stock details"
+                                className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-sm"
+                                title="Change price, making cost, stock, or description"
                               >
-                                <i className="fa-solid fa-pen-to-square text-[11px]"></i>
-                                <span>Edit Options</span>
+                                <i className="fa-solid fa-pen-to-square text-xs"></i>
+                                <span>Change Options</span>
                               </button>
 
                               {onDeleteProduct && (
@@ -1293,13 +2069,72 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                                       onDeleteProduct(item.id);
                                     }
                                   }}
-                                  className="text-[11px] text-stone-500 hover:text-rose-400 underline font-medium cursor-pointer"
+                                  className="text-[11px] text-stone-500 hover:text-rose-400 underline font-medium cursor-pointer ml-1"
                                 >
                                   Remove
                                 </button>
                               )}
                             </div>
                           </div>
+
+                          {/* 4 Financial Metric Sections Requested by Owner */}
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2 border-t border-stone-800/80">
+                            {/* 1. Total Sales */}
+                            <div className="p-2.5 rounded-xl bg-stone-900/90 border border-stone-800">
+                              <span className="text-[10px] font-bold text-amber-300 block mb-0.5">
+                                Total Sales Got
+                              </span>
+                              <div className="font-heading font-black text-base text-amber-300">
+                                Rs. {totalSales.toLocaleString()}
+                              </div>
+                              <span className="text-[10px] text-stone-400 mt-0.5 block">
+                                {unitsSold} units sold
+                              </span>
+                            </div>
+
+                            {/* 2. Total Making Cost of Per */}
+                            <div className="p-2.5 rounded-xl bg-stone-900/90 border border-stone-800">
+                              <span className="text-[10px] font-bold text-rose-300 block mb-0.5">
+                                Total Making Cost of Per
+                              </span>
+                              <div className="font-heading font-black text-base text-rose-300">
+                                Rs. {unitMakingCost.toLocaleString()}
+                              </div>
+                              <span className="text-[10px] text-stone-400 mt-0.5 block">
+                                per {item.unit || 'unit'} prep cost
+                              </span>
+                            </div>
+
+                            {/* 3. Total Making Cost */}
+                            <div className="p-2.5 rounded-xl bg-stone-900/90 border border-stone-800">
+                              <span className="text-[10px] font-bold text-rose-400 block mb-0.5">
+                                Total Making Cost
+                              </span>
+                              <div className="font-heading font-black text-base text-rose-400">
+                                Rs. {totalMakingCost.toLocaleString()}
+                              </div>
+                              <span className="text-[10px] text-stone-400 mt-0.5 block">
+                                Rs. {unitMakingCost} × {unitsSold} sold
+                              </span>
+                            </div>
+
+                            {/* 4. Total Cost: Amount Came After Subtracting Making Cost from Total Revenue */}
+                            <div className="p-2.5 rounded-xl bg-[#14231b] border border-emerald-500/60 shadow-sm">
+                              <span className="text-[10px] font-bold text-emerald-300 block mb-0.5 flex items-center justify-between">
+                                <span>Total Cost (Net Revenue)</span>
+                                <span className="text-[8px] bg-emerald-500/20 text-emerald-300 px-1 py-0.2 rounded font-black">
+                                  NET
+                                </span>
+                              </span>
+                              <div className="font-heading font-black text-base text-emerald-300">
+                                Rs. {netRevenue.toLocaleString()}
+                              </div>
+                              <span className="text-[9px] text-emerald-400/90 mt-0.5 block font-semibold truncate">
+                                Sales - Making Cost = Rs. {netRevenue.toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+
                         </div>
                       );
                     })}
@@ -1347,11 +2182,11 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                             />
                           </div>
 
-                          {/* Price & Original Price */}
-                          <div className="grid grid-cols-2 gap-3">
+                          {/* Price, Making Cost & Original Price */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>
                               <label className="block text-xs font-bold text-stone-300 mb-1">
-                                Selling Price (PKR Rs.) *
+                                Selling Price (PKR) *
                               </label>
                               <input
                                 type="number"
@@ -1360,6 +2195,20 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                                 onChange={(e) => setEditPrice(e.target.value === '' ? '' : Number(e.target.value))}
                                 required
                                 className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-stone-700 text-xs font-bold text-amber-300 focus:outline-none focus:border-amber-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-rose-300 mb-1 flex items-center justify-between">
+                                <span>Making Cost (PKR)</span>
+                                <span className="text-[10px] text-stone-500 font-normal">Per unit</span>
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                value={editMakingCost}
+                                onChange={(e) => setEditMakingCost(e.target.value === '' ? '' : Number(e.target.value))}
+                                placeholder="e.g. 250"
+                                className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-stone-700 text-xs font-bold text-rose-300 focus:outline-none focus:border-amber-500"
                               />
                             </div>
                             <div>
@@ -1652,12 +2501,12 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                             )}
                           </div>
 
-                          {/* 4. PRICE & OPTIONAL ORIGINAL PRICE */}
-                          <div className="grid grid-cols-2 gap-3">
+                          {/* 4. PRICE & MAKING COST */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                               <label className="block text-xs font-bold text-amber-200 mb-1.5 flex items-center gap-1.5">
                                 <span className="w-5 h-5 rounded-full bg-amber-500 text-stone-950 text-[11px] font-black flex items-center justify-center">4</span>
-                                <span>Selling Price (PKR / Rs.) *</span>
+                                <span>Selling Price (PKR) *</span>
                               </label>
                               <div className="relative">
                                 <input
@@ -1676,17 +2525,18 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                             </div>
 
                             <div>
-                              <label className="block text-xs font-bold text-stone-400 mb-1.5">
-                                Original Price (Optional Strikethrough)
+                              <label className="block text-xs font-bold text-rose-300 mb-1.5 flex items-center gap-1.5">
+                                <i className="fa-solid fa-fire-burner text-rose-400 text-xs"></i>
+                                <span>Making Cost (Per Unit)</span>
                               </label>
                               <div className="relative">
                                 <input
                                   type="number"
-                                  min="1"
-                                  value={newProdOriginalPrice}
-                                  onChange={(e) => setNewProdOriginalPrice(e.target.value ? Number(e.target.value) : '')}
-                                  placeholder="e.g. 900"
-                                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-stone-900 border border-stone-700 text-sm font-bold text-stone-400 focus:outline-none focus:border-amber-500"
+                                  min="0"
+                                  value={newProdMakingCost}
+                                  onChange={(e) => setNewProdMakingCost(e.target.value ? Number(e.target.value) : '')}
+                                  placeholder="Default 40%"
+                                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-stone-900 border border-stone-700 text-sm font-bold text-rose-300 focus:outline-none focus:border-amber-500"
                                 />
                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 text-xs font-bold">
                                   Rs.
