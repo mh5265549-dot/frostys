@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShopMode } from '../types';
+import { FrostyLogo } from './FrostyLogo';
 
 interface ShopTransitionOverlayProps {
   targetShop: ShopMode | null;
@@ -12,18 +13,32 @@ export const ShopTransitionOverlay: React.FC<ShopTransitionOverlayProps> = ({
   onComplete,
 }) => {
   const [progress, setProgress] = useState(0);
+  const [logoStage, setLogoStage] = useState<'initial' | 'transforming' | 'transformed'>('initial');
 
   useEffect(() => {
     if (!targetShop) return;
 
-    // Reset progress
+    // Reset progress and stages
     setProgress(15);
-    const t1 = setTimeout(() => setProgress(55), 180);
-    const t2 = setTimeout(() => setProgress(90), 380);
-    const t3 = setTimeout(() => setProgress(100), 550);
+    setLogoStage('initial');
+
+    const t1 = setTimeout(() => {
+      setProgress(45);
+      setLogoStage('transforming');
+    }, 240);
+
+    const t2 = setTimeout(() => {
+      setProgress(85);
+      setLogoStage('transformed');
+    }, 460);
+
+    const t3 = setTimeout(() => {
+      setProgress(100);
+    }, 680);
+
     const t4 = setTimeout(() => {
       onComplete();
-    }, 720);
+    }, 880);
 
     return () => {
       clearTimeout(t1);
@@ -36,6 +51,12 @@ export const ShopTransitionOverlay: React.FC<ShopTransitionOverlayProps> = ({
   if (!targetShop) return null;
 
   const isGrill = targetShop === 'grill';
+  // If switching to Grill: starts as White Snowman ('ice'), transforms into Fire Edition Snowman ('fire')
+  // If switching to Ice Cream: starts as Fire Edition Snowman ('fire'), transforms into White Snowman ('ice')
+  const currentLogoVariant =
+    logoStage === 'initial'
+      ? isGrill ? 'ice' : 'fire'
+      : isGrill ? 'fire' : 'ice';
 
   return (
     <AnimatePresence>
@@ -58,36 +79,36 @@ export const ShopTransitionOverlay: React.FC<ShopTransitionOverlayProps> = ({
         ) : (
           <div className="absolute inset-0 bg-[#0E0B16] bg-radial from-[#2A1226] via-[#160D1E] to-[#0A0710]">
             {/* Frosty glowing spots */}
-            <div className="absolute top-1/3 right-1/4 w-[450px] h-[450px] bg-[#FF4B72]/20 rounded-full blur-[110px] animate-pulse"></div>
-            <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-[#38D39F]/20 rounded-full blur-[120px]"></div>
+            <div className="absolute top-1/3 right-1/4 w-[450px] h-[450px] bg-[#38BDF8]/20 rounded-full blur-[110px] animate-pulse"></div>
+            <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-[#FF4B72]/20 rounded-full blur-[120px]"></div>
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.85)_100%)]"></div>
           </div>
         )}
 
         {/* Ambient Floating Particle Elements */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {Array.from({ length: 18 }).map((_, i) => (
+          {Array.from({ length: 22 }).map((_, i) => (
             <motion.div
               key={i}
               initial={{
-                x: `${(i * 19) % 95}vw`,
+                x: `${(i * 17) % 95}vw`,
                 y: isGrill ? '105vh' : '-5vh',
                 opacity: 0,
-                scale: 0.6 + ((i % 4) * 0.2),
+                scale: 0.6 + ((i % 4) * 0.25),
               }}
               animate={{
                 y: isGrill ? '-10vh' : '105vh',
-                opacity: [0, 0.85, 0.4, 0],
-                x: `${((i * 19) % 95) + ((i % 2 === 0 ? 1 : -1) * 3)}vw`,
+                opacity: [0, 0.9, 0.4, 0],
+                x: `${((i * 17) % 95) + ((i % 2 === 0 ? 1 : -1) * 4)}vw`,
               }}
               transition={{
-                duration: 1.2 + (i % 5) * 0.2,
+                duration: 1.1 + (i % 5) * 0.2,
                 repeat: Infinity,
-                delay: (i * 0.05) % 0.4,
+                delay: (i * 0.04) % 0.4,
                 ease: 'easeInOut',
               }}
-              className={`absolute text-base ${
-                isGrill ? 'text-amber-400' : 'text-pink-300'
+              className={`absolute text-lg ${
+                isGrill ? 'text-amber-400' : 'text-sky-300'
               }`}
             >
               {isGrill
@@ -99,7 +120,7 @@ export const ShopTransitionOverlay: React.FC<ShopTransitionOverlayProps> = ({
                 : i % 3 === 0
                 ? '❄️'
                 : i % 3 === 1
-                ? '🍦'
+                ? '⛄'
                 : '✨'}
             </motion.div>
           ))}
@@ -108,39 +129,64 @@ export const ShopTransitionOverlay: React.FC<ShopTransitionOverlayProps> = ({
         {/* Central Content Box */}
         <div className="relative z-20 max-w-md w-full mx-auto px-6 text-center">
           
-          {/* Main Animated Icon Emblem */}
-          <motion.div
-            initial={{ scale: 0.3, rotate: -25, opacity: 0 }}
-            animate={{ scale: 1, rotate: 0, opacity: 1 }}
-            transition={{ type: 'spring', damping: 14, stiffness: 220 }}
-            className="mx-auto mb-6 relative w-24 h-24 sm:w-28 sm:h-28"
-          >
-            {/* Outer Glowing Ring */}
-            <div
-              className={`absolute inset-0 rounded-3xl blur-xl opacity-80 animate-pulse ${
-                isGrill
+          {/* Main Animated Snowman Logo Transition Emblem */}
+          <div className="mx-auto mb-6 relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center">
+            {/* Outer Glowing Pulsing Ring */}
+            <motion.div
+              animate={{
+                scale: logoStage === 'transforming' ? [1, 1.25, 1.1] : 1,
+                opacity: [0.6, 0.9, 0.7],
+              }}
+              transition={{ duration: 0.4 }}
+              className={`absolute inset-0 rounded-3xl blur-xl ${
+                currentLogoVariant === 'fire'
                   ? 'bg-gradient-to-tr from-amber-500 via-orange-600 to-red-600'
-                  : 'bg-gradient-to-tr from-[#FF4B72] via-pink-400 to-[#38D39F]'
+                  : 'bg-gradient-to-tr from-[#38BDF8] via-sky-400 to-[#FF4B72]'
               }`}
-            ></div>
+            />
 
-            {/* Emblem Card */}
-            <div
-              className={`relative w-full h-full rounded-3xl flex items-center justify-center text-4xl sm:text-5xl shadow-2xl border-2 ${
-                isGrill
-                  ? 'bg-[#220D08] border-orange-500/70 text-amber-400 shadow-orange-950/80'
-                  : 'bg-[#1E1122] border-[#FF4B72]/70 text-white shadow-pink-950/80'
+            {/* Emblem Card Containing the Snowman Logo */}
+            <motion.div
+              key={`${currentLogoVariant}-${logoStage}`}
+              initial={{
+                scale: logoStage === 'initial' ? 0.8 : 0.6,
+                rotate: logoStage === 'transforming' ? -15 : 0,
+                opacity: 0,
+              }}
+              animate={{
+                scale: 1,
+                rotate: 0,
+                opacity: 1,
+              }}
+              transition={{ type: 'spring', damping: 14, stiffness: 220 }}
+              className={`relative w-full h-full rounded-3xl flex items-center justify-center p-3 shadow-2xl border-2 backdrop-blur-md transition-colors duration-300 ${
+                currentLogoVariant === 'fire'
+                  ? 'bg-[#220D08]/90 border-orange-500/70 shadow-orange-950/80'
+                  : 'bg-[#0F172A]/90 border-sky-400/70 shadow-sky-950/80'
               }`}
             >
-              {isGrill ? (
-                <i className="fa-solid fa-fire-flame-curved animate-bounce"></i>
-              ) : (
-                <i className="fa-solid fa-ice-cream animate-bounce"></i>
-              )}
-            </div>
-          </motion.div>
+              <FrostyLogo
+                variant={currentLogoVariant}
+                size="custom"
+                className="w-20 h-20 sm:w-24 sm:h-24 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+              />
 
-          {/* Subtitle Pill */}
+              {/* Dynamic Tag Overlay on Logo during morph */}
+              <div className="absolute -bottom-2.5 px-2.5 py-0.5 rounded-full text-[9px] font-black tracking-wider uppercase shadow-md flex items-center gap-1 border">
+                {currentLogoVariant === 'fire' ? (
+                  <span className="bg-gradient-to-r from-orange-600 to-amber-500 text-white border-orange-400">
+                    🔥 Fire Edition
+                  </span>
+                ) : (
+                  <span className="bg-gradient-to-r from-sky-500 to-blue-600 text-white border-sky-300">
+                    ⛄ White Snowman
+                  </span>
+                )}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Subtitle Pill / Status Indicator */}
           <motion.div
             initial={{ y: 15, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -148,18 +194,24 @@ export const ShopTransitionOverlay: React.FC<ShopTransitionOverlayProps> = ({
             className="mb-3"
           >
             <span
-              className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border shadow-lg ${
+              className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border shadow-lg transition-colors ${
                 isGrill
                   ? 'bg-orange-950/90 text-orange-300 border-orange-600/60'
-                  : 'bg-pink-950/90 text-pink-300 border-[#FF4B72]/60'
+                  : 'bg-sky-950/90 text-sky-300 border-sky-500/60'
               }`}
             >
               <span
                 className={`w-2 h-2 rounded-full animate-ping ${
-                  isGrill ? 'bg-orange-400' : 'bg-[#38D39F]'
+                  isGrill ? 'bg-orange-400' : 'bg-sky-400'
                 }`}
               ></span>
-              {isGrill ? "Switching to Frosty's Grill" : "Switching to Frosty's Ice Cream"}
+              {isGrill
+                ? logoStage === 'transformed'
+                  ? "Ignited: Snowman Fire Edition 🔥"
+                  : "Igniting Snowman to Fire Edition..."
+                : logoStage === 'transformed'
+                  ? "Cooled: White Snowman Edition ⛄"
+                  : "Cooling Snowman to Winter Edition..."}
             </span>
           </motion.div>
 
@@ -180,7 +232,7 @@ export const ShopTransitionOverlay: React.FC<ShopTransitionOverlayProps> = ({
             ) : (
               <>
                 Handcrafted Scoops & <br />
-                <span className="bg-gradient-to-r from-[#FF85A1] via-pink-400 to-[#38D39F] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#FF85A1] via-sky-300 to-[#38BDF8] bg-clip-text text-transparent">
                   Signature Sundaes
                 </span>
               </>
@@ -195,7 +247,7 @@ export const ShopTransitionOverlay: React.FC<ShopTransitionOverlayProps> = ({
             className="text-xs sm:text-sm text-stone-300 font-medium max-w-sm mx-auto mb-6 leading-relaxed"
           >
             {isGrill
-              ? 'Loading juicy flame-grilled burgers, sandwiches, wraps & loaded fries supreme...'
+              ? 'Loading juicy flame-grilled burgers, sandwiches, wraps, tacos & Karak Chai...'
               : 'Loading fresh waffle cones, banana splits, super cups, thick shakes & fruit chillers...'}
           </motion.p>
 
@@ -208,13 +260,13 @@ export const ShopTransitionOverlay: React.FC<ShopTransitionOverlayProps> = ({
               className={`h-full rounded-full transition-all duration-300 ${
                 isGrill
                   ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 shadow-[0_0_12px_rgba(249,115,22,0.8)]'
-                  : 'bg-gradient-to-r from-[#FF4B72] via-pink-400 to-[#38D39F] shadow-[0_0_12px_rgba(255,75,114,0.8)]'
+                  : 'bg-gradient-to-r from-sky-400 via-blue-500 to-[#FF4B72] shadow-[0_0_12px_rgba(56,189,248,0.8)]'
               }`}
             />
           </div>
 
           <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider block">
-            {progress < 100 ? 'Switching Shop...' : 'Ready! Welcome!'}
+            {progress < 100 ? 'Switching Shop Edition...' : 'Ready! Welcome!'}
           </span>
         </div>
       </motion.div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { CartItem, ShopMode } from '../types';
+import { FrostyLogo } from './FrostyLogo';
 
 interface FloatingCartBarProps {
   cart: CartItem[];
@@ -80,19 +81,19 @@ export const FloatingCartBar: React.FC<FloatingCartBarProps> = ({
           {isGrill ? (
             <button
               onClick={() => onSwitchShop('ice-cream')}
-              className="text-[#FF4B72] hover:text-[#E63956] font-bold flex items-center gap-1 text-[11px] group cursor-pointer transition-colors"
+              className="text-[#0284C7] hover:text-[#0369A1] font-bold flex items-center gap-1.5 text-[11px] group cursor-pointer transition-colors"
             >
-              <i className="fa-solid fa-ice-cream text-[#FF4B72]"></i>
-              <span>Want dessert with burgers? <strong className="underline decoration-[#FF4B72]">Switch to Ice Cream</strong></span>
+              <FrostyLogo variant="ice" size="xs" className="w-3.5 h-3.5" animate={false} />
+              <span>Want dessert with burgers? <strong className="underline decoration-[#0284C7]">Switch to White Snowman (Ice Cream)</strong></span>
               <i className="fa-solid fa-arrow-right text-[8px] group-hover:translate-x-0.5 transition-transform"></i>
             </button>
           ) : (
             <button
               onClick={() => onSwitchShop('grill')}
-              className="text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1 text-[11px] group cursor-pointer transition-colors"
+              className="text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1.5 text-[11px] group cursor-pointer transition-colors"
             >
-              <i className="fa-solid fa-fire text-orange-500"></i>
-              <span>Hungry for fast food too? <strong className="underline decoration-orange-500">Switch to Grill</strong></span>
+              <FrostyLogo variant="fire" size="xs" className="w-3.5 h-3.5" animate={false} />
+              <span>Hungry for fast food too? <strong className="underline decoration-orange-500">Switch to Snowman Fire Edition</strong></span>
               <i className="fa-solid fa-arrow-right text-[8px] group-hover:translate-x-0.5 transition-transform"></i>
             </button>
           )}

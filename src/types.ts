@@ -60,6 +60,7 @@ export interface CartItem {
 export interface OrderRecord {
   id: string;
   timestamp: string;
+  createdAt?: string; // ISO date string for robust day and month reporting
   customerName: string;
   customerPhone: string;
   address?: string;

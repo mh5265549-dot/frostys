@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { STORE_INFO } from '../data/menuData';
 import { getStoreStatus } from '../utils/hours';
 import { ShopMode } from '../types';
+import { FrostyLogo } from './FrostyLogo';
 
 interface NavbarProps {
   cartCount: number;
@@ -77,21 +78,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             href="#hero"
             className="flex items-center gap-2.5 sm:gap-3 group focus:outline-none cursor-pointer shrink-0"
             id="navbar-logo"
-            title={isGrill ? "Frosty's Grill - Green City, Lahore" : "Frosty's Ice Cream - Green City, Lahore"}
+            title={isGrill ? "Frosty's Grill - Snowman Fire Edition 🔥" : "Frosty's Ice Cream - White Snowman ⛄"}
           >
-            <div className="relative">
+            <div className="relative shrink-0">
               <div
-                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center text-white shadow-sm transition-transform duration-300 group-hover:scale-105 ${
+                className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center shadow-xs transition-transform duration-300 group-hover:scale-105 p-1 ${
                   isGrill
-                    ? 'bg-gradient-to-tr from-amber-500 to-orange-600'
-                    : 'bg-gradient-to-tr from-[#FF4B72] to-[#FF85A1]'
+                    ? 'bg-gradient-to-tr from-amber-500 via-orange-600 to-red-600 shadow-orange-950/20'
+                    : 'bg-gradient-to-tr from-[#0284C7] via-[#38BDF8] to-[#FF4B72] shadow-sky-950/20'
                 }`}
               >
-                {isGrill ? (
-                  <i className="fa-solid fa-fire text-lg text-white"></i>
-                ) : (
-                  <i className="fa-solid fa-ice-cream text-lg text-white"></i>
-                )}
+                <FrostyLogo
+                  variant={isGrill ? 'fire' : 'ice'}
+                  size="custom"
+                  className="w-8 h-8 sm:w-9 sm:h-9"
+                  animate={false}
+                />
               </div>
             </div>
             <div>
@@ -117,18 +119,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => onSwitchShop('ice-cream')}
               id="nav-switch-icecream"
-              title="Shop Frosty's Handcrafted Ice Cream & Shakes"
-              className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+              title="Shop Frosty's Handcrafted Ice Cream & Shakes (White Snowman Edition)"
+              className={`px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
                 !isGrill
                   ? 'bg-white text-[#FF4B72] shadow-sm font-black scale-[1.02]'
                   : 'text-stone-500 hover:text-stone-900'
               }`}
             >
-              <i className="fa-solid fa-ice-cream text-xs"></i>
+              <FrostyLogo variant="ice" size="xs" className="w-4 h-4" animate={false} />
               <span className="hidden xs:inline">Frosty's</span>
               <span className="xs:hidden">Ice Cream</span>
               {!isGrill && (
-                <span className="hidden sm:inline text-[9px] bg-pink-100 text-[#FF4B72] font-black px-1.5 py-0.2 rounded-full uppercase">
+                <span className="hidden sm:inline text-[9px] bg-sky-100 text-sky-700 font-black px-1.5 py-0.2 rounded-full uppercase">
                   Active
                 </span>
               )}
@@ -137,14 +139,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => onSwitchShop('grill')}
               id="nav-switch-grill"
-              title="Shop Frosty's Charcoal Burgers, Sandwiches & BBQ"
-              className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+              title="Shop Frosty's Charcoal Burgers, Sandwiches & BBQ (Fire Edition)"
+              className={`px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
                 isGrill
                   ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-sm font-black scale-[1.02]'
                   : 'text-stone-500 hover:text-stone-900'
               }`}
             >
-              <i className="fa-solid fa-fire text-xs"></i>
+              <FrostyLogo variant="fire" size="xs" className="w-4 h-4" animate={false} />
               <span className="hidden xs:inline">Frosty's Grill</span>
               <span className="xs:hidden">Grill</span>
               {isGrill && (
@@ -181,6 +183,20 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <i className="fa-solid fa-wand-magic-sparkles text-sm"></i>
                 <span className="hidden sm:inline">AI Helper</span>
+              </button>
+            )}
+
+            {/* Admin Control Lock Button */}
+            {onOpenAdminModal && (
+              <button
+                onClick={onOpenAdminModal}
+                id="btn-admin-lock-nav"
+                className="p-2 sm:px-2.5 sm:py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 border border-stone-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+                title="Owner Admin Control (Password Protected)"
+                aria-label="Admin Control Lock"
+              >
+                <i className="fa-solid fa-lock text-stone-700 text-xs sm:text-sm"></i>
+                <span className="hidden xl:inline text-[11px] font-bold">Admin</span>
               </button>
             )}
 

@@ -2,8 +2,8 @@ import { MenuItem } from '../types';
 import { MENU_ITEMS } from '../data/menuData';
 
 const MENU_STORAGE_KEY = 'frostys_custom_menu_catalog_v5';
-const PIN_STORAGE_KEY = 'frostys_admin_pin_v1';
-const DEFAULT_PIN = '1234';
+const PASSWORD_STORAGE_KEY = 'frostys_admin_password_12char_v1';
+const DEFAULT_PASSWORD = 'FrostyPass12'; // Exactly 12 characters (alphanumeric)
 
 /**
  * Retrieve menu items from localStorage or fallback to default MENU_ITEMS catalog
@@ -36,6 +36,17 @@ export function saveCustomMenuItems(items: MenuItem[]): void {
 }
 
 /**
+ * Add a brand new menu item to catalog
+ */
+export function addNewMenuItem(newItem: MenuItem): MenuItem[] {
+  const current = getStoredMenuItems();
+  // Place new product at the beginning so it's immediately prominent
+  const newList = [newItem, ...current.filter((item) => item.id !== newItem.id)];
+  saveCustomMenuItems(newList);
+  return newList;
+}
+
+/**
  * Update a single menu item (price, description, badge, etc.)
  */
 export function updateSingleMenuItem(updatedItem: MenuItem): MenuItem[] {
@@ -55,6 +66,16 @@ export function updateSingleMenuItem(updatedItem: MenuItem): MenuItem[] {
 }
 
 /**
+ * Remove/delete a menu item permanently from catalog
+ */
+export function deleteMenuItem(itemId: string): MenuItem[] {
+  const current = getStoredMenuItems();
+  const newList = current.filter((item) => item.id !== itemId);
+  saveCustomMenuItems(newList);
+  return newList;
+}
+
+/**
  * Reset custom menu catalog back to initial default items
  */
 export function resetMenuCatalogToDefault(): MenuItem[] {
@@ -67,23 +88,55 @@ export function resetMenuCatalogToDefault(): MenuItem[] {
 }
 
 /**
- * Get stored Admin PIN or fallback to default '1234'
+ * Get stored Admin Password (must be more than 5 and up to 12 characters)
  */
-export function getStoredAdminPin(): string {
+export function getStoredAdminPassword(): string {
   try {
-    return localStorage.getItem(PIN_STORAGE_KEY) || DEFAULT_PIN;
+    const saved = localStorage.getItem(PASSWORD_STORAGE_KEY);
+    if (saved && saved.trim().length > 5 && saved.trim().length <= 12) {
+      return saved.trim();
+    }
+    // Backward compatibility check
+    const oldPin = localStorage.getItem('frostys_admin_pin_v1');
+    if (oldPin && oldPin.trim().length > 5 && oldPin.trim().length <= 12) {
+      return oldPin.trim();
+    }
+    return DEFAULT_PASSWORD;
   } catch {
-    return DEFAULT_PIN;
+    return DEFAULT_PASSWORD;
   }
 }
 
 /**
- * Save new Admin PIN
+ * Save new Admin Password (must be > 5 characters and <= 12 characters)
  */
-export function saveAdminPin(newPin: string): void {
+export function saveAdminPassword(newPassword: string): boolean {
+  const trimmed = newPassword.trim();
+  if (trimmed.length <= 5 || trimmed.length > 12) {
+    return false;
+  }
   try {
-    localStorage.setItem(PIN_STORAGE_KEY, newPin);
+    localStorage.setItem(PASSWORD_STORAGE_KEY, trimmed);
+    return true;
   } catch (err) {
-    console.error('Failed to save admin PIN:', err);
+    console.error('Failed to save admin password:', err);
+    return false;
   }
 }
+
+/**
+ * Verify if provided input matches stored admin password
+ */
+export function checkAdminPassword(input: string): boolean {
+  const stored = getStoredAdminPassword();
+  return input.trim() === stored;
+}
+
+// Backwards compatibility for legacy imports
+export const getStoredAdminPin = getStoredAdminPassword;
+export const saveAdminPin = (pin: string) => {
+  if (pin.trim().length > 5 && pin.trim().length <= 12) {
+    saveAdminPassword(pin);
+  }
+};
+

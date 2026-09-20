@@ -1,5 +1,6 @@
 import React from 'react';
 import { STORE_INFO } from '../data/menuData';
+import { FrostyLogo } from './FrostyLogo';
 
 interface FooterProps {
   onOpenAdminModal?: () => void;
@@ -15,8 +16,14 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminModal }) => {
           {/* Col 1: Brand Info */}
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#FF4B72] to-[#FF85A1] flex items-center justify-center text-white shadow-xs">
-                <i className="fa-solid fa-ice-cream text-lg"></i>
+              {/* Dual Snowman Logo: White Snowman & Snowman Fire Edition */}
+              <div className="flex items-center -space-x-2">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#0284C7] via-[#38BDF8] to-[#FF4B72] flex items-center justify-center p-1 shadow-sm border border-white">
+                  <FrostyLogo variant="ice" size="custom" className="w-8 h-8" animate={false} />
+                </div>
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-600 to-red-600 flex items-center justify-center p-1 shadow-sm border border-white">
+                  <FrostyLogo variant="fire" size="custom" className="w-8 h-8" animate={false} />
+                </div>
               </div>
               <div>
                 <span className="font-heading font-black text-xl tracking-tight text-stone-900 block">

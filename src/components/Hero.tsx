@@ -1,6 +1,7 @@
 import React from 'react';
 import { STORE_INFO, heroDessertImg, grilledChickenBurgerImg } from '../data/menuData';
 import { ShopMode } from '../types';
+import { FrostyLogo } from './FrostyLogo';
 
 interface HeroProps {
   onOpenOrderModal: () => void;
@@ -92,21 +93,21 @@ export const Hero: React.FC<HeroProps> = ({
           <button
             onClick={() => onSwitchShop(isGrill ? 'ice-cream' : 'grill')}
             id="hero-banner-switch-shop"
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95 shadow-xs ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 shadow-xs ${
               isGrill
-                ? 'bg-pink-50 hover:bg-pink-100 text-[#FF4B72] border border-pink-200'
-                : 'bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200'
+                ? 'bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200'
+                : 'bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200'
             }`}
           >
             {isGrill ? (
               <>
-                <i className="fa-solid fa-ice-cream text-[11px]"></i>
-                <span>Switch to Ice Cream</span>
+                <FrostyLogo variant="ice" size="xs" className="w-4 h-4" animate={false} />
+                <span>Switch to White Snowman (Ice Cream)</span>
               </>
             ) : (
               <>
-                <i className="fa-solid fa-fire text-[11px]"></i>
-                <span>Switch to Grill Shop</span>
+                <FrostyLogo variant="fire" size="xs" className="w-4 h-4" animate={false} />
+                <span>Switch to Snowman Fire Edition (Grill)</span>
               </>
             )}
             <i className="fa-solid fa-arrow-right text-[10px]"></i>

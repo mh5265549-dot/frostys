@@ -36,6 +36,8 @@ import {
 import {
   getStoredMenuItems,
   updateSingleMenuItem,
+  addNewMenuItem,
+  deleteMenuItem,
   resetMenuCatalogToDefault,
 } from './utils/menuStore';
 import { getStoredFeedback, saveFeedback } from './utils/feedbackStore';
@@ -162,6 +164,21 @@ export default function App() {
     const defaultCatalog = resetMenuCatalogToDefault();
     setMenuItems(defaultCatalog);
     triggerToast('Reset menu items back to default catalog!');
+  };
+
+  // Add new menu item to catalog
+  const handleAddNewProduct = (newItem: MenuItem, initialStock: number = 15) => {
+    const newCatalog = addNewMenuItem(newItem);
+    setMenuItems(newCatalog);
+    handleUpdateStock(newItem.id, initialStock);
+    triggerToast(`✨ Added "${newItem.name}" to menu catalog!`);
+  };
+
+  // Delete/remove menu item from catalog
+  const handleDeleteProduct = (itemId: string) => {
+    const newCatalog = deleteMenuItem(itemId);
+    setMenuItems(newCatalog);
+    triggerToast('Item removed from menu catalog.');
   };
 
   // Sync inventory changes
@@ -520,6 +537,8 @@ export default function App() {
         onClose={() => setIsAdminModalOpen(false)}
         menuItems={menuItems}
         onUpdateMenuItem={handleUpdateMenuItem}
+        onAddNewProduct={handleAddNewProduct}
+        onDeleteProduct={handleDeleteProduct}
         onResetMenu={handleResetMenuCatalog}
         inventory={inventory}
         onUpdateStock={handleUpdateStock}
