@@ -2,8 +2,8 @@ import { MenuItem } from '../types';
 import { MENU_ITEMS } from '../data/menuData';
 
 const MENU_STORAGE_KEY = 'frostys_custom_menu_catalog_v5';
-const PASSWORD_STORAGE_KEY = 'frostys_admin_password_12char_v1';
-const DEFAULT_PASSWORD = 'FrostyPass12'; // Exactly 12 characters (alphanumeric)
+const PASSWORD_STORAGE_KEY = 'frostys_admin_password_v2';
+const DEFAULT_PASSWORD = '1234567';
 
 /**
  * Retrieve menu items from localStorage or fallback to default MENU_ITEMS catalog
@@ -95,11 +95,6 @@ export function getStoredAdminPassword(): string {
     const saved = localStorage.getItem(PASSWORD_STORAGE_KEY);
     if (saved && saved.trim().length > 5 && saved.trim().length <= 12) {
       return saved.trim();
-    }
-    // Backward compatibility check
-    const oldPin = localStorage.getItem('frostys_admin_pin_v1');
-    if (oldPin && oldPin.trim().length > 5 && oldPin.trim().length <= 12) {
-      return oldPin.trim();
     }
     return DEFAULT_PASSWORD;
   } catch {

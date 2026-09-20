@@ -517,7 +517,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   <div className="text-xs text-stone-300 mt-2 bg-[#140D0C] p-3 rounded-xl border border-stone-800 text-center space-y-1">
                     <p className="text-stone-400 text-[11px]">Default Owner Password:</p>
                     <p className="font-mono font-black text-amber-300 text-sm tracking-wider select-all">
-                      FrostyPass12
+                      1234567
                     </p>
                     <p className="text-[10px] text-stone-500">
                       (You can change this password anytime in the dashboard to any 6 to 12 character password)
