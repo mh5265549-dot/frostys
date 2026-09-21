@@ -1,7 +1,6 @@
 import React from 'react';
-import { STORE_INFO, heroDessertImg, grilledChickenBurgerImg } from '../data/menuData';
+import { STORE_INFO, outdoorRestaurantImg } from '../data/menuData';
 import { ShopMode } from '../types';
-import { FrostyLogo } from './FrostyLogo';
 
 interface HeroProps {
   onOpenOrderModal: () => void;
@@ -9,284 +8,172 @@ interface HeroProps {
   searchQuery?: string;
   onSearchChange?: (q: string) => void;
   onQuickSearch?: (term: string) => void;
-  activeShop: ShopMode;
-  onSwitchShop: (shop: ShopMode) => void;
+  activeShop?: ShopMode;
+  onSwitchShop?: (shop: ShopMode) => void;
 }
 
 export const Hero: React.FC<HeroProps> = ({
   onOpenOrderModal,
-  onOpenCallModal,
-  searchQuery = '',
-  onSearchChange,
-  onQuickSearch,
-  activeShop,
-  onSwitchShop,
 }) => {
-  const isGrill = activeShop === 'grill';
-
-  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (onSearchChange) {
-      onSearchChange(e.target.value);
-    }
-  };
-
-  const handleQuickChipClick = (term: string) => {
-    if (onQuickSearch) {
-      onQuickSearch(term);
-    } else if (onSearchChange) {
-      onSearchChange(term);
-    }
-    const menuElement = document.getElementById('menu');
-    if (menuElement) {
-      menuElement.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const iceCreamChips = [
-    'Waffle Cone',
-    'Banana Split',
-    'Banana Split Deluxe',
-    'Super Cup',
-    'Cold Coffee',
-    'Oreo Shake',
-    'Vanilla Scoop',
-  ];
-
-  const grillChips = [
-    'Grilled Chicken Burger',
-    'Grilled Chicken Sandwich',
-    'Grilled Chicken Wrap',
-    'Fries Supreme',
-    'Grilled Chicken Fries Supreme',
-    'Regular Fries',
-  ];
-
-  const activeChips = isGrill ? grillChips : iceCreamChips;
-
   return (
     <section
       id="hero"
-      className={`relative pt-24 pb-12 sm:pt-28 sm:pb-16 transition-colors duration-300 ${
-        isGrill
-          ? 'bg-gradient-to-b from-[#FFF7ED] via-[#FFFDF9] to-[#FAFAF9]'
-          : 'bg-gradient-to-b from-[#FFF5F8] via-[#FFFAF8] to-[#FAFAF9]'
-      }`}
+      className="relative pt-24 pb-12 sm:pt-28 sm:pb-16 bg-gradient-to-b from-[#F0F7FF] via-[#F8FAFC] to-[#FFFFFF] transition-colors duration-300"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Shop Switch Banner Notification */}
-        <div className="mb-6 max-w-2xl mx-auto lg:mx-0 p-2 sm:p-2.5 rounded-2xl bg-white border border-stone-200/80 shadow-xs flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 pl-2 text-xs text-stone-700">
-            <span
-              className={`w-2.5 h-2.5 rounded-full ${
-                isGrill ? 'bg-orange-500 animate-pulse' : 'bg-[#FF4B72] animate-pulse'
-              }`}
-            ></span>
-            <span>
-              Now Browsing:{' '}
-              <strong className="text-stone-900 font-extrabold">
-                {isGrill ? "Frosty's Grill (Fresh Fast Food)" : "Frosty's (Fresh Ice Cream & Desserts)"}
-              </strong>
-            </span>
+        {/* Top Status Strip */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-3 border-b border-blue-100">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-blue-200 shadow-2xs text-xs font-bold text-blue-900">
+            <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping"></span>
+            <i className="fa-solid fa-clock text-red-600"></i>
+            <span>Open Daily • 4:00 PM to 2:00 AM</span>
           </div>
 
-          <button
-            onClick={() => onSwitchShop(isGrill ? 'ice-cream' : 'grill')}
-            id="hero-banner-switch-shop"
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 shadow-xs ${
-              isGrill
-                ? 'bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200'
-                : 'bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200'
-            }`}
-          >
-            {isGrill ? (
-              <>
-                <FrostyLogo variant="ice" size="xs" className="w-4 h-4" animate={false} />
-                <span>Switch to White Snowman (Ice Cream)</span>
-              </>
-            ) : (
-              <>
-                <FrostyLogo variant="fire" size="xs" className="w-4 h-4" animate={false} />
-                <span>Switch to Snowman Fire Edition (Grill)</span>
-              </>
-            )}
-            <i className="fa-solid fa-arrow-right text-[10px]"></i>
-          </button>
+          <div className="flex items-center gap-2 text-xs font-bold text-stone-600">
+            <i className="fa-solid fa-location-dot text-red-600"></i>
+            <span>8B Commercial Area, Green City, Lahore</span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          
-          {/* Left Column Text Content */}
-          <div className="lg:col-span-7 space-y-5 text-center lg:text-left">
-            
-            {/* Tagline Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-stone-200 shadow-2xs text-xs font-bold text-stone-700">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-              <i className="fa-solid fa-clock text-emerald-600"></i>
-              <span>Open Late Night • 4:00 PM to 2:00 AM Daily</span>
-            </div>
+        {/* Featured Storefront Picture at the Top */}
+        <div className="relative rounded-3xl overflow-hidden border border-blue-200/80 shadow-md bg-stone-900 group mb-8">
+          <img
+            src={outdoorRestaurantImg}
+            alt="Frosty's Outdoor Restaurant & Ice Cream Parlor in Green City Lahore"
+            referrerPolicy="no-referrer"
+            className="w-full h-72 sm:h-96 lg:h-[420px] object-cover group-hover:scale-102 transition-transform duration-700"
+          />
+          {/* Subtle Gradient Overlays for High Contrast Readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10 pointer-events-none"></div>
 
-            {/* Headline */}
-            <div>
-              <span
-                className={`block text-xs font-extrabold uppercase tracking-widest mb-1.5 ${
-                  isGrill ? 'text-orange-600' : 'text-[#FF4B72]'
-                }`}
-              >
-                {isGrill ? "Frosty's Grill • Grilled Fresh. Made Right." : "Frosty's Ice Cream • 8B Commercial, Green City"}
+          {/* Top Corner Badges */}
+          <div className="absolute top-3 sm:top-4 left-3 sm:left-4 right-3 sm:right-4 flex items-center justify-between gap-2 pointer-events-auto">
+            <div className="bg-stone-900/85 backdrop-blur-md px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-extrabold text-white border border-white/20 shadow-md flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+              <span>Frosty's Outdoor Restaurant & Counter</span>
+            </div>
+            <div className="bg-stone-900/85 backdrop-blur-md px-3 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-extrabold text-amber-300 border border-white/20 shadow-md flex items-center gap-1.5">
+              <i className="fa-solid fa-star text-amber-400"></i>
+              <span>4.9 / 5.0 (180+ Reviews)</span>
+            </div>
+          </div>
+
+          {/* Bottom Content Bar Overlay */}
+          <div className="absolute bottom-3 sm:bottom-6 left-3 sm:left-6 right-3 sm:right-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3 sm:gap-4 pointer-events-auto">
+            <div className="text-white max-w-xl">
+              <span className="inline-block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-blue-200 bg-blue-950/70 backdrop-blur-md px-2.5 py-0.5 rounded-md border border-blue-500/30 mb-1.5">
+                8B Commercial, Green City Lahore
               </span>
-              <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.12] text-stone-900">
-                {isGrill ? (
-                  <>
-                    Grilled Fresh. <br className="hidden sm:inline" />
-                    <span className="text-orange-600">
-                      Made Right.
-                    </span>{' '}
-                    Delivered Fast!
-                  </>
-                ) : (
-                  <>
-                    Fresh Scoops, Sundaes & <br className="hidden sm:inline" />
-                    <span className="text-[#FF4B72]">
-                      Pure Cream Treats
-                    </span>{' '}
-                    Delivered Fresh!
-                  </>
-                )}
-              </h1>
+              <h2 className="font-heading font-black text-xl sm:text-3xl text-white tracking-tight drop-shadow-sm">
+                Late-Night Ice Cream & Grill Spot
+              </h2>
+              <p className="text-xs sm:text-sm text-stone-200 mt-1 drop-shadow-sm leading-relaxed hidden sm:block">
+                Outdoor open-air dining under the night sky, pure dairy ice cream scoops, freshly rolled waffle cones, flame-grilled burgers & loaded fries.
+              </p>
             </div>
 
-            {/* Subheadline */}
-            <p className="text-sm sm:text-base text-stone-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              {isGrill ? (
-                <>
-                  Flame-grilled chicken burgers, tender sandwiches, juicy wraps, and loaded fries supreme at{' '}
-                  <strong className="text-stone-900 font-bold">8B Commercial, Green City, Lahore</strong>. Order online for delivery or takeaway!
-                </>
-              ) : (
-                <>
-                  Freshly rolled waffle cones, pure cream fresh scoops, Banana Splits, thick shakes, and chilled soda chillers at{' '}
-                  <strong className="text-stone-900 font-bold">8B Commercial, Green City, Lahore</strong>. Pure dairy delight in every bite!
-                </>
-              )}
-            </p>
-
-            {/* Search Bar */}
-            <div className="pt-1 max-w-xl mx-auto lg:mx-0">
-              <div className="relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={handleSearchInput}
-                  placeholder={
-                    isGrill
-                      ? 'Search Grilled Chicken Burger, Sandwich, Wrap, Fries Supreme...'
-                      : 'Search Waffle Cones, Banana Split, Fresh Scoops, Shakes...'
-                  }
-                  className="w-full pl-11 pr-24 py-3.5 rounded-2xl bg-white border-2 border-stone-200 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-400 shadow-xs text-xs sm:text-sm font-semibold transition-all"
-                />
-                <i
-                  className={`fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-base ${
-                    isGrill ? 'text-orange-500' : 'text-[#FF4B72]'
-                  }`}
-                ></i>
-                <a
-                  href="#menu"
-                  className={`absolute right-2 top-1/2 -translate-y-1/2 px-3.5 py-2 rounded-xl text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 ${
-                    isGrill
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:opacity-95'
-                      : 'bg-gradient-to-r from-[#FF4B72] to-[#FF85A1] hover:opacity-95'
-                  }`}
-                >
-                  <span>Explore</span>
-                  <i className="fa-solid fa-arrow-down text-[10px]"></i>
-                </a>
-              </div>
-
-              {/* Quick Suggestion Chips */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1.5 pt-2.5 text-xs">
-                <span className="text-stone-500 text-[11px] font-semibold mr-1">Popular:</span>
-                {activeChips.slice(0, 6).map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => handleQuickChipClick(item)}
-                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 shadow-2xs transition-all text-[11px] font-medium cursor-pointer"
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
+            <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
               <a
                 href="#menu"
-                id="hero-btn-view-menu"
-                className={`w-full sm:w-auto px-6 py-3.5 rounded-xl text-white font-bold text-xs sm:text-sm shadow-sm transition-all text-center flex items-center justify-center gap-2 cursor-pointer hover:scale-105 active:scale-95 ${
-                  isGrill
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700'
-                    : 'bg-[#FF4B72] hover:bg-[#E63956]'
-                }`}
+                className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                {isGrill ? (
-                  <i className="fa-solid fa-fire text-sm"></i>
-                ) : (
-                  <i className="fa-solid fa-ice-cream text-sm"></i>
-                )}
-                <span>{isGrill ? "View Grill Menu" : "View Ice Cream Menu"}</span>
+                <i className="fa-solid fa-utensils"></i>
+                <span>Explore Menu</span>
               </a>
-
-              <a
-                href={`tel:${isGrill ? '03254826051' : STORE_INFO.phone}`}
-                className="w-full sm:w-auto px-5 py-3.5 rounded-xl bg-white hover:bg-stone-50 text-stone-800 font-bold text-xs sm:text-sm border border-stone-200 transition-all text-center flex items-center justify-center gap-2 shadow-2xs cursor-pointer"
+              <button
+                onClick={onOpenOrderModal}
+                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-white/95 hover:bg-white text-stone-900 font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <i className="fa-solid fa-phone text-stone-500"></i>
-                <span>{isGrill ? 'Grill Hotline: 0325 4826051' : 'Call Store'}</span>
-              </a>
-            </div>
-
-          </div>
-
-          {/* Right Column Imagery Card */}
-          <div className="lg:col-span-5 flex justify-center">
-            <div className="relative w-full max-w-md">
-              <div className="bg-white p-3 sm:p-4 rounded-3xl border border-stone-200/90 shadow-md">
-                <div className="relative h-64 sm:h-80 rounded-2xl overflow-hidden bg-stone-100">
-                  <img
-                    src={isGrill ? grilledChickenBurgerImg : heroDessertImg}
-                    alt={isGrill ? "Frosty's Grilled Chicken Burger" : "Frosty's Fresh Ice Cream & Sundaes"}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                  />
-                  <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-extrabold text-stone-900 shadow-xs flex items-center gap-1.5 border border-stone-100">
-                    <i className="fa-solid fa-star text-amber-400 text-xs"></i>
-                    <span>4.9 / 5 Rated in Green City</span>
-                  </div>
-
-                  <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md p-3 rounded-xl border border-stone-100 shadow-xs flex items-center justify-between">
-                    <div>
-                      <h4 className="font-heading font-extrabold text-sm text-stone-900">
-                        {isGrill ? 'Flame-Grilled Burgers' : 'Handmade Ice Creams'}
-                      </h4>
-                      <p className="text-[11px] text-stone-500">
-                        {isGrill ? 'From Rs. 250 • We Deliver in Green City' : 'Fresh Cones, Cups & Splits'}
-                      </p>
-                    </div>
-                    <a
-                      href="#menu"
-                      className={`px-3 py-1.5 rounded-lg text-white font-bold text-xs ${
-                        isGrill ? 'bg-orange-600 hover:bg-orange-700' : 'bg-[#FF4B72] hover:bg-[#E63956]'
-                      }`}
-                    >
-                      Order
-                    </a>
-                  </div>
-                </div>
-              </div>
+                <i className="fa-brands fa-whatsapp text-red-600 text-sm"></i>
+                <span>WhatsApp Order</span>
+              </button>
             </div>
           </div>
+        </div>
 
+        {/* Content & Action Area */}
+        <div className="max-w-3xl mx-auto text-center space-y-4">
+          <div>
+            <span className="inline-block text-xs font-extrabold uppercase tracking-widest mb-1.5 text-red-700 bg-white border border-red-200 px-3 py-1 rounded-full shadow-2xs">
+              Fresh Handcrafted Menu
+            </span>
+            <h1 className="font-heading font-black text-2xl sm:text-4xl text-stone-900 tracking-tight leading-tight">
+              Satisfy Midnight Cravings with <span className="text-red-600">Pure Dairy Treats & Grill</span>
+            </h1>
+            <p className="text-sm sm:text-base text-stone-600 mt-2 leading-relaxed max-w-2xl mx-auto">
+              Welcome to Frosty's in Green City, Lahore. Indulge in artisanal fresh scoops, freshly rolled waffle cones, decadent sundaes, thick milkshakes, savory flame-grilled burgers, and loaded fries — served fresh until 2:00 AM.
+            </p>
+          </div>
+
+          {/* Direct Action Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <a
+              href="#menu"
+              id="hero-btn-view-menu"
+              className="px-6 py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center gap-2 cursor-pointer hover:scale-102 active:scale-98"
+            >
+              <i className="fa-solid fa-ice-cream"></i>
+              <span>Browse Full Menu (30+ Items)</span>
+            </a>
+            <button
+              onClick={onOpenOrderModal}
+              className="px-5 py-3.5 rounded-xl bg-white hover:bg-blue-50 text-blue-900 font-bold text-xs sm:text-sm border border-blue-200 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+            >
+              <i className="fa-brands fa-whatsapp text-red-600 text-sm"></i>
+              <span>Order on WhatsApp</span>
+            </button>
+            <a
+              href={`tel:${STORE_INFO.phone}`}
+              className="px-5 py-3.5 rounded-xl bg-white hover:bg-stone-50 text-stone-800 hover:text-red-700 font-bold text-xs sm:text-sm border border-stone-200 hover:border-red-300 transition-all flex items-center gap-2 shadow-2xs"
+            >
+              <i className="fa-solid fa-phone text-red-600"></i>
+              <span>Hotline: {STORE_INFO.phone}</span>
+            </a>
+          </div>
+        </div>
+
+        {/* 4-Pill Feature Highlights */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8 pt-6 border-t border-stone-200/80">
+          <div className="p-3.5 rounded-2xl bg-white border border-stone-200 shadow-2xs flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold shrink-0">
+              <i className="fa-solid fa-ice-cream"></i>
+            </div>
+            <div>
+              <h4 className="font-heading font-bold text-xs text-stone-900">100% Pure Dairy</h4>
+              <p className="text-[10px] text-stone-500">Pure cream scoops & sundaes</p>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-white border border-stone-200 shadow-2xs flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-red-50 text-red-700 flex items-center justify-center font-bold shrink-0">
+              <i className="fa-solid fa-fire-burner"></i>
+            </div>
+            <div>
+              <h4 className="font-heading font-bold text-xs text-stone-900">Flame-Grilled</h4>
+              <p className="text-[10px] text-stone-500">Burgers, wraps & fries supreme</p>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-white border border-stone-200 shadow-2xs flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold shrink-0">
+              <i className="fa-solid fa-moon"></i>
+            </div>
+            <div>
+              <h4 className="font-heading font-bold text-xs text-stone-900">Open Till 2 AM</h4>
+              <p className="text-[10px] text-stone-500">Daily late-night service</p>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-white border border-stone-200 shadow-2xs flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-red-50 text-red-700 flex items-center justify-center font-bold shrink-0">
+              <i className="fa-solid fa-chair"></i>
+            </div>
+            <div>
+              <h4 className="font-heading font-bold text-xs text-stone-900">Outdoor Seating</h4>
+              <p className="text-[10px] text-stone-500">8B Commercial Green City</p>
+            </div>
+          </div>
         </div>
 
       </div>

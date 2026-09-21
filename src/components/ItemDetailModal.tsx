@@ -308,7 +308,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             className="w-full h-full object-cover"
           />
           {item.badge && (
-            <span className="absolute top-4 left-4 bg-[#FF4B72] text-white text-xs font-black px-3 py-1 rounded-full shadow-md uppercase">
+            <span className="absolute top-4 left-4 bg-red-600 text-white text-xs font-black px-3 py-1 rounded-full shadow-md uppercase">
               {item.badge}
             </span>
           )}
@@ -330,11 +330,11 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               )}
             </div>
             <div className="text-right">
-              <span className="font-heading font-black text-2xl text-[#FF4B72] block">
+              <span className="font-heading font-black text-2xl text-red-600 block">
                 Rs. {totalPrice}
               </span>
               {extraCharges > 0 && (
-                <span className="text-[11px] text-amber-600 font-bold block">
+                <span className="text-[11px] text-amber-700 font-bold block">
                   (Includes +Rs. {extraCharges * quantity} add-ons)
                 </span>
               )}
@@ -347,16 +347,16 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
 
           {/* Prominent Customization Banner */}
           {isGrillItem ? (
-            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-400/40 flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 text-white font-black text-lg flex items-center justify-center shrink-0 shadow-sm mt-0.5">
-                🔥
+            <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black text-lg flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                <i className="fa-solid fa-utensils text-sm"></i>
               </div>
               <div className="text-xs space-y-1">
-                <p className="font-extrabold text-orange-950 leading-snug">
-                  Frosty's Grill Kitchen — Prepared Fresh to Order
+                <p className="font-extrabold text-blue-950 leading-snug">
+                  Freshly Prepared to Order
                 </p>
                 <p className="text-stone-600 text-[11px] font-medium">
-                  Charcoal flame-grilled and served hot. Select your spice level and add-ons below!
+                  Served hot and made fresh with premium quality ingredients. Select your preferences below!
                 </p>
               </div>
             </div>
@@ -512,10 +512,10 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             <div className="space-y-2.5 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
               <label className="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <i className="fa-solid fa-ice-cream text-[#FF4B72]"></i>
-                  <span>Choose Container <span className="text-[#FF4B72] font-black">*Required Selection</span></span>
+                  <i className="fa-solid fa-ice-cream text-red-600"></i>
+                  <span>Choose Container <span className="text-red-600 font-black">*Required Selection</span></span>
                 </span>
-                <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-extrabold">Included Free</span>
+                <span className="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-extrabold">Included Free</span>
               </label>
               <div className="grid grid-cols-2 gap-2.5">
                 <button
@@ -549,7 +549,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                     <span className="text-lg">🍨</span>
                     <span>Classic Cup</span>
                   </div>
-                  <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/40 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] text-blue-300 font-bold bg-blue-950/40 px-2 py-0.5 rounded-full">
                     Deliverable & Takeaway
                   </span>
                 </button>
@@ -595,7 +595,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                           <i className="fa-solid fa-circle-check text-amber-300 text-xs shrink-0 mt-0.5"></i>
                         )}
                       </div>
-                      <span className={`text-xs font-black mt-2 ${isSelected ? 'text-amber-300' : 'text-[#FF4B72]'}`}>
+                      <span className={`text-xs font-black mt-2 ${isSelected ? 'text-amber-300' : 'text-red-600'}`}>
                         Rs. {v.price}
                       </span>
                     </button>
@@ -609,7 +609,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
           {item.defaultFlavor && (
             <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-300/80 flex items-center justify-between text-xs font-bold text-amber-950">
               <span className="flex items-center gap-2">
-                <i className="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
+                <i className="fa-solid fa-circle-check text-blue-600 text-sm"></i>
                 <span>Selected Flavor: <strong className="text-[#2D1B18]">{item.defaultFlavor}</strong></span>
               </span>
               <span className="text-[10px] text-amber-900 bg-amber-200/90 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold">
@@ -640,7 +640,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                       onClick={() => toggleFlavor(flavor)}
                       className={`p-2 rounded-xl border text-center text-xs font-bold transition-all ${
                         isSelected
-                          ? 'bg-[#FF4B72] text-white border-[#FF4B72] shadow-sm'
+                          ? 'bg-red-600 text-white border-red-600 shadow-sm'
                           : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-400'
                       }`}
                     >
@@ -723,7 +723,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                         <span
                           className={`w-4 h-4 rounded-full border flex items-center justify-center text-[9px] ${
                             isSelected
-                              ? 'bg-[#FF4B72] border-[#FF4B72] text-white'
+                              ? 'bg-red-600 border-red-600 text-white'
                               : 'border-stone-300'
                           }`}
                         >
@@ -775,7 +775,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                           className={`text-[10px] px-1.5 py-0.5 rounded font-extrabold ${
                             topping.isPremium
                               ? 'bg-amber-500 text-stone-900'
-                              : 'bg-emerald-100 text-emerald-800'
+                              : 'bg-blue-100 text-blue-800'
                           }`}
                         >
                           {topping.isPremium ? '+50 PKR' : 'Standard'}
@@ -807,7 +807,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               value={instructions}
               onChange={(e) => setInstructions(e.target.value)}
               placeholder="e.g. Less sweet, extra napkins, or sauce on side"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs font-medium text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#FF4B72]"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs font-medium text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -819,7 +819,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               </span>
               <span
                 className={`text-[11px] font-bold ${
-                  isSoldOut ? 'text-rose-600' : 'text-emerald-600'
+                  isSoldOut ? 'text-rose-600' : 'text-blue-600'
                 }`}
               >
                 {isSoldOut ? 'Currently Sold Out' : 'Freshly Prepared & Available'}
@@ -864,7 +864,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
           ) : (
             <button
               onClick={handleAdd}
-              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#FF4B72] to-[#E63956] hover:from-[#E63956] hover:to-[#C92A43] text-white font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-98"
+              className="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition-transform active:scale-98 cursor-pointer"
             >
               <i className="fa-solid fa-bag-shopping"></i>
               <span>Add to Order • Rs. {totalPrice}</span>

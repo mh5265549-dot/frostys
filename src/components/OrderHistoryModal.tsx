@@ -102,12 +102,12 @@ export const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
         {/* Stats Strip */}
         <div className="bg-stone-50 border-b border-stone-200 p-4 grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0">
           <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-sm flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">
               <i className="fa-solid fa-money-bill-wave"></i>
             </div>
             <div>
               <span className="text-[10px] uppercase text-stone-400 font-bold block">Total Logged Revenue</span>
-              <span className="text-base font-heading font-black text-emerald-700">Rs. {totalRevenue}</span>
+              <span className="text-base font-heading font-black text-blue-700">Rs. {totalRevenue}</span>
             </div>
           </div>
 
@@ -204,7 +204,7 @@ export const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
                       onChange={(e) => onUpdateStatus(ord.id, e.target.value as OrderRecord['status'])}
                       className={`text-xs font-extrabold px-3 py-1 rounded-xl border focus:outline-none cursor-pointer ${
                         ord.status === 'Completed'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                          ? 'bg-blue-50 text-blue-700 border-blue-300'
                           : ord.status === 'Preparing'
                           ? 'bg-amber-50 text-amber-800 border-amber-300'
                           : ord.status === 'Confirmed'

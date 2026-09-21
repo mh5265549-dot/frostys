@@ -262,12 +262,12 @@ export const OrderModal: React.FC<OrderModalProps> = ({
         {/* Modal Header */}
         <div className="p-5 sm:p-6 bg-white text-stone-900 flex items-center justify-between border-b border-stone-200">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#FF4B72] to-[#FF85A1] text-white flex items-center justify-center font-bold text-lg shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-red-600 text-white flex items-center justify-center font-bold text-lg shadow-xs">
               <i className="fa-solid fa-bag-shopping"></i>
             </div>
             <div>
               <h3 className="font-heading font-black text-lg sm:text-xl text-stone-900">
-                Your Frosty's & Grill Order
+                Your Frosty's Order
               </h3>
               <span className="text-xs text-stone-500">
                 8B Commercial, Green City, Lahore • Open 4 PM - 2 AM
@@ -332,7 +332,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                 }}
                 className={`py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   orderType === 'delivery'
-                    ? 'bg-[#FF4B72] text-white shadow-xs'
+                    ? 'bg-blue-600 text-white shadow-xs'
                     : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
@@ -365,7 +365,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                 <button
                   type="button"
                   onClick={onClearCart}
-                  className="text-xs text-[#E63956] font-semibold hover:underline"
+                  className="text-xs text-rose-600 font-semibold hover:underline cursor-pointer"
                 >
                   Clear Cart
                 </button>
@@ -377,30 +377,16 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                 <i className="fa-solid fa-basket-shopping text-3xl text-stone-300"></i>
                 <p className="text-sm font-semibold text-stone-600">Your cart is currently empty</p>
                 <p className="text-xs text-stone-400 max-w-sm mx-auto">
-                  Browse our distinct shops to select ice cream scoops, Banana Splits, thick shakes, or hot charcoal burgers and BBQ!
+                  Browse our menu to select fresh waffle cones, sundaes, shakes, burgers, and delicious treats!
                 </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-2">
+                <div className="flex items-center justify-center pt-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      onClose();
-                      if (onSwitchShop) onSwitchShop('ice-cream');
-                    }}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF4B72] to-[#FF85A1] text-white text-xs font-bold shadow-md hover:scale-105 transition-transform flex items-center gap-1.5 cursor-pointer"
+                    onClick={onClose}
+                    className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-xs flex items-center gap-1.5 cursor-pointer"
                   >
                     <i className="fa-solid fa-ice-cream"></i>
-                    <span>Shop Frosty's Ice Cream</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onClose();
-                      if (onSwitchShop) onSwitchShop('grill');
-                    }}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white text-xs font-bold shadow-md hover:scale-105 transition-transform flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <i className="fa-solid fa-fire text-amber-200"></i>
-                    <span>Shop Frosty's Grill</span>
+                    <span>Explore Menu</span>
                   </button>
                 </div>
               </div>
@@ -423,17 +409,8 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <h4 className="font-heading font-bold text-sm text-[#2D1B18] truncate">
-                              {item.menuItem.name} {item.selectedVariant && <span className="text-xs font-semibold text-[#FF4B72]">({item.selectedVariant.name})</span>}
+                              {item.menuItem.name} {item.selectedVariant && <span className="text-xs font-semibold text-blue-700">({item.selectedVariant.name})</span>}
                             </h4>
-                            {item.menuItem.category === 'fast-food-bbq' ? (
-                              <span className="text-[10px] bg-orange-100 text-orange-800 font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                🔥 Grill
-                              </span>
-                            ) : (
-                              <span className="text-[10px] bg-pink-100 text-[#FF4B72] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                🍦 Ice Cream
-                              </span>
-                            )}
                           </div>
                           <span className="text-xs text-stone-500 font-medium block mt-0.5">
                             Rs. {item.unitPrice} each

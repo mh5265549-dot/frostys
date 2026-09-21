@@ -30,7 +30,7 @@ export function getStoreStatus(): {
     return {
       isOpen: true,
       statusText: 'Open Now • Closes at 2:00 AM',
-      badgeColor: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30',
+      badgeColor: 'bg-blue-500/10 text-blue-600 border-blue-500/30',
       nextChangeText: `Open for another ${hoursLeft > 0 ? `${hoursLeft}h ` : ''}${minsLeft}m`,
     };
   } else {

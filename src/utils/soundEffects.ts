@@ -110,11 +110,17 @@ export function playIceCreamFrostSound() {
 }
 
 // Universal shop transition sound player
-export function playShopTransitionSound(targetShop: 'ice-cream' | 'grill') {
+export function playShopTransitionSound(targetShop: 'all' | 'ice-cream' | 'grill') {
   if (targetShop === 'grill') {
     playGrillSizzleSound();
-  } else {
+  } else if (targetShop === 'ice-cream') {
     playIceCreamFrostSound();
+  } else {
+    // For 'all' merged transition, play a gentle sparkle chime
+    playIceCreamFrostSound();
+    setTimeout(() => {
+      playGrillSizzleSound();
+    }, 120);
   }
 }
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type FrostyLogoVariant = 'ice' | 'fire';
+export type FrostyLogoVariant = 'ice' | 'fire' | 'green';
 
 interface FrostyLogoProps {
   variant?: FrostyLogoVariant;
@@ -21,7 +21,7 @@ const SIZE_MAP = {
 };
 
 export const FrostyLogo: React.FC<FrostyLogoProps> = ({
-  variant = 'ice',
+  variant = 'green',
   size = 'md',
   className = '',
   animate = true,
@@ -33,13 +33,13 @@ export const FrostyLogo: React.FC<FrostyLogoProps> = ({
   const badgeBgClasses = showBadgeBackground
     ? isFire
       ? 'bg-gradient-to-tr from-[#240B07] via-[#3A140B] to-[#170503] border-2 border-orange-500/60 shadow-lg shadow-orange-950/50 rounded-2xl p-1.5'
-      : 'bg-gradient-to-tr from-[#EFF6FF] via-[#F0FDF4] to-[#FFF1F2] border-2 border-[#FF4B72]/30 shadow-lg shadow-pink-950/10 rounded-2xl p-1.5'
+      : 'bg-gradient-to-tr from-red-600 via-blue-600 to-white border-2 border-white/80 shadow-lg shadow-blue-950/20 rounded-2xl p-1.5'
     : '';
 
   return (
     <div
       className={`relative inline-flex items-center justify-center shrink-0 ${sizeClasses} ${badgeBgClasses} ${className}`}
-      title={isFire ? "Frosty's Grill - Snowman Fire Edition 🔥" : "Frosty's - White Snowman ⛄"}
+      title="Frosty's ⛄"
     >
       <svg
         viewBox="0 0 100 100"
@@ -50,28 +50,30 @@ export const FrostyLogo: React.FC<FrostyLogoProps> = ({
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* ============ ICE / WHITE SNOWMAN GRADIENTS ============ */}
+          {/* ============ FROSTY'S RED + BLUE + WHITE SNOWMAN GRADIENTS ============ */}
           <linearGradient id="whiteSnowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#FFFFFF" />
             <stop offset="60%" stopColor="#F8FAFC" />
-            <stop offset="90%" stopColor="#E2E8F0" />
-            <stop offset="100%" stopColor="#CBD5E1" />
+            <stop offset="90%" stopColor="#E0F2FE" />
+            <stop offset="100%" stopColor="#BAE6FD" />
           </linearGradient>
 
           <linearGradient id="snowGlow" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#38BDF8" stopOpacity="0" />
+            <stop offset="100%" stopColor="#2563EB" stopOpacity="0" />
           </linearGradient>
 
           <linearGradient id="iceHatGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#334155" />
-            <stop offset="60%" stopColor="#1E293B" />
+            <stop offset="0%" stopColor="#1E3A8A" />
+            <stop offset="60%" stopColor="#1D4ED8" />
             <stop offset="100%" stopColor="#0F172A" />
           </linearGradient>
 
+          {/* Frosty's Signature Red Scarf & Ribbon */}
           <linearGradient id="iceScarfGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FF4B72" />
-            <stop offset="100%" stopColor="#E11D48" />
+            <stop offset="0%" stopColor="#EF4444" />
+            <stop offset="50%" stopColor="#DC2626" />
+            <stop offset="100%" stopColor="#B91C1C" />
           </linearGradient>
 
           <linearGradient id="iceCarrotGrad" x1="0%" y1="0%" x2="100%" y2="50%">
@@ -138,15 +140,15 @@ export const FrostyLogo: React.FC<FrostyLogoProps> = ({
               <path
                 d="M16 26L18 22L20 26L24 28L20 30L18 34L16 30L12 28Z"
                 fill="#38BDF8"
-                opacity="0.75"
+                opacity="0.9"
               />
               <path
                 d="M82 22L83.5 19L85 22L88 23.5L85 25L83.5 28L82 25L79 23.5Z"
-                fill="#FF85A1"
-                opacity="0.8"
+                fill="#EF4444"
+                opacity="0.9"
               />
-              <circle cx="86" cy="62" r="1.5" fill="#38BDF8" opacity="0.7" />
-              <circle cx="14" cy="68" r="1.5" fill="#93C5FD" opacity="0.7" />
+              <circle cx="86" cy="62" r="1.5" fill="#38BDF8" opacity="0.85" />
+              <circle cx="14" cy="68" r="1.5" fill="#60A5FA" opacity="0.85" />
             </g>
 
             {/* Snowman Twig Arms */}

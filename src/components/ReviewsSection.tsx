@@ -34,15 +34,15 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-50 border border-pink-200 text-[#FF4B72] text-xs font-bold uppercase tracking-wider">
-            <i className="fa-solid fa-comments text-amber-500"></i>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold uppercase tracking-wider">
+            <i className="fa-solid fa-comments text-red-600"></i>
             <span>Customer Voice & Reviews</span>
           </div>
           <h2 className="font-heading font-black text-2xl sm:text-4xl text-stone-900 tracking-tight">
             Reviews & Customer Help Center
           </h2>
           <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
-            Real feedback and verified ratings for Frosty's & Grill at 8B Commercial, Green City Lahore.
+            Real feedback and verified ratings for Frosty's at 8B Commercial, Green City Lahore.
           </p>
 
           {/* Action CTAs: Rating & Leave Review / File Complaint */}
@@ -60,7 +60,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 
             <button
               onClick={onOpenFeedbackModal}
-              className="px-4 py-2 rounded-2xl bg-[#FF4B72] hover:bg-[#E63956] text-white text-xs font-bold shadow-xs transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+              className="px-4 py-2 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-xs transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
             >
               <i className="fa-solid fa-pen-to-square"></i>
               <span>Leave Feedback</span>
@@ -117,7 +117,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   onClick={() => setStarFilter(star)}
                   className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                     starFilter === star
-                      ? 'bg-[#FF4B72] text-white shadow-xs'
+                      ? 'bg-blue-600 text-white shadow-xs'
                       : 'bg-white text-stone-700 hover:bg-stone-50 border border-stone-200'
                   }`}
                 >
@@ -140,7 +140,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                 <p className="text-xs text-stone-500">No reviews found matching this filter.</p>
                 <button
                   onClick={() => setStarFilter('all')}
-                  className="text-xs text-[#FF4B72] font-bold underline cursor-pointer"
+                  className="text-xs text-red-600 font-bold underline cursor-pointer"
                 >
                   Reset Filter
                 </button>
@@ -164,7 +164,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                             ></i>
                           ))}
                         </div>
-                        <span className="text-[10px] bg-pink-50 border border-pink-200 text-[#FF4B72] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                        <span className="text-[10px] bg-blue-50 border border-blue-200 text-blue-800 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
                           {rev.tag || 'Verified'}
                         </span>
                       </div>
@@ -180,7 +180,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                           {rev.name}
                         </h4>
                         {rev.favItem && (
-                          <span className="text-[10px] text-[#FF4B72] font-semibold block">
+                          <span className="text-[10px] text-red-600 font-semibold block">
                             Favorite: {rev.favItem}
                           </span>
                         )}
@@ -218,7 +218,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 
             {complaints.length === 0 ? (
               <div className="p-10 text-center bg-white rounded-3xl border border-stone-200 max-w-md mx-auto space-y-2">
-                <i className="fa-solid fa-circle-check text-emerald-500 text-3xl"></i>
+                <i className="fa-solid fa-circle-check text-blue-600 text-3xl"></i>
                 <p className="text-sm font-bold text-stone-800">No active complaints</p>
                 <p className="text-xs text-stone-500">All orders are running smoothly!</p>
               </div>
@@ -242,7 +242,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                       <span
                         className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 ${
                           cmp.status === 'Resolved'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
                             : cmp.status === 'In Progress'
                             ? 'bg-amber-50 text-amber-700 border border-amber-200'
                             : 'bg-rose-50 text-rose-700 border border-rose-200'

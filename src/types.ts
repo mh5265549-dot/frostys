@@ -102,5 +102,5 @@ export interface Complaint {
   resolutionNotes?: string;
 }
 
-export type ShopMode = 'ice-cream' | 'grill';
+export type ShopMode = 'all' | 'ice-cream' | 'grill';
 

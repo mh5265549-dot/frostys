@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MenuItem, CartItem, OrderRecord, Review, Complaint, Category, ShopMode } from './types';
+import { MenuItem, CartItem, OrderRecord, Review, Complaint, Category } from './types';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { MenuSection } from './components/MenuSection';
@@ -19,8 +19,6 @@ import { ComplaintModal } from './components/ComplaintModal';
 import { FloatingFeedbackButton } from './components/FloatingFeedbackButton';
 import { FloatingHelperButton } from './components/FloatingHelperButton';
 import { HelperAIModal } from './components/HelperAIModal';
-import { ShopTransitionOverlay } from './components/ShopTransitionOverlay';
-import { playShopTransitionSound } from './utils/soundEffects';
 import { validateItemCustomizationContainer } from './utils/categoryUtils';
 import {
   getStoredInventory,
@@ -62,52 +60,6 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<Category['id'] | null>(null);
-
-  // Active Shop Mode: 'ice-cream' vs 'grill'
-  const [activeShop, setActiveShop] = useState<ShopMode>(() => {
-    try {
-      const saved = localStorage.getItem('frostys_active_shop');
-      if (saved === 'grill' || saved === 'ice-cream') {
-        return saved;
-      }
-    } catch {
-      // fallback
-    }
-    return 'ice-cream';
-  });
-  const [targetShop, setTargetShop] = useState<ShopMode | null>(null);
-
-  // Switch Shop with Cool Cinematic Sound & Visual Transition
-  const handleSwitchShop = (nextShop: ShopMode) => {
-    if (nextShop === activeShop && !targetShop) return;
-    if (targetShop) return; // already transitioning
-
-    setTargetShop(nextShop);
-    playShopTransitionSound(nextShop);
-
-    // Swap catalog items and smooth scroll mid-transition
-    setTimeout(() => {
-      setActiveShop(nextShop);
-      try {
-        localStorage.setItem('frostys_active_shop', nextShop);
-      } catch (e) {
-        console.warn('Could not save active shop', e);
-      }
-      const menuEl = document.getElementById('menu');
-      if (menuEl) {
-        menuEl.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 450);
-  };
-
-  const handleTransitionComplete = () => {
-    setTargetShop(null);
-    triggerToast(
-      activeShop === 'grill'
-        ? "🔥 Welcome to Frosty's Grill! Fresh charcoal burgers & BBQ."
-        : "🍦 Welcome to Frosty's! Artisanal ice creams & sundaes."
-    );
-  };
 
   // Persistent Feedback State
   const [reviews, setReviews] = useState<Review[]>(() => getStoredFeedback());
@@ -374,23 +326,17 @@ export default function App() {
   const lowStockCount = countLowStockItems(inventory);
 
   return (
-    <div className="min-h-screen bg-[#FFFDF7] dark:bg-[#140D0C] text-[#2D1B18] dark:text-[#F7F2EE] font-sans antialiased selection:bg-[#FF4B72] selection:text-white flex flex-col transition-colors duration-200">
-      
-      {/* Cinematic Shop Transition Overlay with Web Audio Synthesis */}
-      <ShopTransitionOverlay
-        targetShop={targetShop}
-        onComplete={handleTransitionComplete}
-      />
+    <div className="min-h-screen bg-[#F8FAFC] text-stone-900 font-sans antialiased selection:bg-red-600 selection:text-white flex flex-col transition-colors duration-200">
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-20 sm:bottom-8 right-4 z-50 bg-[#2D1B18] text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-[#FF4B72] flex items-center gap-3 animate-slideUp max-w-sm">
-          <i className="fa-solid fa-circle-check text-[#38D39F] text-xl"></i>
-          <span className="text-xs sm:text-sm font-bold text-amber-50">{toastMessage}</span>
+        <div className="fixed bottom-20 sm:bottom-8 right-4 z-50 bg-[#0F172A] text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-blue-500 flex items-center gap-3 animate-slideUp max-w-sm">
+          <i className="fa-solid fa-circle-check text-red-500 text-xl"></i>
+          <span className="text-xs sm:text-sm font-bold text-stone-100">{toastMessage}</span>
         </div>
       )}
 
-      {/* Navigation Bar with Shop Switcher */}
+      {/* Navigation Bar */}
       <Navbar
         cartCount={cartTotalCount}
         onOpenOrderModal={() => setIsOrderModalOpen(true)}
@@ -401,23 +347,19 @@ export default function App() {
         onOpenHelperModal={() => setIsHelperModalOpen(true)}
         lowStockCount={lowStockCount}
         ordersCount={orderHistory.length}
-        activeShop={activeShop}
-        onSwitchShop={handleSwitchShop}
       />
 
       <main className="flex-1">
-        {/* Mobile-First Hero Section with Shop-Aware Headlines & Search */}
+        {/* Mobile-First Hero Section */}
         <Hero
           onOpenOrderModal={() => setIsOrderModalOpen(true)}
           onOpenCallModal={() => setIsCallModalOpen(true)}
           searchQuery={globalSearchQuery}
           onSearchChange={(query) => setGlobalSearchQuery(query)}
           onQuickSearch={(term) => setGlobalSearchQuery(term)}
-          activeShop={activeShop}
-          onSwitchShop={handleSwitchShop}
         />
 
-        {/* Shop-Partitioned Menu Section */}
+        {/* Menu Section */}
         <MenuSection
           items={menuItems}
           onSelectItem={(item) => setSelectedItem(item)}
@@ -428,8 +370,6 @@ export default function App() {
           activeCategory={activeCategory}
           onCategoryChange={(cat) => setActiveCategory(cat)}
           triggerToast={triggerToast}
-          activeShop={activeShop}
-          onSwitchShop={handleSwitchShop}
         />
 
         {/* About Section */}
@@ -452,12 +392,10 @@ export default function App() {
       {/* Footer */}
       <Footer onOpenAdminModal={() => setIsAdminModalOpen(true)} />
 
-      {/* Floating Interactive Cart Bar / Drawer Trigger with Cross-Shop Switcher */}
+      {/* Floating Interactive Cart Bar */}
       <FloatingCartBar
         cart={cart}
         onOpenOrderModal={() => setIsOrderModalOpen(true)}
-        activeShop={activeShop}
-        onSwitchShop={handleSwitchShop}
       />
 
       {/* Floating Feedback Trigger Button */}
@@ -504,8 +442,6 @@ export default function App() {
         onClearCart={handleClearCart}
         onOrderSubmitted={handleOrderSubmitted}
         onSaveFeedback={handleNewFeedbackSubmitted}
-        activeShop={activeShop}
-        onSwitchShop={handleSwitchShop}
       />
 
       {/* Call / Contact Modal */}

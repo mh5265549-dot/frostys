@@ -81,7 +81,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
         <div className="p-5 sm:p-6 overflow-y-auto space-y-5">
           {isSuccess ? (
             <div className="py-10 text-center space-y-3 animate-scaleUp">
-              <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center text-3xl mx-auto shadow-2xs">
+              <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center text-3xl mx-auto shadow-2xs">
                 <i className="fa-solid fa-circle-check"></i>
               </div>
               <h4 className="font-heading font-black text-xl text-stone-900">
@@ -97,7 +97,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
               {/* Star Rating Input */}
               <div className="space-y-2 bg-stone-50 p-4 rounded-2xl border border-stone-200 text-center">
                 <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block">
-                  How was your experience? <span className="text-[#FF4B72]">*</span>
+                  How was your experience? <span className="text-red-600">*</span>
                 </label>
                 <div className="flex items-center justify-center gap-2 py-1">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -191,7 +191,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#FF4B72] hover:bg-[#E63956] text-white text-xs font-extrabold shadow-md transition-all flex items-center gap-2 cursor-pointer"
+                  className="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold shadow-md transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <i className="fa-solid fa-paper-plane"></i>
                   <span>Submit Feedback</span>

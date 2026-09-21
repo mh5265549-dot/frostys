@@ -24,8 +24,8 @@ export const LocationHoursSection: React.FC<LocationHoursSectionProps> = ({
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider">
-            <i className="fa-solid fa-map-pin"></i>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold uppercase tracking-wider">
+            <i className="fa-solid fa-map-pin text-red-600"></i>
             <span>Visit Us In Person</span>
           </div>
           <h2 className="font-heading font-black text-2xl sm:text-4xl text-stone-900 tracking-tight">
@@ -46,7 +46,7 @@ export const LocationHoursSection: React.FC<LocationHoursSectionProps> = ({
             <div
               className={`p-5 sm:p-6 rounded-3xl border shadow-2xs transition-all ${
                 status.isOpen
-                  ? 'bg-emerald-50/70 border-emerald-200'
+                  ? 'bg-blue-50/70 border-blue-200'
                   : 'bg-amber-50/70 border-amber-200'
               }`}
             >
@@ -57,7 +57,7 @@ export const LocationHoursSection: React.FC<LocationHoursSectionProps> = ({
                 <span
                   className={`px-2.5 py-0.5 rounded-full text-xs font-black flex items-center gap-1.5 ${
                     status.isOpen
-                      ? 'bg-emerald-600 text-white'
+                      ? 'bg-blue-600 text-white'
                       : 'bg-amber-600 text-white'
                   }`}
                 >
@@ -77,7 +77,7 @@ export const LocationHoursSection: React.FC<LocationHoursSectionProps> = ({
 
             {/* Address Card */}
             <div className="p-5 sm:p-6 rounded-3xl bg-stone-50 border border-stone-200 space-y-2.5">
-              <div className="w-10 h-10 rounded-xl bg-pink-100 text-[#FF4B72] flex items-center justify-center text-base font-bold">
+              <div className="w-10 h-10 rounded-xl bg-red-100 text-red-700 flex items-center justify-center text-base font-bold">
                 <i className="fa-solid fa-location-dot"></i>
               </div>
               <h3 className="font-heading font-bold text-lg text-stone-900">
@@ -93,7 +93,7 @@ export const LocationHoursSection: React.FC<LocationHoursSectionProps> = ({
                 href={STORE_INFO.googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#FF4B72] hover:underline pt-1"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 hover:underline pt-1"
               >
                 <span>Open in Google Maps</span>
                 <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
@@ -102,7 +102,7 @@ export const LocationHoursSection: React.FC<LocationHoursSectionProps> = ({
 
             {/* Hours Card */}
             <div className="p-5 sm:p-6 rounded-3xl bg-stone-50 border border-stone-200 space-y-2.5" id="hours">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-base font-bold">
+              <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold">
                 <i className="fa-solid fa-clock"></i>
               </div>
               <h3 className="font-heading font-bold text-lg text-stone-900">
@@ -112,11 +112,11 @@ export const LocationHoursSection: React.FC<LocationHoursSectionProps> = ({
               <div className="space-y-1.5 text-xs pt-1">
                 <div className="flex items-center justify-between py-1 border-b border-stone-200 font-medium">
                   <span className="text-stone-700">Monday – Sunday</span>
-                  <span className="font-bold text-[#FF4B72]">4:00 PM – 2:00 AM</span>
+                  <span className="font-bold text-blue-700">4:00 PM – 2:00 AM</span>
                 </div>
                 <div className="flex items-center justify-between py-1 text-xs text-stone-500 font-medium">
                   <span>Midnight Service</span>
-                  <span className="text-emerald-700 font-bold">7 Days a Week</span>
+                  <span className="text-red-600 font-bold">7 Days a Week</span>
                 </div>
               </div>
 
@@ -150,14 +150,14 @@ export const LocationHoursSection: React.FC<LocationHoursSectionProps> = ({
               {/* Map Header Bar */}
               <div className="p-3.5 bg-stone-900 text-white flex items-center justify-between gap-3 z-10">
                 <div className="flex items-center gap-2 text-xs font-bold">
-                  <i className="fa-solid fa-map-pin text-[#FF4B72]"></i>
+                  <i className="fa-solid fa-map-pin text-red-500"></i>
                   <span>8B Commercial, Green City, Lahore</span>
                 </div>
                 <a
                   href={STORE_INFO.googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1 rounded-lg bg-[#FF4B72] hover:bg-[#E63956] text-white text-xs font-bold transition-colors shrink-0"
+                  className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors shrink-0"
                 >
                   Directions
                 </a>
@@ -182,7 +182,7 @@ export const LocationHoursSection: React.FC<LocationHoursSectionProps> = ({
                   <i className="fa-solid fa-square-parking text-stone-400 mr-1"></i>
                   Parking Available at Commercial Market
                 </span>
-                <span className="text-[#FF4B72] font-bold">
+                <span className="text-blue-700 font-bold">
                   Open till 2:00 AM
                 </span>
               </div>
