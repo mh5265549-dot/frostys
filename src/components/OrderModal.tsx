@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CartItem, Review, ShopMode } from '../types';
 import { STORE_INFO } from '../data/menuData';
 import { isConeCupApplicable } from '../utils/categoryUtils';
+import { generateThermalReceiptText } from '../utils/receiptFormatter';
 
 interface OrderModalProps {
   isOpen: boolean;
@@ -47,6 +48,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
   const [serviceRating, setServiceRating] = useState<number>(5);
   const [serviceComment, setServiceComment] = useState<string>('');
   const [includeFeedback, setIncludeFeedback] = useState<boolean>(true);
+  const [showReceiptPreview, setShowReceiptPreview] = useState<boolean>(false);
 
   if (!isOpen) return null;
 
@@ -127,65 +129,62 @@ export const OrderModal: React.FC<OrderModalProps> = ({
       }
     }
 
-    // Build WhatsApp message string
-    let msg = `🍦 *NEW DESSERT ORDER - FROSTY'S ICE CREAM & DESSERTS* 🍦\n\n`;
-    msg += `*Order Type:* ${
-      orderType === 'takeaway'
-        ? 'Takeaway / Pickup at Store'
-        : orderType === 'dinein'
-        ? 'Dine-In'
-        : 'Home Delivery (Green City, Lahore)'
-    }\n`;
-    msg += `*Customer Name:* ${customerName}\n`;
-    msg += `*Phone:* ${customerPhone}\n`;
-    if (addressOrTable) {
-      msg += `*${
-        orderType === 'dinein' ? 'Table No.' : 'Delivery Address'
-      }:* ${addressOrTable}\n`;
-    }
-    if (notes) {
-      msg += `*Notes:* ${notes}\n`;
-    }
+    // Check what categories are present in cart
+    const isGrillItem = (ci: CartItem) => {
+      if (ci.menuItem.category === 'fast-food-bbq') return true;
+      const name = ci.menuItem.name.toLowerCase();
+      const tags = (ci.menuItem.tags || []).map((t) => t.toLowerCase());
+      return (
+        name.includes('burger') ||
+        name.includes('sandwich') ||
+        name.includes('taco') ||
+        name.includes('wrap') ||
+        name.includes('fries') ||
+        name.includes('chai') ||
+        name.includes('grill') ||
+        tags.some((t) =>
+          ['burger', 'sandwich', 'taco', 'wrap', 'fries', 'chai', 'grill', 'fast food'].some((k) =>
+            t.includes(k)
+          )
+        )
+      );
+    };
 
-    msg += `\n*ORDER ITEMS:*\n`;
-    cart.forEach((item, idx) => {
-      const isGrill = item.menuItem.category === 'fast-food-bbq';
-      const shopPrefix = isGrill ? '🔥 [Frosty\'s Grill]' : '🍦 [Ice Cream Shop]';
-      const variantText = item.selectedVariant ? ` (${item.selectedVariant.name})` : item.menuItem.unit ? ` (${item.menuItem.unit})` : '';
-      msg += `${idx + 1}. ${shopPrefix} ${item.menuItem.name}${variantText} x${item.quantity} - Rs. ${item.totalPrice}\n`;
+    const isDessertItem = (ci: CartItem) => {
+      if (['scoops', 'sundaes', 'shakes', 'kulfi', 'coffees', 'sodas'].includes(ci.menuItem.category)) return true;
+      const name = ci.menuItem.name.toLowerCase();
+      const tags = (ci.menuItem.tags || []).map((t) => t.toLowerCase());
+      return (
+        name.includes('ice cream') ||
+        name.includes('scoop') ||
+        name.includes('cone') ||
+        name.includes('sundae') ||
+        name.includes('shake') ||
+        name.includes('kulfi') ||
+        name.includes('chiller') ||
+        tags.some((t) =>
+          ['ice cream', 'scoop', 'cone', 'sundae', 'shake', 'kulfi', 'dessert', 'soda'].some((k) =>
+            t.includes(k)
+          )
+        )
+      );
+    };
 
-      const customizationLines: string[] = [];
-      if (item.selectedContainer && isConeCupApplicable(item.menuItem)) {
-        customizationLines.push(`   • Container: ${item.selectedContainer === 'Cone' ? 'Crispy Wafer Cone 🍦' : 'Classic Dessert Cup 🍨'}`);
-      }
-      if (item.selectedFlavors && item.selectedFlavors.length > 0) {
-        customizationLines.push(`   • Flavors: ${item.selectedFlavors.join(', ')}`);
-      }
-      if (item.selectedSodas && item.selectedSodas.length > 0) {
-        customizationLines.push(`   • Soda Chillers: ${item.selectedSodas.join(', ')}`);
-      }
-      if (item.selectedSyrups && item.selectedSyrups.length > 0) {
-        customizationLines.push(`   • Syrups: ${item.selectedSyrups.join(', ')}`);
-      }
-      if (item.selectedToppings && item.selectedToppings.length > 0) {
-        const toppingsStr = item.selectedToppings
-          .map((t) => (t.price > 0 ? `${t.name} (+Rs.${t.price})` : t.name))
-          .join(', ');
-        customizationLines.push(`   • Toppings: ${toppingsStr}`);
-      }
-      if (item.customInstructions) {
-        customizationLines.push(`   • Note: ${item.customInstructions}`);
-      }
-      if (customizationLines.length > 0) {
-        msg += customizationLines.join('\n') + '\n';
-      }
+    const hasGrill = cart.some(isGrillItem);
+    const hasDessert = cart.some(isDessertItem);
+
+    // Generate thermal receipt pattern for WhatsApp message
+    const { whatsappMessage } = generateThermalReceiptText({
+      cart,
+      orderType,
+      customerName,
+      customerPhone,
+      addressOrTable,
+      notes,
+      subtotal,
     });
 
-    msg += `\n*TOTAL AMOUNT:* Rs. ${subtotal}\n\n`;
-    msg += `📍 *Store Location:* 8B Commercial, Green City, Lahore\n`;
-    msg += `⏰ *Operating Hours:* 4:00 PM – 2:00 AM Daily`;
-
-    const encodedMsg = encodeURIComponent(msg);
+    const encodedMsg = encodeURIComponent(whatsappMessage);
     const whatsappUrl = `https://wa.me/${STORE_INFO.whatsapp}?text=${encodedMsg}`;
 
     // Log order in history and deduct stock
@@ -502,13 +501,15 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                           Rs. {item.totalPrice}
                         </span>
 
-                        {/* Delete */}
+                        {/* Delete / Remove */}
                         <button
                           type="button"
                           onClick={() => onRemoveItem(itemId)}
-                          className="text-stone-400 hover:text-[#E63956] text-xs p-1"
+                          className="w-7 h-7 rounded-lg hover:bg-rose-50 text-stone-400 hover:text-rose-600 text-xs flex items-center justify-center cursor-pointer transition-colors"
+                          title="Remove product from order"
+                          aria-label={`Remove ${item.menuItem.name} from order`}
                         >
-                          <i className="fa-solid fa-trash-can"></i>
+                          <i className="fa-solid fa-trash-can text-sm"></i>
                         </button>
                       </div>
                     </div>
@@ -710,6 +711,38 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                     placeholder="Quick service note (e.g., Easy ordering & polite staff!)"
                     className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-800 placeholder-stone-400 focus:ring-1 focus:ring-[#FF4B72] focus:outline-none"
                   />
+                </div>
+              )}
+            </div>
+
+            {/* WhatsApp Receipt Pattern Preview */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setShowReceiptPreview(!showReceiptPreview)}
+                className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <i className="fa-solid fa-receipt text-[#FF4B72]"></i>
+                  <span>WhatsApp Receipt Preview</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-white text-stone-600 font-semibold border border-stone-200">
+                    Thermal Print Style
+                  </span>
+                </div>
+                <i className={`fa-solid fa-chevron-${showReceiptPreview ? 'up' : 'down'} text-xs text-stone-400`}></i>
+              </button>
+
+              {showReceiptPreview && (
+                <div className="mt-2.5 p-4 rounded-xl bg-stone-900 text-stone-100 font-mono text-[11px] leading-relaxed overflow-x-auto shadow-inner border border-stone-700 whitespace-pre">
+                  {generateThermalReceiptText({
+                    cart,
+                    orderType,
+                    customerName: customerName || 'Valued Guest',
+                    customerPhone: customerPhone || '03XX-XXXXXXX',
+                    addressOrTable,
+                    notes,
+                    subtotal,
+                  }).plainReceipt}
                 </div>
               )}
             </div>

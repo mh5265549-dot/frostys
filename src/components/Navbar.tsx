@@ -11,7 +11,6 @@ interface NavbarProps {
   onOpenInventoryModal: () => void;
   onOpenOrderHistoryModal: () => void;
   onOpenAdminModal?: () => void;
-  onOpenHelperModal?: () => void;
   lowStockCount?: number;
   ordersCount?: number;
   activeShop?: ShopMode;
@@ -25,7 +24,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenInventoryModal,
   onOpenOrderHistoryModal,
   onOpenAdminModal,
-  onOpenHelperModal,
   lowStockCount = 0,
   ordersCount = 0,
 }) => {
@@ -79,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="relative shrink-0">
               <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center shadow-xs transition-transform duration-300 group-hover:scale-105 p-1 bg-gradient-to-tr from-red-600 via-blue-600 to-red-500 shadow-blue-950/15">
                 <FrostyLogo
-                  variant="green"
+                  variant="blue"
                   size="custom"
                   className="w-8 h-8 sm:w-9 sm:h-9"
                   animate={false}
@@ -117,22 +115,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             ))}
           </nav>
 
-          {/* Right Actions: AI Helper, Cart & Menu */}
+          {/* Right Actions: Cart & Menu */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             
-            {/* Bilingual AI Assistant Button */}
-            {onOpenHelperModal && (
-              <button
-                onClick={onOpenHelperModal}
-                id="btn-helper-nav"
-                className="px-2.5 sm:px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100/80 text-blue-700 border border-blue-200/70 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                title="Bilingual Helper AI (شاپ اسسٹنٹ)"
-              >
-                <i className="fa-solid fa-wand-magic-sparkles text-sm text-blue-600"></i>
-                <span className="hidden sm:inline">AI Helper</span>
-              </button>
-            )}
-
             {/* Admin Control Lock Button */}
             {onOpenAdminModal && (
               <button

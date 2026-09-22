@@ -11,6 +11,18 @@ export const CONE_CUP_VALID_CATEGORIES = new Set<string>([
 ]);
 
 /**
+ * Categories that legitimately offer free flavor syrups and standard/premium toppings customization.
+ * Specifically Ice Cream Scoops & Cones, and Specialty Sundaes / Banana Splits.
+ */
+export const SYRUP_TOPPING_ALLOWED_CATEGORIES = new Set<string>([
+  'scoops',
+  'sundaes',
+  'soft-serve',
+  'ice-cream',
+  'ice_cream_scoops',
+]);
+
+/**
  * Explicit non-dessert or non-scoop keywords (burgers, tacos, drinks, etc.)
  * to prevent false positives.
  */
@@ -83,4 +95,73 @@ export function validateItemCustomizationContainer(
     return undefined; // Non-applicable items must not carry Cone/Cup serving options
   }
   return selectedContainer || 'Cone';
+}
+
+/**
+ * Returns true if an item should display the flavor syrups and dessert toppings sections.
+ * Explicitly excludes:
+ * - Kulfi (traditional stick kulfi)
+ * - Shakes & Milkshakes (Oreo shake, fruit milkshakes, etc.)
+ * - Golden Chicken Burger, Ground Chicken Burger, all burgers & grill items
+ * - Savory grill, barbecue, fries, tacos, sandwiches, chai, coffees, sodas, and deals.
+ */
+export function allowsSyrupAndToppings(item: MenuItem | null | undefined): boolean {
+  if (!item) return false;
+
+  const cat = (item.category || '').trim().toLowerCase();
+  const name = (item.name || '').toLowerCase();
+  const id = (item.id || '').toLowerCase();
+  const tags = (item.tags || []).map((t) => t.toLowerCase());
+
+  // 1. Explicitly check for Kulfi (stick or dessert)
+  if (cat === 'kulfi' || id.includes('kulfi') || name.includes('kulfi') || tags.includes('kulfi')) {
+    return false;
+  }
+
+  // 2. Explicitly check for Shakes & Milkshakes & Beverages
+  if (
+    cat === 'shakes' ||
+    cat === 'coffees' ||
+    cat === 'sodas' ||
+    id.includes('shake') ||
+    name.includes('shake') ||
+    name.includes('milkshake') ||
+    tags.some((t) => t.includes('shake') || t.includes('milkshake'))
+  ) {
+    return false;
+  }
+
+  // 3. Explicitly check for Golden Chicken Burger, Ground Chicken Burger, all burgers & grill items
+  if (
+    cat === 'fast-food-bbq' ||
+    cat === 'burger' ||
+    cat === 'tacos' ||
+    cat === 'chai' ||
+    cat === 'sandwich' ||
+    cat === 'wrap' ||
+    cat === 'fries' ||
+    cat === 'combo' ||
+    name.includes('burger') ||
+    name.includes('golden chicken') ||
+    name.includes('ground chicken') ||
+    name.includes('grilled chicken') ||
+    name.includes('shami') ||
+    name.includes('smash') ||
+    name.includes('taco') ||
+    name.includes('sandwich') ||
+    name.includes('wrap') ||
+    name.includes('fries') ||
+    name.includes('chai') ||
+    tags.some((t) => /burger|grill|bbq|taco|sandwich|wrap|fries/i.test(t))
+  ) {
+    return false;
+  }
+
+  // 4. Deals (deal-crispy-burger-meal, deal-twin-burger-duo, etc.)
+  if (cat === 'deals') {
+    return false;
+  }
+
+  // 5. Positive check: Must belong to valid ice cream scoop or sundae category
+  return SYRUP_TOPPING_ALLOWED_CATEGORIES.has(cat);
 }

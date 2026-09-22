@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { MenuItem, ShopMode } from '../types';
 import { MENU_ITEMS } from '../data/menuData';
@@ -11,6 +11,7 @@ interface MenuCategoryGroup {
   badge?: string;
   description: string;
   filter: (item: MenuItem) => boolean;
+  type?: 'dessert' | 'grill' | 'deal';
 }
 
 const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
@@ -21,6 +22,7 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     badge: 'Fresh Flavors',
     description: 'Pure cream ice cream in freshly rolled crispy waffle cones or cups with toppings.',
     filter: (item) => item.category === 'scoops',
+    type: 'dessert',
   },
   {
     id: 'sundaes',
@@ -29,6 +31,7 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     badge: 'Signature',
     description: "Frosty's Super Cups, Deluxe Banana Splits, layered sundaes, and fruit purée cups.",
     filter: (item) => item.category === 'sundaes',
+    type: 'dessert',
   },
   {
     id: 'shakes',
@@ -37,17 +40,19 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     badge: 'Thick & Creamy',
     description: 'Oreo shakes, dairy milkshakes, cold Spanish latte, and ice cream mocha frappes.',
     filter: (item) => item.category === 'shakes' || item.category === 'coffees',
+    type: 'dessert',
   },
   {
     id: 'burgers',
     name: 'Burgers & Sandwiches',
     icon: 'fa-solid fa-burger',
     badge: 'Fresh & Grilled',
-    description: 'Flame-grilled chicken fillet burgers, shami burgers, and triple-decker club sandwiches.',
+    description: 'Flame-grilled chicken fillet burgers, smash burger deals, and triple-decker club sandwiches.',
     filter: (item) =>
       item.tags?.some((t) => t.toLowerCase().includes('burger') || t.toLowerCase().includes('sandwich')) ||
       item.name.toLowerCase().includes('burger') ||
       item.name.toLowerCase().includes('sandwich'),
+    type: 'grill',
   },
   {
     id: 'tacos-wraps',
@@ -59,6 +64,7 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
       item.tags?.some((t) => t.toLowerCase().includes('taco') || t.toLowerCase().includes('wrap')) ||
       item.name.toLowerCase().includes('taco') ||
       item.name.toLowerCase().includes('wrap'),
+    type: 'grill',
   },
   {
     id: 'fries-sides',
@@ -69,17 +75,18 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     filter: (item) =>
       item.tags?.some((t) => t.toLowerCase().includes('fries')) ||
       item.name.toLowerCase().includes('fries'),
+    type: 'grill',
   },
   {
-    id: 'bbq-chai',
-    name: 'BBQ & Karak Chai',
-    icon: 'fa-solid fa-drumstick-bite',
-    badge: 'Authentic Taste',
-    description: 'Charcoal-grilled chicken tikka boti platter and piping hot clay-cup Karak Chai.',
+    id: 'chai',
+    name: 'Karak Chai',
+    icon: 'fa-solid fa-mug-hot',
+    badge: 'Clay Matka',
+    description: 'Authentic Pakistani hot Karak Chai brewed fresh with whole milk & spices in a clay matka cup.',
     filter: (item) =>
-      item.tags?.some((t) => t.toLowerCase().includes('bbq') || t.toLowerCase().includes('tikka') || t.toLowerCase().includes('chai')) ||
-      item.name.toLowerCase().includes('tikka') ||
+      item.tags?.some((t) => t.toLowerCase().includes('chai') || t.toLowerCase().includes('tea')) ||
       item.name.toLowerCase().includes('chai'),
+    type: 'grill',
   },
   {
     id: 'sodas-chillers',
@@ -88,6 +95,7 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     badge: '20 Flavors',
     description: 'Refreshing fruit & mint fizzy soda chillers and traditional rich cream Kulfi.',
     filter: (item) => item.category === 'sodas' || item.category === 'kulfi',
+    type: 'dessert',
   },
   {
     id: 'deals',
@@ -96,6 +104,7 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     badge: 'Value Combos',
     description: 'Family, friends, and special treat combos at discounted prices.',
     filter: (item) => item.category === 'deals' || !!item.originalPrice,
+    type: 'deal',
   },
 ];
 
@@ -116,14 +125,24 @@ interface MenuSectionProps {
 export const MenuSection: React.FC<MenuSectionProps> = ({
   items = MENU_ITEMS,
   onSelectItem,
+  onAddToCart,
   searchQuery: externalSearchQuery = '',
   onSearchChange,
   inventory = {},
   activeCategory: externalActiveCategory,
   onCategoryChange,
+  triggerToast,
 }) => {
   const [internalSearchQuery, setInternalSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [addedItemId, setAddedItemId] = useState<string | null>(null);
+  const addedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (addedTimeoutRef.current) clearTimeout(addedTimeoutRef.current);
+    };
+  }, []);
 
   const activeCategory = externalActiveCategory ?? selectedCategory;
   const setActiveCategory = (catId: string | null) => {
@@ -206,6 +225,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
             badge: 'Specials',
             description: 'Additional fresh favorites and treats.',
             filter: () => true,
+            type: 'dessert',
           },
           items: leftoverItems,
         });
@@ -216,15 +236,22 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
   }, [filteredItems, activeCategory]);
 
   const handleCategoryNavClick = (groupId: string | null) => {
-    if (groupId === null || groupId === 'all') {
-      setActiveCategory(null);
-    } else {
-      const el = document.getElementById(`category-${groupId}`);
+    const nextCategory = groupId === null || groupId === 'all' ? null : groupId;
+    setActiveCategory(nextCategory);
+
+    // Give React time to render the filtered category cleanly so scroll position is accurate
+    setTimeout(() => {
+      const targetId = nextCategory ? `category-${nextCategory}` : 'menu-category-pills';
+      const el = document.getElementById(targetId) || document.getElementById('menu');
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const navOffset = 90;
+        const targetY = el.getBoundingClientRect().top + window.pageYOffset - navOffset;
+        window.scrollTo({
+          top: Math.max(0, targetY),
+          behavior: 'smooth',
+        });
       }
-      setActiveCategory(groupId);
-    }
+    }, 60);
   };
 
   return (
@@ -268,11 +295,12 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
 
             {/* Category Navigation Pills */}
             <motion.div
+              id="menu-category-pills"
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.35, ease: 'easeOut' }}
-              className="pt-1"
+              className="pt-1 scroll-mt-24"
             >
               <div className="flex flex-wrap items-center justify-center gap-1.5 text-xs font-medium">
                 {/* View All Button */}
@@ -281,7 +309,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                   className={`px-3.5 py-1.5 rounded-full border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
                     !activeCategory || activeCategory === 'all'
                       ? 'bg-red-600 text-white border-red-600 shadow-xs'
-                      : 'bg-white text-stone-700 border-stone-200 hover:bg-blue-50 hover:border-blue-300'
+                      : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100 hover:border-stone-300'
                   }`}
                 >
                   <i className="fa-solid fa-layer-group text-[10px]"></i>
@@ -292,26 +320,56 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                 {MENU_CATEGORY_GROUPS.map((group) => {
                   const count = items.filter(group.filter).length;
                   const isActive = activeCategory === group.id;
+                  const isGrill = group.type === 'grill';
+                  const isDeal = group.type === 'deal';
+
+                  let btnStyle = '';
+                  let iconStyle = '';
+                  let badgeStyle = '';
+
+                  if (isActive) {
+                    if (isGrill) {
+                      btnStyle = 'bg-red-600 text-white border-red-600 shadow-xs';
+                      iconStyle = 'text-white';
+                      badgeStyle = 'bg-white/20 text-white';
+                    } else if (isDeal) {
+                      btnStyle = 'bg-amber-600 text-white border-amber-600 shadow-xs';
+                      iconStyle = 'text-white';
+                      badgeStyle = 'bg-white/20 text-white';
+                    } else {
+                      // Ice cream, shakes, sundaes (desserts)
+                      btnStyle = 'bg-blue-600 text-white border-blue-600 shadow-xs';
+                      iconStyle = 'text-white';
+                      badgeStyle = 'bg-white/20 text-white';
+                    }
+                  } else {
+                    if (isGrill) {
+                      // Light red background & red text for Grill items
+                      btnStyle = 'bg-red-50 hover:bg-red-100 text-red-900 border-red-200 hover:border-red-300';
+                      iconStyle = 'text-red-600';
+                      badgeStyle = 'bg-red-100/90 text-red-800';
+                    } else if (isDeal) {
+                      // Special Deals
+                      btnStyle = 'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-200 hover:border-amber-300';
+                      iconStyle = 'text-amber-600';
+                      badgeStyle = 'bg-amber-100/90 text-amber-900';
+                    } else {
+                      // Light blue background & blue text for Ice cream, shakes, sundaes, etc.
+                      btnStyle = 'bg-blue-50 hover:bg-blue-100 text-blue-900 border-blue-200 hover:border-blue-300';
+                      iconStyle = 'text-blue-600';
+                      badgeStyle = 'bg-blue-100/90 text-blue-800';
+                    }
+                  }
 
                   return (
                     <button
                       key={group.id}
                       onClick={() => handleCategoryNavClick(isActive ? null : group.id)}
-                      className={`px-3 py-1.5 rounded-full border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
-                        isActive
-                          ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
-                          : 'bg-white text-stone-700 border-stone-200 hover:border-blue-300 hover:bg-blue-50/60'
-                      }`}
+                      className={`px-3 py-1.5 rounded-full border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${btnStyle}`}
                     >
-                      <i className={`${group.icon} text-[11px] ${isActive ? 'text-white' : 'text-blue-600'}`}></i>
+                      <i className={`${group.icon} text-[11px] ${iconStyle}`}></i>
                       <span>{group.name}</span>
-                      <span
-                        className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                          isActive
-                            ? 'bg-white/20 text-white'
-                            : 'bg-stone-100 text-stone-600'
-                        }`}
-                      >
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${badgeStyle}`}>
                         {count}
                       </span>
                     </button>
@@ -370,9 +428,25 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                 className="scroll-mt-24 space-y-5"
               >
                 {/* Category Header Card */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-white border border-blue-100/90 shadow-2xs flex items-center justify-between gap-4">
+                <div
+                  className={`p-4 sm:p-5 rounded-2xl bg-white border ${
+                    group.type === 'grill'
+                      ? 'border-red-100/90 shadow-red-500/5'
+                      : group.type === 'deal'
+                      ? 'border-amber-100/90 shadow-amber-500/5'
+                      : 'border-blue-100/90 shadow-blue-500/5'
+                  } shadow-2xs flex items-center justify-between gap-4`}
+                >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-base shadow-xs shrink-0">
+                    <div
+                      className={`w-10 h-10 rounded-xl ${
+                        group.type === 'grill'
+                          ? 'bg-red-600'
+                          : group.type === 'deal'
+                          ? 'bg-amber-600'
+                          : 'bg-blue-600'
+                      } text-white flex items-center justify-center text-base shadow-xs shrink-0`}
+                    >
                       <i className={group.icon}></i>
                     </div>
                     <div>
@@ -381,7 +455,15 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                           {group.name}
                         </h3>
                         {group.badge && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 uppercase tracking-wider">
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              group.type === 'grill'
+                                ? 'bg-red-50 text-red-700 border border-red-200'
+                                : group.type === 'deal'
+                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                : 'bg-blue-50 text-blue-700 border border-blue-200'
+                            } uppercase tracking-wider`}
+                          >
                             {group.badge}
                           </span>
                         )}
@@ -393,7 +475,15 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2.5 shrink-0">
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-100">
+                    <span
+                      className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                        group.type === 'grill'
+                          ? 'bg-red-50 text-red-800 border border-red-100'
+                          : group.type === 'deal'
+                          ? 'bg-amber-50 text-amber-800 border border-amber-100'
+                          : 'bg-blue-50 text-blue-800 border border-blue-100'
+                      }`}
+                    >
                       {groupItems.length} {groupItems.length === 1 ? 'item' : 'items'}
                     </span>
                     <a
@@ -529,13 +619,40 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    onSelectItem(item);
+                                    const needsModal = (item.variants && item.variants.length > 1) || item.category === 'scoops' || item.category === 'sundaes';
+                                    if (needsModal || !onAddToCart) {
+                                      onSelectItem(item);
+                                    } else {
+                                      onAddToCart(item);
+                                      setAddedItemId(item.id);
+                                      if (addedTimeoutRef.current) clearTimeout(addedTimeoutRef.current);
+                                      addedTimeoutRef.current = setTimeout(() => {
+                                        setAddedItemId(null);
+                                      }, 1100);
+                                      if (triggerToast) {
+                                        triggerToast(`Added ${item.name} to cart!`);
+                                      }
+                                    }
                                   }}
                                   id={`btn-add-${item.id}`}
-                                  className="px-3 sm:px-3.5 py-1.5 rounded-xl text-white font-bold text-[11px] sm:text-xs transition-all shadow-2xs flex items-center gap-1 cursor-pointer hover:scale-105 active:scale-95 bg-red-600 hover:bg-red-700"
+                                  className={`px-3 sm:px-3.5 py-1.5 rounded-xl font-bold text-[11px] sm:text-xs transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer ${
+                                    addedItemId === item.id
+                                      ? 'bg-emerald-600 text-white animate-cart-bounce'
+                                      : 'bg-red-600 hover:bg-red-700 active:scale-95 text-white hover:scale-105'
+                                  }`}
+                                  title={addedItemId === item.id ? 'Added to Cart!' : 'Add to Cart'}
                                 >
-                                  <i className="fa-solid fa-plus text-[9px]"></i>
-                                  <span>Order</span>
+                                  {addedItemId === item.id ? (
+                                    <>
+                                      <i className="fa-solid fa-check text-[10px] animate-checkmark-pop"></i>
+                                      <span>Added!</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <i className="fa-solid fa-plus text-[9px]"></i>
+                                      <span>Add</span>
+                                    </>
+                                  )}
                                 </button>
                               )}
                             </div>

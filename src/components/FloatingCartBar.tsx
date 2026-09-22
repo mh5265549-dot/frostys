@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CartItem } from '../types';
 
 interface FloatingCartBarProps {
@@ -14,6 +14,17 @@ export const FloatingCartBar: React.FC<FloatingCartBarProps> = ({
 }) => {
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = cart.reduce((sum, item) => sum + item.totalPrice, 0);
+  const [isBouncing, setIsBouncing] = useState(false);
+  const prevItemsRef = useRef(totalItems);
+
+  useEffect(() => {
+    if (totalItems > prevItemsRef.current) {
+      setIsBouncing(true);
+      const timer = setTimeout(() => setIsBouncing(false), 550);
+      return () => clearTimeout(timer);
+    }
+    prevItemsRef.current = totalItems;
+  }, [totalItems]);
 
   if (totalItems === 0) return null;
 
@@ -25,11 +36,11 @@ export const FloatingCartBar: React.FC<FloatingCartBarProps> = ({
         <div className="flex items-center justify-between gap-3">
           {/* Left: Cart Info */}
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="relative cursor-pointer" onClick={onOpenOrderModal}>
-              <div className="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-base shadow-xs text-white bg-blue-600">
+            <div className={`relative cursor-pointer transition-transform ${isBouncing ? 'animate-cart-bounce' : ''}`} onClick={onOpenOrderModal}>
+              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-base shadow-xs text-white transition-colors ${isBouncing ? 'bg-emerald-600' : 'bg-blue-600'}`}>
                 <i className="fa-solid fa-cart-shopping text-sm"></i>
               </div>
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+              <span className={`absolute -top-1 -right-1 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs transition-all ${isBouncing ? 'bg-emerald-500 scale-125' : 'bg-red-600'}`}>
                 {totalItems}
               </span>
             </div>

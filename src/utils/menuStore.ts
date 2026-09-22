@@ -1,7 +1,7 @@
 import { MenuItem } from '../types';
 import { MENU_ITEMS } from '../data/menuData';
 
-const MENU_STORAGE_KEY = 'frostys_custom_menu_catalog_v5';
+const MENU_STORAGE_KEY = 'frostys_custom_menu_catalog_v6';
 const PASSWORD_STORAGE_KEY = 'frostys_admin_password_v2';
 const DEFAULT_PASSWORD = '1234567';
 

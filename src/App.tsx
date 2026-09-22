@@ -17,8 +17,6 @@ import { FloatingCartBar } from './components/FloatingCartBar';
 import { FeedbackModal } from './components/FeedbackModal';
 import { ComplaintModal } from './components/ComplaintModal';
 import { FloatingFeedbackButton } from './components/FloatingFeedbackButton';
-import { FloatingHelperButton } from './components/FloatingHelperButton';
-import { HelperAIModal } from './components/HelperAIModal';
 import { validateItemCustomizationContainer } from './utils/categoryUtils';
 import {
   getStoredInventory,
@@ -56,7 +54,6 @@ export default function App() {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
-  const [isHelperModalOpen, setIsHelperModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<Category['id'] | null>(null);
@@ -130,7 +127,8 @@ export default function App() {
   const handleDeleteProduct = (itemId: string) => {
     const newCatalog = deleteMenuItem(itemId);
     setMenuItems(newCatalog);
-    triggerToast('Item removed from menu catalog.');
+    setCart((prev) => prev.filter((ci) => ci.menuItem.id !== itemId));
+    triggerToast('Item permanently removed from menu catalog.');
   };
 
   // Sync inventory changes
@@ -312,9 +310,16 @@ export default function App() {
     });
   };
 
-  // Remove Item
+  // Remove Item from cart
   const handleRemoveItem = (idKey: string) => {
-    setCart((prev) => prev.filter((ci) => ci.cartItemId !== idKey && ci.menuItem.id !== idKey));
+    setCart((prev) => {
+      const target = prev.find((ci) => (ci.cartItemId ? ci.cartItemId === idKey : ci.menuItem.id === idKey));
+      const nextCart = prev.filter((ci) => (ci.cartItemId ? ci.cartItemId !== idKey : ci.menuItem.id !== idKey));
+      if (target) {
+        triggerToast(`Removed ${target.menuItem.name} from cart.`);
+      }
+      return nextCart;
+    });
   };
 
   // Clear Cart
@@ -344,7 +349,6 @@ export default function App() {
         onOpenInventoryModal={() => setIsInventoryModalOpen(true)}
         onOpenOrderHistoryModal={() => setIsOrderHistoryModalOpen(true)}
         onOpenAdminModal={() => setIsAdminModalOpen(true)}
-        onOpenHelperModal={() => setIsHelperModalOpen(true)}
         lowStockCount={lowStockCount}
         ordersCount={orderHistory.length}
       />
@@ -404,11 +408,6 @@ export default function App() {
         feedbackCount={reviews.length}
       />
 
-      {/* Floating Bilingual AI Helper / Shop Assistant Button */}
-      <FloatingHelperButton
-        onClick={() => setIsHelperModalOpen(true)}
-      />
-
       {/* Item Details Modal */}
       {selectedItem && (
         <ItemDetailModal
@@ -418,19 +417,6 @@ export default function App() {
           onAddToCart={handleAddToCart}
         />
       )}
-
-      {/* Bilingual AI Shop Assistant Modal */}
-      <HelperAIModal
-        isOpen={isHelperModalOpen}
-        onClose={() => setIsHelperModalOpen(false)}
-        onSelectCategory={(catId) => {
-          setActiveCategory(catId);
-          const el = document.getElementById('menu');
-          if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }}
-        onOpenOrderModal={() => setIsOrderModalOpen(true)}
-        onOpenCallModal={() => setIsCallModalOpen(true)}
-      />
 
       {/* Order / Cart Modal with Free WhatsApp Checkout */}
       <OrderModal

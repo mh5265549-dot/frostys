@@ -37,10 +37,17 @@ import groundChickenBurgerImg from '../assets/images/ground_chicken_burger_17897
 import tacos2PcsImg from '../assets/images/grilled_tacos_two_1789735009844.jpg';
 import karakChaiImg from '../assets/images/karak_chai_matka_1789734957616.jpg';
 
+import freshFruitMilkshakeImg from '../assets/images/fresh_fruit_milkshake_1790088207844.jpg';
+import frostysBurgerDealImg from '../assets/images/frostys_burger_deal_1790088227743.jpg';
+import parlorCounterImg from '../assets/images/frostys_parlor_counter_1790088247095.jpg';
+import outdoorPatioImg from '../assets/images/frostys_outdoor_patio_real_1790090759773.jpg';
+
 export {
   heroDessertImg,
   outdoorRestaurantImg,
   outdoorRestaurantImg as parlorVibeImg,
+  outdoorPatioImg,
+  parlorCounterImg,
   waffleConeImg,
   waffleConeFreshImg,
   superCupImg,
@@ -53,7 +60,9 @@ export {
   layeredSundaeImg,
   kulfiImg,
   iceCreamShakeImg,
-  fruitMilkshakeImg,
+  freshFruitMilkshakeImg as fruitMilkshakeImg,
+  freshFruitMilkshakeImg,
+  frostysBurgerDealImg,
   coldCoffeeImg,
   sodaChillersImg,
   dealsComboImg,
@@ -154,7 +163,7 @@ export const CATEGORIES: Category[] = [
     id: 'fast-food-bbq',
     name: "Frosty's Grill",
     icon: 'fa-solid fa-fire-flame-curved',
-    description: 'Tacos (2 Pcs), Shami Burgers, Ground Chicken Burgers, Wraps, Sandwiches, Fries Supreme, BBQ Tikka & Karak Chai.',
+    description: 'Tacos (2 Pcs), Shami Burgers, Ground Chicken Burgers, Wraps, Sandwiches, Fries Supreme & Karak Chai.',
     image: grilledChickenBurgerImg,
     badge: 'Now Live 🔥',
     startingPrice: 'Rs. 150',
@@ -185,7 +194,6 @@ export const GRILL_TAG_FILTERS = [
   { id: 'chai', name: 'Karak Chai', icon: 'fa-solid fa-mug-hot' },
   { id: 'sandwich', name: 'Sandwiches', icon: 'fa-solid fa-bread-slice' },
   { id: 'wrap', name: 'Wraps', icon: 'fa-solid fa-scroll' },
-  { id: 'bbq', name: 'BBQ Tikka', icon: 'fa-solid fa-drumstick-bite' },
   { id: 'fries', name: 'Fries Supreme', icon: 'fa-solid fa-bowl-food' },
   { id: 'combo', name: 'Combos', icon: 'fa-solid fa-tags' },
 ];
@@ -580,6 +588,38 @@ export const MENU_ITEMS: MenuItem[] = [
     allowSodas: true,
     maxSodas: 2,
   },
+  {
+    id: 'deal-crispy-burger-meal',
+    name: 'Crispy Chicken Burger & Fries Deal',
+    category: 'deals',
+    price: 650,
+    originalPrice: 800,
+    description: '1 Crispy Grilled Chicken Burger with melted cheese + 1 Box of Hot Golden Fries + 1 Chilled Soda Chiller / Soft Drink. Save 150 PKR!',
+    image: frostysBurgerDealImg,
+    popular: true,
+    badge: '🍔 BURGER MEAL',
+    rating: 5.0,
+    unit: '1 Burger + Fries + Drink (650 PKR)',
+    tags: ['Burger Deal', 'Chicken Burger', 'Fries', 'Chilled Drink', 'Grill Deal', 'Combo', 'Fast Food'],
+    allowSodas: true,
+    maxSodas: 1,
+  },
+  {
+    id: 'deal-twin-burger-duo',
+    name: 'Twin Smash Burgers & Fries Mega Deal',
+    category: 'deals',
+    price: 1199,
+    originalPrice: 1450,
+    description: '2 Juicy Grilled Chicken Smash Burgers with melted cheese + Large Box of Golden Fries + 2 Chilled Soft Drinks. Save 250 PKR!',
+    image: smashBurgerImg,
+    popular: true,
+    badge: '🔥 TWIN BURGER SAVER',
+    rating: 5.0,
+    unit: '2 Burgers + Fries + 2 Drinks (1199 PKR)',
+    tags: ['Burger Deal', 'Twin Burgers', 'Smash Burger', 'Fries', '2 Drinks', 'Grill Deal', 'Value Combo'],
+    allowSodas: true,
+    maxSodas: 2,
+  },
 
   // 4. Milkshakes & Shakes
   {
@@ -724,21 +764,6 @@ export const MENU_ITEMS: MenuItem[] = [
 
   // 8. Live Fast Food & BBQ Items (Frosty's Grill - We Deliver!)
   {
-    id: 'ff-shami-burger',
-    name: 'Shami Burger',
-    category: 'fast-food-bbq',
-    price: 300,
-    comboPrice: 200,
-    description: 'Traditional spiced chicken shami kabab patty on a toasted sesame bun, layered with fresh lettuce, sliced tomatoes, onions, and Frosty\'s signature grill sauce. Add Cheese (+Rs. 70), Extra Sauce (+Rs. 70), or Make it a Meal with Fries & Drink (+Rs. 200)!',
-    image: shamiBurgerImg,
-    popular: true,
-    badge: '🔥 Rs. 300 Value',
-    rating: 4.9,
-    unit: 'Single Burger (300 PKR)',
-    isConeCupAllowed: false,
-    tags: ['Grill', 'Burger', 'Shami Burger', 'Chicken Shami', 'Fast Food', 'Burgers'],
-  },
-  {
     id: 'ff-ground-chicken-burger',
     name: 'Ground Chicken Burger',
     category: 'fast-food-bbq',
@@ -751,7 +776,7 @@ export const MENU_ITEMS: MenuItem[] = [
     rating: 4.9,
     unit: 'Single Burger (350 PKR)',
     isConeCupAllowed: false,
-    tags: ['Grill', 'Burger', 'Ground Chicken Burger', 'Chicken Burger', 'Fast Food', 'Burgers'],
+    tags: ['Grill', 'Burger', 'Ground Chicken Burger', 'Golden Chicken Burger', 'Chicken Burger', 'Fast Food', 'Burgers'],
   },
   {
     id: 'ff-grilled-chicken-tacos',
@@ -866,20 +891,6 @@ export const MENU_ITEMS: MenuItem[] = [
     unit: 'Jumbo Loaded Box (500 PKR)',
     isConeCupAllowed: false,
     tags: ['Grill', 'Fries', 'Grilled Chicken Fries Supreme', 'Loaded Fries', 'Chicken Fries', 'Fast Food'],
-  },
-  {
-    id: 'ff-bbq-tikka-boti',
-    name: 'Smoky Chicken BBQ Tikka Boti',
-    category: 'fast-food-bbq',
-    price: 750,
-    description: 'Traditional charcoal-grilled tender chicken tikka boti marinated in aromatic spices & lemon juice. Served with hot naan, fresh mint raita, and sliced onions.',
-    image: bbqTikkaImg,
-    popular: true,
-    badge: '🔥 Charcoal BBQ',
-    rating: 5.0,
-    unit: 'Platter (750 PKR)',
-    isConeCupAllowed: false,
-    tags: ['Grill', 'BBQ', 'Chicken Tikka', 'Barbecue', 'Tikka', 'Charcoal'],
   },
   {
     id: 'ff-combo-upgrade',

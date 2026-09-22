@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MenuItem } from '../types';
-import { isConeCupApplicable, validateItemCustomizationContainer } from '../utils/categoryUtils';
+import {
+  isConeCupApplicable,
+  validateItemCustomizationContainer,
+  allowsSyrupAndToppings,
+} from '../utils/categoryUtils';
 
 export interface CustomizationDetails {
   selectedContainer?: 'Cone' | 'Cup';
@@ -92,6 +96,14 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [instructions, setInstructions] = useState('');
+  const [isAdded, setIsAdded] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   // Variant selection (e.g., Single, Double, Triple scoop, or Special 150 / Regular 100)
   const defaultVariant = item?.variants && item.variants.length > 0
@@ -114,8 +126,17 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const [selectedSyrups, setSelectedSyrups] = useState<string[]>([]);
   const [selectedToppings, setSelectedToppings] = useState<string[]>([]);
 
-  // Specialized Grill State
-  const isGrillItem = item?.category === 'fast-food-bbq';
+  // Check if item supports dessert flavor syrups and toppings (explicitly excludes kulfi, shakes, burgers & grill items)
+  const hasSyrupAndToppings = allowsSyrupAndToppings(item);
+
+  // Specialized Grill State (burgers, BBQ, tacos, wraps, sandwiches, fries, chai, combo meals)
+  const isGrillItem =
+    item?.category === 'fast-food-bbq' ||
+    item?.category === 'burger' ||
+    (item?.category === 'deals' && (item?.tags?.some((t) => /burger|grill|combo/i.test(t)) || item?.name.toLowerCase().includes('burger'))) ||
+    item?.tags?.some((t) => /burger|grill|bbq|taco|sandwich|wrap|fries/i.test(t)) ||
+    (/burger|golden chicken|ground chicken|grilled chicken|shami|smash|taco|sandwich|wrap|fries|karak chai/i.test(item?.name || '') &&
+      !item?.name.toLowerCase().includes('shake'));
   const isBeverage = !!item?.isBeverage;
   const comboPrice = item?.comboPrice ?? 300;
   const [spiceLevel, setSpiceLevel] = useState<'Mild' | 'Medium' | 'Hot & Spicy'>('Medium');
@@ -215,15 +236,19 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     PREMIUM_CHUNKS.includes(t)
   );
 
-  const standardCount = selectedSyrups.length + selectedStandardToppings.length;
+  const standardCount = hasSyrupAndToppings
+    ? selectedSyrups.length + selectedStandardToppings.length
+    : 0;
   const standardFreeUsed = Math.min(2, standardCount);
   const standardExtraCount = Math.max(0, standardCount - 2);
   const standardExtraCharges = standardExtraCount * 50;
 
-  const premiumCount = selectedPremiumChunks.length;
+  const premiumCount = hasSyrupAndToppings ? selectedPremiumChunks.length : 0;
   const premiumExtraCharges = premiumCount * 50;
 
-  const dessertExtraCharges = standardExtraCharges + premiumExtraCharges;
+  const dessertExtraCharges = hasSyrupAndToppings
+    ? standardExtraCharges + premiumExtraCharges
+    : 0;
   const grillExtraCharges = isBeverage
     ? 0
     : (extraCheese ? 70 : 0) + (extraSauce ? 70 : 0) + (makeCombo ? comboPrice : 0);
@@ -234,7 +259,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const totalPrice = unitPrice * quantity;
 
   const handleAdd = () => {
-    if (isSoldOut) return;
+    if (isSoldOut || isAdded) return;
 
     let standardIndex = selectedSyrups.length;
     const comboLabel = comboPrice === 200
@@ -249,7 +274,8 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             ...(extraSauce ? [{ name: 'Extra Signature Sauce', price: 70 }] : []),
             ...(makeCombo ? [{ name: comboLabel, price: comboPrice }] : []),
           ]
-      : selectedToppings.map((name) => {
+      : hasSyrupAndToppings
+      ? selectedToppings.map((name) => {
           const isPremium = PREMIUM_CHUNKS.includes(name);
           if (isPremium) {
             return { name, price: 50 };
@@ -258,7 +284,8 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             const price = standardIndex > 2 ? 50 : 0;
             return { name, price };
           }
-        });
+        })
+      : [];
 
     const validatedContainer = validateItemCustomizationContainer(item, selectedContainer);
     const combinedInstructions = isGrillItem
@@ -277,13 +304,17 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
           ? []
           : selectedFlavors,
       selectedSodas: isGrillItem ? [] : selectedSodas,
-      selectedSyrups: isGrillItem ? [] : selectedSyrups,
+      selectedSyrups: hasSyrupAndToppings ? selectedSyrups : [],
       selectedToppings: toppingsWithPrice,
       instructions: combinedInstructions,
       extraCharges,
       unitPrice,
     });
-    onClose();
+
+    setIsAdded(true);
+    timeoutRef.current = setTimeout(() => {
+      onClose();
+    }, 600);
   };
 
   return (
@@ -360,7 +391,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                 </p>
               </div>
             </div>
-          ) : (
+          ) : hasSyrupAndToppings ? (
             <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-start gap-3">
               <div className="w-9 h-9 rounded-xl bg-amber-500 text-stone-900 font-black text-lg flex items-center justify-center shrink-0 shadow-sm mt-0.5">
                 ✨
@@ -380,6 +411,20 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                     </span>
                   )}
                 </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-200/60 flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-800 font-black text-base flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                <i className="fa-solid fa-star text-xs"></i>
+              </div>
+              <div className="text-xs space-y-0.5">
+                <p className="font-extrabold text-amber-950 leading-snug">
+                  Freshly Handcrafted & Ready to Enjoy
+                </p>
+                <p className="text-stone-600 text-[11px] font-medium">
+                  Prepared fresh with pure, authentic dairy cream and signature ingredients.
+                </p>
               </div>
             </div>
           )}
@@ -686,8 +731,8 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               </div>
             </div>
           )}
-          {/* SECTION 1: DESSERT FLAVOR SYRUPS (Only for Ice Cream & Dessert Items) */}
-          {!isGrillItem && (
+          {/* SECTION 1: DESSERT FLAVOR SYRUPS (Only for Ice Cream Scoops & Sundaes) */}
+          {hasSyrupAndToppings && (
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
@@ -737,8 +782,8 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             </div>
           )}
 
-          {/* SECTION 2: TOPPINGS & ADD-ONS (Only for Ice Cream & Dessert Items) */}
-          {!isGrillItem && (
+          {/* SECTION 2: TOPPINGS & ADD-ONS (Only for Ice Cream Scoops & Sundaes) */}
+          {hasSyrupAndToppings && (
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
@@ -864,10 +909,28 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
           ) : (
             <button
               onClick={handleAdd}
-              className="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition-transform active:scale-98 cursor-pointer"
+              disabled={isAdded}
+              id="btn-modal-add-to-cart"
+              className={`relative overflow-hidden w-full py-3.5 rounded-2xl font-bold text-sm shadow-md flex items-center justify-center gap-2.5 transition-all duration-300 cursor-pointer ${
+                isAdded
+                  ? 'bg-emerald-600 text-white shadow-emerald-500/30 animate-cart-bounce'
+                  : 'bg-red-600 hover:bg-red-700 active:scale-98 text-white'
+              }`}
             >
-              <i className="fa-solid fa-bag-shopping"></i>
-              <span>Add to Order • Rs. {totalPrice}</span>
+              {isAdded ? (
+                <>
+                  <i className="fa-solid fa-circle-check text-base animate-checkmark-pop"></i>
+                  <span className="tracking-wide">Added to Cart!</span>
+                  <span className="absolute top-2.5 right-4 px-2 py-0.5 rounded-full bg-emerald-500 text-white font-black text-[11px] shadow-sm animate-float-badge pointer-events-none">
+                    +{quantity}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <i className="fa-solid fa-cart-plus text-base transition-transform group-hover:scale-110"></i>
+                  <span>Add to Cart • Rs. {totalPrice}</span>
+                </>
+              )}
             </button>
           )}
         </div>

@@ -147,6 +147,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
   // Item detail editing state (for editing options directly in kitchen inventory)
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [productToDelete, setProductToDelete] = useState<MenuItem | null>(null);
   const [editPrice, setEditPrice] = useState<number | ''>('');
   const [editMakingCost, setEditMakingCost] = useState<number | ''>('');
   const [editOriginalPrice, setEditOriginalPrice] = useState<number | ''>('');
@@ -1651,6 +1652,17 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                                   <i className="fa-solid fa-pen-to-square text-[10px]"></i>
                                   <span>Edit Options</span>
                                 </button>
+                                {onDeleteProduct && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setProductToDelete(product)}
+                                    className="px-2.5 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 text-xs font-semibold flex items-center gap-1 border border-rose-500/30 cursor-pointer transition-colors"
+                                    title={`Remove ${product.name} from menu`}
+                                  >
+                                    <i className="fa-solid fa-trash-can text-[10px]"></i>
+                                    <span>Remove</span>
+                                  </button>
+                                )}
                               </div>
                             </div>
 
@@ -2064,14 +2076,12 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                               {onDeleteProduct && (
                                 <button
                                   type="button"
-                                  onClick={() => {
-                                    if (window.confirm(`Are you sure you want to permanently remove "${item.name}" from the menu catalog?`)) {
-                                      onDeleteProduct(item.id);
-                                    }
-                                  }}
-                                  className="text-[11px] text-stone-500 hover:text-rose-400 underline font-medium cursor-pointer ml-1"
+                                  onClick={() => setProductToDelete(item)}
+                                  className="px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shadow-sm ml-1"
+                                  title={`Permanently remove "${item.name}" from catalog`}
                                 >
-                                  Remove
+                                  <i className="fa-solid fa-trash-can text-xs"></i>
+                                  <span>Remove</span>
                                 </button>
                               )}
                             </div>
@@ -2275,20 +2285,37 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                             </p>
                           )}
 
-                          <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-800">
-                            <button
-                              type="button"
-                              onClick={() => setEditingItem(null)}
-                              className="px-3.5 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold cursor-pointer"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              type="submit"
-                              className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-stone-950 font-black text-xs cursor-pointer shadow"
-                            >
-                              Save Product Options
-                            </button>
+                          <div className="flex items-center justify-between gap-2 pt-2 border-t border-stone-800">
+                            {onDeleteProduct && editingItem && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const toDelete = editingItem;
+                                  setEditingItem(null);
+                                  setProductToDelete(toDelete);
+                                }}
+                                className="px-3.5 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+                                title="Permanently remove this product from menu catalog"
+                              >
+                                <i className="fa-solid fa-trash-can text-xs"></i>
+                                <span>Remove Product</span>
+                              </button>
+                            )}
+                            <div className="flex items-center gap-2 ml-auto">
+                              <button
+                                type="button"
+                                onClick={() => setEditingItem(null)}
+                                className="px-3.5 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold cursor-pointer"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="submit"
+                                className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-stone-950 font-black text-xs cursor-pointer shadow"
+                              >
+                                Save Product Options
+                              </button>
+                            </div>
                           </div>
                         </form>
                       </div>
@@ -2857,6 +2884,75 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
             </div>
 
+          </div>
+        )}
+
+        {/* Remove Product Confirmation Dialog (Replaces native window.confirm for reliability in iframe) */}
+        {productToDelete && (
+          <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+            <div className="bg-[#1C1917] border border-rose-500/50 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 animate-scaleUp">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 text-xl shrink-0">
+                  <i className="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-heading font-black text-lg text-white">
+                    Remove Product from Menu?
+                  </h3>
+                  <p className="text-xs text-stone-300 mt-1.5 leading-relaxed">
+                    Are you sure you want to permanently remove <strong className="text-amber-300">"{productToDelete.name}"</strong>?
+                  </p>
+                  <p className="text-[11px] text-stone-400 mt-1.5">
+                    This item will be deleted from your active catalog and won't appear on the customer menu. (You can also reset to default menu anytime if needed).
+                  </p>
+                </div>
+              </div>
+
+              {/* Product preview card */}
+              <div className="p-3 rounded-2xl bg-stone-900 border border-stone-800 flex items-center gap-3">
+                <img
+                  src={productToDelete.image}
+                  alt={productToDelete.name}
+                  referrerPolicy="no-referrer"
+                  className="w-12 h-12 rounded-xl object-cover border border-stone-700 shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-bold text-stone-100 truncate">
+                    {productToDelete.name}
+                  </div>
+                  <div className="text-[11px] text-amber-300 font-semibold mt-0.5">
+                    Selling Price: Rs. {productToDelete.price}
+                  </div>
+                  <div className="text-[10px] text-stone-400 capitalize">
+                    Category: {productToDelete.category}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => setProductToDelete(null)}
+                  className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  id="confirm-remove-product-btn"
+                  onClick={() => {
+                    if (onDeleteProduct) {
+                      onDeleteProduct(productToDelete.id);
+                    }
+                    setProductToDelete(null);
+                  }}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-lg shadow-rose-950/50 transition-all"
+                >
+                  <i className="fa-solid fa-trash-can text-xs"></i>
+                  <span>Yes, Remove Product</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

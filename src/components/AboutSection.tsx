@@ -1,5 +1,5 @@
 import React from 'react';
-import { STORE_INFO, heroDessertImg } from '../data/menuData';
+import { STORE_INFO, outdoorPatioImg } from '../data/menuData';
 
 export const AboutSection: React.FC = () => {
   return (
@@ -11,8 +11,9 @@ export const AboutSection: React.FC = () => {
           <div className="lg:col-span-6 space-y-4">
             <div className="relative rounded-3xl overflow-hidden border border-stone-200 shadow-sm group">
               <img
-                src={heroDessertImg}
-                alt="Frosty's Handcrafted Ice Creams, Sundaes & Fresh Cones in Green City Lahore"
+                id="about-storefront-img"
+                src={outdoorPatioImg}
+                alt="Frosty's Outdoor Restaurant & Patio Seating in Green City Lahore"
                 referrerPolicy="no-referrer"
                 className="w-full h-[320px] sm:h-[400px] object-cover group-hover:scale-105 transition-transform duration-500"
               />
@@ -20,14 +21,14 @@ export const AboutSection: React.FC = () => {
               <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-stone-200 shadow-md">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center font-bold text-lg shrink-0">
-                    <i className="fa-solid fa-ice-cream"></i>
+                    <i className="fa-solid fa-utensils"></i>
                   </div>
                   <div>
                     <h4 className="font-heading font-bold text-sm text-stone-900">
-                      Handcrafted Pure Dairy Quality
+                      Open-Air Outdoor Dining & Grill
                     </h4>
                     <p className="text-xs text-stone-600">
-                      Freshly rolled waffle cones, signature sundaes & flame-grilled eats
+                      Atmospheric outdoor patio seating, artisanal sundaes & flame-grilled burgers
                     </p>
                   </div>
                 </div>
