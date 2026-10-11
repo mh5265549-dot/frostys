@@ -4,6 +4,7 @@ import { getStoreStatus } from '../utils/hours';
 import { ShopMode } from '../types';
 import { FrostyLogo } from './FrostyLogo';
 import { SlideFillButton } from './SlideFillButton';
+import realLogoImg from '../assets/images/frostys_real_logo_1791733664482.jpg';
 
 interface NavbarProps {
   cartCount: number;
@@ -68,20 +69,20 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           
-          {/* Brand Logo with Frosty's Green Theme */}
+          {/* Brand Logo with Frosty's Real Restaurant Emblem */}
           <a
             href="#hero"
             className="flex items-center gap-2.5 sm:gap-3 group focus:outline-none cursor-pointer shrink-0"
             id="navbar-logo"
-            title="Frosty's - Green City, Lahore"
+            title="Frosty's Ice Cream & Grill - Green City, Lahore"
           >
             <div className="relative shrink-0">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center shadow-xs transition-transform duration-300 group-hover:scale-105 p-1 bg-gradient-to-tr from-red-600 via-blue-600 to-red-500 shadow-blue-950/15">
-                <FrostyLogo
-                  variant="blue"
-                  size="custom"
-                  className="w-8 h-8 sm:w-9 sm:h-9"
-                  animate={false}
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl overflow-hidden flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-105 p-0.5 bg-gradient-to-tr from-amber-500 via-red-600 to-blue-600 shadow-stone-900/10 border border-stone-200">
+                <img
+                  src={realLogoImg}
+                  alt="Frosty's Ice Cream & Grill"
+                  className="w-full h-full object-cover rounded-xl"
+                  referrerPolicy="no-referrer"
                 />
               </div>
             </div>
@@ -98,7 +99,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ></span>
               </div>
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-red-600 block -mt-0.5 sm:-mt-1">
-                Ice Cream & Treats • Green City
+                Ice Cream & Grill • Green City
               </span>
             </div>
           </a>

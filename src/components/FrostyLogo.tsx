@@ -1,6 +1,9 @@
 import React from 'react';
+import realLogoImg from '../assets/images/frostys_real_logo_1791733664482.jpg';
 
-export type FrostyLogoVariant = 'ice' | 'fire' | 'green';
+export { realLogoImg as FROSTY_REAL_LOGO_URL };
+
+export type FrostyLogoVariant = 'ice' | 'fire' | 'green' | 'blue' | 'real';
 
 interface FrostyLogoProps {
   variant?: FrostyLogoVariant;
@@ -8,6 +11,7 @@ interface FrostyLogoProps {
   className?: string;
   animate?: boolean;
   showBadgeBackground?: boolean;
+  useReal?: boolean;
 }
 
 const SIZE_MAP = {
@@ -21,13 +25,15 @@ const SIZE_MAP = {
 };
 
 export const FrostyLogo: React.FC<FrostyLogoProps> = ({
-  variant = 'green',
+  variant = 'real',
   size = 'md',
   className = '',
   animate = true,
   showBadgeBackground = false,
+  useReal = true,
 }) => {
   const isFire = variant === 'fire';
+  const isIce = variant === 'ice';
   const sizeClasses = SIZE_MAP[size] || SIZE_MAP.md;
 
   const badgeBgClasses = showBadgeBackground
@@ -35,6 +41,25 @@ export const FrostyLogo: React.FC<FrostyLogoProps> = ({
       ? 'bg-gradient-to-tr from-[#240B07] via-[#3A140B] to-[#170503] border-2 border-orange-500/60 shadow-lg shadow-orange-950/50 rounded-2xl p-1.5'
       : 'bg-gradient-to-tr from-red-600 via-blue-600 to-white border-2 border-white/80 shadow-lg shadow-blue-950/20 rounded-2xl p-1.5'
     : '';
+
+  // Use realistic restaurant emblem photo logo if not explicitly in fire/ice animation mode
+  if (useReal && !isFire && !isIce) {
+    return (
+      <div
+        className={`relative inline-flex items-center justify-center shrink-0 ${sizeClasses} ${badgeBgClasses} ${className}`}
+        title="Frosty's Ice Cream & Grill"
+      >
+        <img
+          src={realLogoImg}
+          alt="Frosty's Ice Cream & Grill"
+          className={`w-full h-full object-cover rounded-full drop-shadow-md select-none transition-transform duration-300 ${
+            animate ? 'hover:scale-105' : ''
+          }`}
+          referrerPolicy="no-referrer"
+        />
+      </div>
+    );
+  }
 
   return (
     <div

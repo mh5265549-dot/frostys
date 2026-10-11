@@ -23,14 +23,14 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminModal }) => {
                 <span className="font-heading font-black text-xl tracking-tight text-stone-900 block">
                   Frosty's
                 </span>
-                <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
-                  8B Commercial, Green City, Lahore
+                <span className="text-[10px] uppercase font-bold text-red-600 tracking-wider">
+                  Ice Cream & Grill • Green City, Lahore
                 </span>
               </div>
             </div>
 
             <p className="text-xs text-stone-500 leading-relaxed max-w-sm">
-              Your favorite destination for fresh ice cream scoops, waffle cones, sundaes, thick shakes, flame-grilled burgers, and loaded fries. Open daily until 2:00 AM!
+              Your favorite destination for fresh ice cream scoops, waffle cones, sundaes, thick shakes, charcoal BBQ skewers, flame-grilled burgers, and loaded fries. Open daily until 2:00 AM!
             </p>
 
             {/* Social Links */}
@@ -123,7 +123,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminModal }) => {
             <div className="pt-1">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-bold border border-blue-200">
                 <i className="fa-solid fa-moon text-xs text-red-600"></i>
-                <span>Late-Night Ice Cream & Food Daily</span>
+                <span>Late-Night Ice Cream & Grill Daily</span>
               </span>
             </div>
           </div>

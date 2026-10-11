@@ -1228,10 +1228,10 @@ export const REVIEWS: Review[] = [
 ];
 
 export const STORE_INFO = {
-  name: "Frosty's & Grill",
-  iceCreamTagline: "Artisanal Scoops, Sundaes & Fresh Grill Delivered Fresh!",
+  name: "Frosty's Ice Cream & Grill",
+  iceCreamTagline: "Artisanal Scoops, Sundaes & Charcoal Grill Delivered Fresh!",
   grillTagline: "Grilled Fresh. Made Right.",
-  tagline: "Artisanal Scoops, Sundaes & Fresh Grill Delivered Fresh!",
+  tagline: "Artisanal Scoops, Sundaes & Charcoal Grill Delivered Fresh!",
   address: "8B Commercial, Green City, Lahore, Pakistan",
   city: "Lahore, Pakistan",
   area: "Green City Commercial",
