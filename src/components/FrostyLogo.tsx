@@ -1,5 +1,5 @@
 import React from 'react';
-import realLogoImg from '../assets/images/frostys_real_logo_1791733664482.jpg';
+import realLogoImg from '../assets/images/frostys_icecream_grill_logo_1791734533960.jpg';
 
 export { realLogoImg as FROSTY_REAL_LOGO_URL };
 

@@ -16,8 +16,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminModal }) => {
           {/* Col 1: Brand Info */}
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-red-600 via-blue-600 to-blue-500 flex items-center justify-center p-1 shadow-sm">
-                <FrostyLogo variant="blue" size="custom" className="w-8 h-8" animate={false} />
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-red-600 via-blue-600 to-blue-800 flex items-center justify-center p-0.5 shadow-sm overflow-hidden">
+                <FrostyLogo variant="real" size="custom" className="w-9 h-9" animate={false} />
               </div>
               <div>
                 <span className="font-heading font-black text-xl tracking-tight text-stone-900 block">

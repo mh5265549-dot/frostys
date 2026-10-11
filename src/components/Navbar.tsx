@@ -4,7 +4,7 @@ import { getStoreStatus } from '../utils/hours';
 import { ShopMode } from '../types';
 import { FrostyLogo } from './FrostyLogo';
 import { SlideFillButton } from './SlideFillButton';
-import realLogoImg from '../assets/images/frostys_real_logo_1791733664482.jpg';
+import realLogoImg from '../assets/images/frostys_icecream_grill_logo_1791734533960.jpg';
 
 interface NavbarProps {
   cartCount: number;
@@ -77,11 +77,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Frosty's Ice Cream & Grill - Green City, Lahore"
           >
             <div className="relative shrink-0">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl overflow-hidden flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-105 p-0.5 bg-gradient-to-tr from-amber-500 via-red-600 to-blue-600 shadow-stone-900/10 border border-stone-200">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-105 p-0.5 bg-gradient-to-tr from-red-600 via-blue-600 to-blue-800 shadow-stone-900/15 border border-stone-200">
                 <img
                   src={realLogoImg}
                   alt="Frosty's Ice Cream & Grill"
-                  className="w-full h-full object-cover rounded-xl"
+                  className="w-full h-full object-cover rounded-full"
                   referrerPolicy="no-referrer"
                 />
               </div>
