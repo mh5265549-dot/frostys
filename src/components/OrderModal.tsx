@@ -3,6 +3,7 @@ import { CartItem, Review, ShopMode } from '../types';
 import { STORE_INFO } from '../data/menuData';
 import { isConeCupApplicable } from '../utils/categoryUtils';
 import { generateThermalReceiptText } from '../utils/receiptFormatter';
+import { SlideFillButton } from './SlideFillButton';
 
 interface OrderModalProps {
   isOpen: boolean;
@@ -269,7 +270,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                 Your Frosty's Order
               </h3>
               <span className="text-xs text-stone-500">
-                8B Commercial, Green City, Lahore • Open 4 PM - 2 AM
+                8B Commercial, Green City, Lahore • Open 5 PM - 2 AM
               </span>
             </div>
           </div>
@@ -760,28 +761,38 @@ export const OrderModal: React.FC<OrderModalProps> = ({
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <a
+            <SlideFillButton
               href={`tel:${STORE_INFO.phone}`}
-              className="py-3.5 px-4 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-800 font-bold text-xs transition-colors flex items-center justify-center gap-2"
+              fill="#e7e5e4"
+              textColor="#1c1917"
+              hoverFill="#dc2626"
+              hoverTextColor="#ffffff"
+              direction="up"
+              rounded={12}
+              padding="12px 16px"
+              className="text-xs font-bold"
               title="Call Store"
             >
-              <i className="fa-solid fa-phone text-[#FF4B72]"></i>
+              <i className="fa-solid fa-phone"></i>
               <span className="hidden sm:inline">Call</span>
-            </a>
+            </SlideFillButton>
 
-            <button
+            <SlideFillButton
               type="submit"
               form="order-form"
               disabled={cart.length === 0}
-              className={`flex-1 sm:flex-none py-3.5 px-6 rounded-xl font-bold text-xs text-white transition-all shadow-md flex items-center justify-center gap-2.5 ${
-                cart.length === 0
-                  ? 'bg-stone-300 cursor-not-allowed'
-                  : 'bg-[#25D366] hover:bg-[#20ba5a]'
-              }`}
+              fill={cart.length === 0 ? '#d6d3d1' : '#25D366'}
+              textColor="#ffffff"
+              hoverFill="#128C7E"
+              hoverTextColor="#ffffff"
+              direction="up"
+              rounded={12}
+              padding="14px 22px"
+              className="flex-1 sm:flex-none text-xs shadow-md"
             >
               <i className="fa-brands fa-whatsapp text-lg"></i>
               <span>Send Order on WhatsApp</span>
-            </button>
+            </SlideFillButton>
           </div>
         </div>
 

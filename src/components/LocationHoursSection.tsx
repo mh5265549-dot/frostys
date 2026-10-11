@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { STORE_INFO } from '../data/menuData';
 import { getStoreStatus } from '../utils/hours';
+import { FluidText } from './FluidText';
 
 interface LocationHoursSectionProps {
   onOpenCallModal: () => void;
@@ -28,9 +29,22 @@ export const LocationHoursSection: React.FC<LocationHoursSectionProps> = ({
             <i className="fa-solid fa-map-pin text-red-600"></i>
             <span>Visit Us In Person</span>
           </div>
-          <h2 className="font-heading font-black text-2xl sm:text-4xl text-stone-900 tracking-tight">
-            Location & Operating Hours
-          </h2>
+          <div className="h-10 sm:h-12 w-full max-w-lg mx-auto my-1">
+            <FluidText
+              text="LOCATION & OPERATING HOURS"
+              color="#1C1917"
+              align="center"
+              headingLevel={2}
+              font={{
+                fontFamily: "Outfit, 'Plus Jakarta Sans', sans-serif",
+                fontWeight: 900,
+                fontSize: "28px",
+                textAlign: "center",
+              }}
+              paletteColors={["#dc2626", "#2563eb", "#ec4899", "#f59e0b", "#06b6d4"]}
+              className="w-full h-full"
+            />
+          </div>
           <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
             Conveniently situated in 8B Commercial Green City, Lahore with ample parking, cozy indoor seating, and prompt takeaway.
           </p>
@@ -112,7 +126,7 @@ export const LocationHoursSection: React.FC<LocationHoursSectionProps> = ({
               <div className="space-y-1.5 text-xs pt-1">
                 <div className="flex items-center justify-between py-1 border-b border-stone-200 font-medium">
                   <span className="text-stone-700">Monday – Sunday</span>
-                  <span className="font-bold text-blue-700">4:00 PM – 2:00 AM</span>
+                  <span className="font-bold text-blue-700">5:00 PM – 2:00 AM</span>
                 </div>
                 <div className="flex items-center justify-between py-1 text-xs text-stone-500 font-medium">
                   <span>Midnight Service</span>

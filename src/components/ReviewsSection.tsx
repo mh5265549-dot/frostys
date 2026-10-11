@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Review, Complaint } from '../types';
+import { FluidText } from './FluidText';
 
 interface ReviewsSectionProps {
   reviews: Review[];
@@ -38,9 +39,22 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             <i className="fa-solid fa-comments text-red-600"></i>
             <span>Customer Voice & Reviews</span>
           </div>
-          <h2 className="font-heading font-black text-2xl sm:text-4xl text-stone-900 tracking-tight">
-            Reviews & Customer Help Center
-          </h2>
+          <div className="h-10 sm:h-12 w-full max-w-lg mx-auto my-1">
+            <FluidText
+              text="REVIEWS & CUSTOMER VOICE"
+              color="#1C1917"
+              align="center"
+              headingLevel={2}
+              font={{
+                fontFamily: "Outfit, 'Plus Jakarta Sans', sans-serif",
+                fontWeight: 900,
+                fontSize: "28px",
+                textAlign: "center",
+              }}
+              paletteColors={["#dc2626", "#2563eb", "#ec4899", "#f59e0b", "#06b6d4"]}
+              className="w-full h-full"
+            />
+          </div>
           <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
             Real feedback and verified ratings for Frosty's at 8B Commercial, Green City Lahore.
           </p>

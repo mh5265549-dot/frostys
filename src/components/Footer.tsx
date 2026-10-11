@@ -83,7 +83,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminModal }) => {
               </li>
               <li>
                 <a href="#hours" className="hover:text-red-600 transition-colors">
-                  Operating Hours (4 PM - 2 AM)
+                  Operating Hours (5 PM - 2 AM)
                 </a>
               </li>
               <li>

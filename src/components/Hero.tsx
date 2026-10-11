@@ -1,6 +1,8 @@
 import React from 'react';
 import { STORE_INFO, outdoorRestaurantImg } from '../data/menuData';
 import { ShopMode } from '../types';
+import { SlideFillButton } from './SlideFillButton';
+import { FluidText } from './FluidText';
 
 interface HeroProps {
   onOpenOrderModal: () => void;
@@ -27,7 +29,7 @@ export const Hero: React.FC<HeroProps> = ({
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-blue-200 shadow-2xs text-xs font-bold text-blue-900">
             <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping"></span>
             <i className="fa-solid fa-clock text-red-600"></i>
-            <span>Open Daily • 4:00 PM to 2:00 AM</span>
+            <span>Open Daily • 5:00 PM to 2:00 AM</span>
           </div>
 
           <div className="flex items-center gap-2 text-xs font-bold text-stone-600">
@@ -65,29 +67,56 @@ export const Hero: React.FC<HeroProps> = ({
               <span className="inline-block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-blue-200 bg-blue-950/70 backdrop-blur-md px-2.5 py-0.5 rounded-md border border-blue-500/30 mb-1.5">
                 8B Commercial, Green City Lahore
               </span>
-              <h2 className="font-heading font-black text-xl sm:text-3xl text-white tracking-tight drop-shadow-sm">
-                Late-Night Ice Cream & Grill Spot
-              </h2>
+              <div className="h-9 sm:h-11 w-full max-w-xl mb-1">
+                <FluidText
+                  text="Late-Night Ice Cream & Grill Spot"
+                  color="#FFFFFF"
+                  align="left"
+                  headingLevel={2}
+                  font={{
+                    fontFamily: "Outfit, 'Plus Jakarta Sans', sans-serif",
+                    fontWeight: 900,
+                    fontSize: "26px",
+                    textAlign: "left",
+                  }}
+                  paletteColors={["#f87171", "#60a5fa", "#f472b6", "#fbbf24", "#38bdf8"]}
+                  className="w-full h-full"
+                />
+              </div>
               <p className="text-xs sm:text-sm text-stone-200 mt-1 drop-shadow-sm leading-relaxed hidden sm:block">
-                Outdoor open-air dining under the night sky, pure dairy ice cream scoops, freshly rolled waffle cones, flame-grilled burgers & loaded fries.
+                Outdoor open-air dining under the night sky, pure dairy ice cream scoops, freshly rolled waffle cones, charcoal BBQ & platters, flame-grilled burgers & loaded fries.
               </p>
             </div>
 
             <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
-              <a
+              <SlideFillButton
                 href="#menu"
-                className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                fill="#dc2626"
+                textColor="#ffffff"
+                hoverFill="#1e293b"
+                hoverTextColor="#ffffff"
+                direction="up"
+                rounded={12}
+                padding="10px 20px"
+                className="flex-1 sm:flex-initial text-xs sm:text-sm shadow-md"
               >
                 <i className="fa-solid fa-utensils"></i>
                 <span>Explore Menu</span>
-              </a>
-              <button
+              </SlideFillButton>
+              <SlideFillButton
                 onClick={onOpenOrderModal}
-                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-white/95 hover:bg-white text-stone-900 font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                fill="#ffffff"
+                textColor="#1c1917"
+                hoverFill="#dc2626"
+                hoverTextColor="#ffffff"
+                direction="up"
+                rounded={12}
+                padding="10px 16px"
+                className="flex-1 sm:flex-initial text-xs sm:text-sm shadow-md"
               >
                 <i className="fa-brands fa-whatsapp text-red-600 text-sm"></i>
                 <span>WhatsApp Order</span>
-              </button>
+              </SlideFillButton>
             </div>
           </div>
         </div>
@@ -98,38 +127,77 @@ export const Hero: React.FC<HeroProps> = ({
             <span className="inline-block text-xs font-extrabold uppercase tracking-widest mb-1.5 text-red-700 bg-white border border-red-200 px-3 py-1 rounded-full shadow-2xs">
               Fresh Handcrafted Menu
             </span>
-            <h1 className="font-heading font-black text-2xl sm:text-4xl text-stone-900 tracking-tight leading-tight">
-              Satisfy Midnight Cravings with <span className="text-red-600">Pure Dairy Treats & Grill</span>
-            </h1>
+            <div className="h-11 sm:h-14 md:h-16 w-full max-w-2xl mx-auto my-2">
+              <FluidText
+                text="SATISFY MIDNIGHT CRAVINGS"
+                color="#1C1917"
+                align="center"
+                headingLevel={1}
+                font={{
+                  fontFamily: "Outfit, 'Plus Jakarta Sans', sans-serif",
+                  fontWeight: 900,
+                  fontSize: "36px",
+                  textAlign: "center",
+                }}
+                paletteColors={["#dc2626", "#2563eb", "#ec4899", "#f59e0b", "#06b6d4"]}
+                className="w-full h-full"
+              />
+            </div>
+            <p className="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-red-600 mb-1">
+              Pure Dairy Ice Cream Scoops & Flame-Grilled Treats
+            </p>
             <p className="text-sm sm:text-base text-stone-600 mt-2 leading-relaxed max-w-2xl mx-auto">
-              Welcome to Frosty's in Green City, Lahore. Indulge in artisanal fresh scoops, freshly rolled waffle cones, decadent sundaes, thick milkshakes, savory flame-grilled burgers, and loaded fries — served fresh until 2:00 AM.
+              Welcome to Frosty's & Grill in Green City, Lahore. Indulge in artisanal fresh scoops, freshly rolled waffle cones, decadent sundaes, authentic charcoal Chicken Tikka, tender Malai Boti, sizzling BBQ Platters, flame-grilled burgers, and loaded fries — served fresh until 2:00 AM.
             </p>
           </div>
 
           {/* Direct Action Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <a
+            <SlideFillButton
               href="#menu"
               id="hero-btn-view-menu"
-              className="px-6 py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center gap-2 cursor-pointer hover:scale-102 active:scale-98"
+              fill="#dc2626"
+              textColor="#ffffff"
+              hoverFill="#0f172a"
+              hoverTextColor="#ffffff"
+              direction="up"
+              rounded={14}
+              padding="14px 24px"
+              className="text-xs sm:text-sm shadow-md"
             >
-              <i className="fa-solid fa-ice-cream"></i>
-              <span>Browse Full Menu (30+ Items)</span>
-            </a>
-            <button
+              <i className="fa-solid fa-fire-burner"></i>
+              <span>Browse Full Menu (35+ Items)</span>
+            </SlideFillButton>
+            <SlideFillButton
               onClick={onOpenOrderModal}
-              className="px-5 py-3.5 rounded-xl bg-white hover:bg-blue-50 text-blue-900 font-bold text-xs sm:text-sm border border-blue-200 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+              fill="#ffffff"
+              textColor="#1e3a8a"
+              hoverFill="#dc2626"
+              hoverTextColor="#ffffff"
+              borderColor="#bfdbfe"
+              direction="up"
+              rounded={14}
+              padding="14px 20px"
+              className="text-xs sm:text-sm shadow-2xs"
             >
               <i className="fa-brands fa-whatsapp text-red-600 text-sm"></i>
               <span>Order on WhatsApp</span>
-            </button>
-            <a
+            </SlideFillButton>
+            <SlideFillButton
               href={`tel:${STORE_INFO.phone}`}
-              className="px-5 py-3.5 rounded-xl bg-white hover:bg-stone-50 text-stone-800 hover:text-red-700 font-bold text-xs sm:text-sm border border-stone-200 hover:border-red-300 transition-all flex items-center gap-2 shadow-2xs"
+              fill="#ffffff"
+              textColor="#1c1917"
+              hoverFill="#1e293b"
+              hoverTextColor="#ffffff"
+              borderColor="#e7e5e4"
+              direction="up"
+              rounded={14}
+              padding="14px 20px"
+              className="text-xs sm:text-sm shadow-2xs"
             >
               <i className="fa-solid fa-phone text-red-600"></i>
               <span>Hotline: {STORE_INFO.phone}</span>
-            </a>
+            </SlideFillButton>
           </div>
         </div>
 

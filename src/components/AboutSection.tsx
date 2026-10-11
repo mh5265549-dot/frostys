@@ -1,5 +1,6 @@
 import React from 'react';
 import { STORE_INFO, outdoorPatioImg } from '../data/menuData';
+import { FluidText } from './FluidText';
 
 export const AboutSection: React.FC = () => {
   return (
@@ -75,10 +76,22 @@ export const AboutSection: React.FC = () => {
               <span>About Frosty's</span>
             </div>
 
-            <h2 className="font-heading font-black text-2xl sm:text-4xl lg:text-5xl text-stone-900 leading-tight">
-              Green City’s Favorite <br />
-              <span className="text-red-600">Late-Night Food & Ice Cream</span> Destination
-            </h2>
+            <div className="h-10 sm:h-12 md:h-14 w-full max-w-2xl my-1">
+              <FluidText
+                text="GREEN CITY'S FAVORITE LATE-NIGHT DESTINATION"
+                color="#1C1917"
+                align="left"
+                headingLevel={2}
+                font={{
+                  fontFamily: "Outfit, 'Plus Jakarta Sans', sans-serif",
+                  fontWeight: 900,
+                  fontSize: "30px",
+                  textAlign: "left",
+                }}
+                paletteColors={["#dc2626", "#2563eb", "#ec4899", "#f59e0b", "#06b6d4"]}
+                className="w-full h-full"
+              />
+            </div>
 
             <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
               Located in the commercial heart of Green City, Lahore, <strong>Frosty's</strong> serves fresh pure dairy ice cream scoops, freshly rolled waffle cones, Banana Splits, cold coffees, shakes, as well as juicy flame-grilled burgers, wraps, and loaded fries until 2:00 AM daily.
@@ -105,7 +118,7 @@ export const AboutSection: React.FC = () => {
                 <div>
                   <h4 className="font-bold text-sm text-stone-900">Late-Night Operating Hours</h4>
                   <p className="text-xs text-stone-600">
-                    Open every single day from 4:00 PM in the evening until 2:00 AM late night.
+                    Open every single day from 5:00 PM in the evening until 2:00 AM late night.
                   </p>
                 </div>
               </div>

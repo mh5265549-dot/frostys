@@ -1,7 +1,7 @@
 import { MenuItem } from '../types';
 import { MENU_ITEMS } from '../data/menuData';
 
-const MENU_STORAGE_KEY = 'frostys_custom_menu_catalog_v6';
+const MENU_STORAGE_KEY = 'frostys_custom_menu_catalog_v9';
 const PASSWORD_STORAGE_KEY = 'frostys_admin_password_v2';
 const DEFAULT_PASSWORD = '1234567';
 
@@ -16,6 +16,14 @@ export function getStoredMenuItems(): MenuItem[] {
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
+      // Auto-merge newly added default items (e.g. Charcoal BBQ, Platters, Malai Boti)
+      const existingIds = new Set(parsed.map((p: MenuItem) => p.id));
+      const missingDefaults = MENU_ITEMS.filter((item) => !existingIds.has(item.id));
+      if (missingDefaults.length > 0) {
+        const merged = [...parsed, ...missingDefaults];
+        saveCustomMenuItems(merged);
+        return merged;
+      }
       return parsed;
     }
   } catch (err) {

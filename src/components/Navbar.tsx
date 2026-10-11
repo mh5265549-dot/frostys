@@ -3,6 +3,7 @@ import { STORE_INFO } from '../data/menuData';
 import { getStoreStatus } from '../utils/hours';
 import { ShopMode } from '../types';
 import { FrostyLogo } from './FrostyLogo';
+import { SlideFillButton } from './SlideFillButton';
 
 interface NavbarProps {
   cartCount: number;
@@ -93,7 +94,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className={`inline-block w-2 h-2 rounded-full ${
                     status.isOpen ? 'bg-blue-500 animate-pulse' : 'bg-amber-400'
                   }`}
-                  title={status.isOpen ? 'Open Now (4 PM - 2 AM)' : 'Opens at 4 PM'}
+                  title={status.isOpen ? 'Open Now (5 PM - 2 AM)' : 'Opens at 5 PM'}
                 ></span>
               </div>
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-red-600 block -mt-0.5 sm:-mt-1">
@@ -143,10 +144,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             </a>
 
             {/* Cart Trigger */}
-            <button
+            <SlideFillButton
               onClick={onOpenOrderModal}
               id="btn-order-now-nav"
-              className="px-3 sm:px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+              fill="#dc2626"
+              textColor="#ffffff"
+              hoverFill="#0f172a"
+              hoverTextColor="#ffffff"
+              direction="up"
+              rounded={12}
+              padding="8px 16px"
+              className="text-xs sm:text-sm shadow-xs"
             >
               <i className="fa-solid fa-cart-shopping text-xs sm:text-sm"></i>
               <span className="hidden sm:inline">Cart</span>
@@ -155,7 +163,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {cartCount}
                 </span>
               )}
-            </button>
+            </SlideFillButton>
 
             {/* Mobile Menu Hamburger */}
             <button
@@ -184,7 +192,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 status.isOpen ? 'text-blue-700 bg-blue-50' : 'text-amber-700 bg-amber-50'
               }`}
             >
-              {status.isOpen ? 'Open Now (4 PM - 2 AM)' : 'Opens 4:00 PM'}
+              {status.isOpen ? 'Open Now (5 PM - 2 AM)' : 'Opens 5:00 PM'}
             </span>
           </div>
 

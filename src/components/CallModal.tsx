@@ -34,7 +34,7 @@ export const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose }) => {
           </p>
           <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold px-3 py-1 rounded-full">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Open Today: 4:00 PM – 2:00 AM
+            Open Today: 5:00 PM – 2:00 AM
           </div>
         </div>
 

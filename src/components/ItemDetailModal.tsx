@@ -5,6 +5,7 @@ import {
   validateItemCustomizationContainer,
   allowsSyrupAndToppings,
 } from '../utils/categoryUtils';
+import { SlideFillButton } from './SlideFillButton';
 
 export interface CustomizationDetails {
   selectedContainer?: 'Cone' | 'Cup';
@@ -133,11 +134,19 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const isGrillItem =
     item?.category === 'fast-food-bbq' ||
     item?.category === 'burger' ||
-    (item?.category === 'deals' && (item?.tags?.some((t) => /burger|grill|combo/i.test(t)) || item?.name.toLowerCase().includes('burger'))) ||
-    item?.tags?.some((t) => /burger|grill|bbq|taco|sandwich|wrap|fries/i.test(t)) ||
-    (/burger|golden chicken|ground chicken|grilled chicken|shami|smash|taco|sandwich|wrap|fries|karak chai/i.test(item?.name || '') &&
+    (item?.category === 'deals' && (item?.tags?.some((t) => /burger|grill|combo|bbq|platter|deal/i.test(t)) || /burger|deal|platter|bbq/i.test(item?.name || ''))) ||
+    item?.tags?.some((t) => /burger|grill|bbq|taco|sandwich|wrap|fries|naan|roti|salad|raita/i.test(t)) ||
+    (/burger|golden chicken|ground chicken|grilled chicken|shami|smash|taco|sandwich|wrap|fries|karak chai|boti|tikka|kabab|wings|platter/i.test(item?.name || '') &&
       !item?.name.toLowerCase().includes('shake'));
   const isBeverage = !!item?.isBeverage;
+  const isSideItem =
+    item?.tags?.some((t) => /sides|naan|roti|salad|raita|extra sauce/i.test(t)) ||
+    item?.id?.startsWith('side-') ||
+    /fresh salad|extra sauce|mint raita|sada naan|sada roti/i.test(item?.name || '');
+  const isPlatterOrDeal =
+    item?.category === 'deals' ||
+    item?.tags?.some((t) => /deals & platters|platter/i.test(t)) ||
+    /deal|platter/i.test(item?.name || '');
   const comboPrice = item?.comboPrice ?? 300;
   const [spiceLevel, setSpiceLevel] = useState<'Mild' | 'Medium' | 'Hot & Spicy'>('Medium');
   const [teaPreference, setTeaPreference] = useState<'Normal' | 'Less Sugar' | 'Kadak (Strong)' | 'Sugar Free'>('Normal');
@@ -182,7 +191,8 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
 
   const toggleFlavor = (flavor: string) => {
     if (selectedFlavors.includes(flavor)) {
-      setSelectedFlavors(selectedFlavors.filter((f) => f !== flavor));
+      const next = selectedFlavors.filter((f) => f !== flavor);
+      setSelectedFlavors(next);
     } else {
       if (selectedFlavors.length < maxAllowedFlavors) {
         setSelectedFlavors([...selectedFlavors, flavor]);
@@ -461,9 +471,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                     ))}
                   </div>
                 </div>
-              ) : (
+              ) : isSideItem ? null : (
                 <>
-                  {/* Spice Level */}
+                  {/* Spice Level for BBQ and Burgers */}
                   <div className="space-y-2 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
                     <label className="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
                       <i className="fa-solid fa-pepper-hot text-red-500"></i>
@@ -487,66 +497,68 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Grill Addons */}
-                  <div className="space-y-2 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
-                    <label className="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
-                      <i className="fa-solid fa-plus-circle text-orange-600"></i>
-                      <span>Grill Add-ons & Meal Upgrades</span>
-                    </label>
-                    <div className="space-y-2">
-                      <button
-                        type="button"
-                        onClick={() => setExtraCheese(!extraCheese)}
-                        className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
-                          extraCheese
-                            ? 'bg-amber-100 text-amber-950 border-amber-400 shadow-sm'
-                            : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300'
-                        }`}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span className="text-base">🧀</span>
-                          <span>Extra Melted Cheese</span>
-                        </span>
-                        <span className="font-extrabold text-amber-900">+Rs. 70</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setExtraSauce(!extraSauce)}
-                        className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
-                          extraSauce
-                            ? 'bg-amber-100 text-amber-950 border-amber-400 shadow-sm'
-                            : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300'
-                        }`}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span className="text-base">🥫</span>
-                          <span>Extra Signature Sauce</span>
-                        </span>
-                        <span className="font-extrabold text-amber-900">+Rs. 70</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setMakeCombo(!makeCombo)}
-                        className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
-                          makeCombo
-                            ? 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-950 border-orange-400 shadow-sm'
-                            : 'bg-white text-stone-700 border-stone-200 hover:border-orange-300'
-                        }`}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span className="text-base">🍟🥤</span>
-                          <span>
-                            {comboPrice === 200
-                              ? 'Make it a Meal (Add Hot Fries + Chilled Drink)'
-                              : 'Make it a Combo (Add Regular Fries + Chilled Drink)'}
+                  {/* Grill Addons (only if not a full platter or deal) */}
+                  {!isPlatterOrDeal && (
+                    <div className="space-y-2 bg-stone-50 p-3.5 rounded-2xl border border-stone-200">
+                      <label className="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <i className="fa-solid fa-plus-circle text-orange-600"></i>
+                        <span>Grill Add-ons & Meal Upgrades</span>
+                      </label>
+                      <div className="space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => setExtraCheese(!extraCheese)}
+                          className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
+                            extraCheese
+                              ? 'bg-amber-100 text-amber-950 border-amber-400 shadow-sm'
+                              : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300'
+                          }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="text-base">🧀</span>
+                            <span>Extra Melted Cheese</span>
                           </span>
-                        </span>
-                        <span className="font-extrabold text-orange-700">+Rs. {comboPrice}</span>
-                      </button>
+                          <span className="font-extrabold text-amber-900">+Rs. 70</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setExtraSauce(!extraSauce)}
+                          className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
+                            extraSauce
+                              ? 'bg-amber-100 text-amber-950 border-amber-400 shadow-sm'
+                              : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300'
+                          }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="text-base">🥫</span>
+                            <span>Extra Signature Sauce</span>
+                          </span>
+                          <span className="font-extrabold text-amber-900">+Rs. 70</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setMakeCombo(!makeCombo)}
+                          className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between ${
+                            makeCombo
+                              ? 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-950 border-orange-400 shadow-sm'
+                              : 'bg-white text-stone-700 border-stone-200 hover:border-orange-300'
+                          }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="text-base">🍟🥤</span>
+                            <span>
+                              {comboPrice === 200
+                                ? 'Make it a Meal (Add Hot Fries + Chilled Drink)'
+                                : 'Make it a Combo (Add Regular Fries + Chilled Drink)'}
+                            </span>
+                          </span>
+                          <span className="font-extrabold text-orange-700">+Rs. {comboPrice}</span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </>
               )}
             </>
@@ -731,6 +743,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               </div>
             </div>
           )}
+
           {/* SECTION 1: DESSERT FLAVOR SYRUPS (Only for Ice Cream Scoops & Sundaes) */}
           {hasSyrupAndToppings && (
             <div className="space-y-2.5">
@@ -906,32 +919,33 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               <i className="fa-solid fa-ban"></i>
               <span>Out of Stock</span>
             </button>
-          ) : (
+          ) : isAdded ? (
             <button
-              onClick={handleAdd}
-              disabled={isAdded}
-              id="btn-modal-add-to-cart"
-              className={`relative overflow-hidden w-full py-3.5 rounded-2xl font-bold text-sm shadow-md flex items-center justify-center gap-2.5 transition-all duration-300 cursor-pointer ${
-                isAdded
-                  ? 'bg-emerald-600 text-white shadow-emerald-500/30 animate-cart-bounce'
-                  : 'bg-red-600 hover:bg-red-700 active:scale-98 text-white'
-              }`}
+              disabled
+              className="relative overflow-hidden w-full py-3.5 rounded-2xl font-bold text-sm shadow-md flex items-center justify-center gap-2.5 bg-emerald-600 text-white shadow-emerald-500/30 animate-cart-bounce cursor-default"
             >
-              {isAdded ? (
-                <>
-                  <i className="fa-solid fa-circle-check text-base animate-checkmark-pop"></i>
-                  <span className="tracking-wide">Added to Cart!</span>
-                  <span className="absolute top-2.5 right-4 px-2 py-0.5 rounded-full bg-emerald-500 text-white font-black text-[11px] shadow-sm animate-float-badge pointer-events-none">
-                    +{quantity}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <i className="fa-solid fa-cart-plus text-base transition-transform group-hover:scale-110"></i>
-                  <span>Add to Cart • Rs. {totalPrice}</span>
-                </>
-              )}
+              <i className="fa-solid fa-circle-check text-base animate-checkmark-pop"></i>
+              <span className="tracking-wide">Added to Cart!</span>
+              <span className="absolute top-2.5 right-4 px-2 py-0.5 rounded-full bg-emerald-500 text-white font-black text-[11px] shadow-sm animate-float-badge pointer-events-none">
+                +{quantity}
+              </span>
             </button>
+          ) : (
+            <SlideFillButton
+              onClick={handleAdd}
+              id="btn-modal-add-to-cart"
+              fill="#dc2626"
+              textColor="#ffffff"
+              hoverFill="#0f172a"
+              hoverTextColor="#ffffff"
+              direction="up"
+              rounded={16}
+              padding="14px 24px"
+              className="w-full text-sm shadow-md"
+            >
+              <i className="fa-solid fa-cart-plus text-base"></i>
+              <span>Add to Cart • Rs. {totalPrice}</span>
+            </SlideFillButton>
           )}
         </div>
 

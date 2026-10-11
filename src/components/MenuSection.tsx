@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { MenuItem, ShopMode } from '../types';
 import { MENU_ITEMS } from '../data/menuData';
 import { isConeCupApplicable } from '../utils/categoryUtils';
+import { FluidText } from './FluidText';
 
 interface MenuCategoryGroup {
   id: string;
@@ -41,6 +42,73 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     description: 'Oreo shakes, dairy milkshakes, cold Spanish latte, and ice cream mocha frappes.',
     filter: (item) => item.category === 'shakes' || item.category === 'coffees',
     type: 'dessert',
+  },
+  {
+    id: 'bbq-main',
+    name: 'Main Menu (Charcoal BBQ)',
+    icon: 'fa-solid fa-drumstick-bite',
+    badge: 'Charcoal Grilled',
+    description: 'Malai Boti (4 pcs), Tikka Boti (4 pcs), Chest Piece, Leg Piece, BB Honey Wings, BBQ Chicken Wings, Special Reshmi Kabab & Chicken Kabab.',
+    filter: (item) =>
+      item.tags?.some((t) =>
+        t.toLowerCase().includes('main menu') ||
+        t.toLowerCase().includes('malai boti') ||
+        t.toLowerCase().includes('tikka boti') ||
+        t.toLowerCase().includes('chest piece') ||
+        t.toLowerCase().includes('leg piece') ||
+        t.toLowerCase().includes('honey wings') ||
+        t.toLowerCase().includes('wings') ||
+        t.toLowerCase().includes('reshmi kabab') ||
+        t.toLowerCase().includes('chicken kabab')
+      ) ||
+      item.name.toLowerCase().includes('malai boti') ||
+      item.name.toLowerCase().includes('tikka boti') ||
+      item.name.toLowerCase().includes('chest piece') ||
+      item.name.toLowerCase().includes('leg piece') ||
+      item.name.toLowerCase().includes('wings') ||
+      item.name.toLowerCase().includes('reshmi kabab') ||
+      item.name.toLowerCase().includes('chicken kabab'),
+    type: 'grill',
+  },
+  {
+    id: 'deals-platters',
+    name: 'Deals & Platters',
+    icon: 'fa-solid fa-plate-wheat',
+    badge: 'Value Platters',
+    description: 'Deal 1 (Rs 650), Deal 2 (Rs 1850), and Grand Family BBQ Platter (Rs 3950).',
+    filter: (item) =>
+      item.category === 'deals' ||
+      item.tags?.some((t) =>
+        t.toLowerCase().includes('deals & platters') ||
+        t.toLowerCase().includes('platter') ||
+        t.toLowerCase().includes('deal 1') ||
+        t.toLowerCase().includes('deal 2')
+      ) ||
+      item.name.toLowerCase().includes('deal') ||
+      item.name.toLowerCase().includes('platter'),
+    type: 'grill',
+  },
+  {
+    id: 'bbq-sides',
+    name: 'Sides & Tandoor',
+    icon: 'fa-solid fa-bread-slice',
+    badge: 'Fresh & Hot',
+    description: 'Fresh Salad (Rs 150), Extra Sauce (Rs 70), Mint Raita (Rs 50), Sada Naan (Rs 35), and Sada Roti (Rs 20).',
+    filter: (item) =>
+      item.tags?.some((t) =>
+        t.toLowerCase().includes('sides') ||
+        t.toLowerCase().includes('salad') ||
+        t.toLowerCase().includes('sauce') ||
+        t.toLowerCase().includes('raita') ||
+        t.toLowerCase().includes('naan') ||
+        t.toLowerCase().includes('roti')
+      ) ||
+      item.name.toLowerCase().includes('salad') ||
+      item.name.toLowerCase().includes('sauce') ||
+      item.name.toLowerCase().includes('raita') ||
+      item.name.toLowerCase().includes('naan') ||
+      item.name.toLowerCase().includes('roti'),
+    type: 'grill',
   },
   {
     id: 'burgers',
@@ -268,9 +336,22 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
             <span>Frosty's Menu</span>
           </div>
 
-          <h2 className="font-heading font-black text-2xl sm:text-3xl text-stone-900 tracking-tight">
-            Explore All Items
-          </h2>
+          <div className="h-10 sm:h-12 w-full max-w-md sm:max-w-lg mx-auto my-1">
+            <FluidText
+              text="EXPLORE ALL ITEMS"
+              color="#1C1917"
+              align="center"
+              headingLevel={2}
+              font={{
+                fontFamily: "Outfit, 'Plus Jakarta Sans', sans-serif",
+                fontWeight: 900,
+                fontSize: "28px",
+                textAlign: "center",
+              }}
+              paletteColors={["#dc2626", "#2563eb", "#ec4899", "#f59e0b", "#06b6d4"]}
+              className="w-full h-full"
+            />
+          </div>
 
           {/* Search Bar */}
           <div className="pt-2 max-w-xl mx-auto space-y-3">
