@@ -3,6 +3,7 @@ import { STORE_INFO, outdoorRestaurantImg } from '../data/menuData';
 import { ShopMode } from '../types';
 import { SlideFillButton } from './SlideFillButton';
 import { FluidText } from './FluidText';
+import { useBrandLogo } from '../utils/logoStorage';
 
 interface HeroProps {
   onOpenOrderModal: () => void;
@@ -17,6 +18,7 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({
   onOpenOrderModal,
 }) => {
+  const { logoUrl } = useBrandLogo();
   return (
     <section
       id="hero"
@@ -26,14 +28,14 @@ export const Hero: React.FC<HeroProps> = ({
         
         {/* Top Status Strip */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-3 border-b border-blue-100">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-blue-200 shadow-2xs text-xs font-bold text-blue-900">
-            <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping"></span>
-            <i className="fa-solid fa-clock text-red-600"></i>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-blue-200 shadow-2xs text-xs font-bold text-[#1A4B8E]">
+            <span className="w-2 h-2 rounded-full bg-[#70B9F7] animate-ping"></span>
+            <i className="fa-solid fa-clock text-[#1A4B8E]"></i>
             <span>Open Daily • 5:00 PM to 2:00 AM</span>
           </div>
 
           <div className="flex items-center gap-2 text-xs font-bold text-stone-600">
-            <i className="fa-solid fa-location-dot text-red-600"></i>
+            <i className="fa-solid fa-location-dot text-[#1A4B8E]"></i>
             <span>8B Commercial Area, Green City, Lahore</span>
           </div>
         </div>
@@ -51,9 +53,16 @@ export const Hero: React.FC<HeroProps> = ({
 
           {/* Top Corner Badges */}
           <div className="absolute top-3 sm:top-4 left-3 sm:left-4 right-3 sm:right-4 flex items-center justify-between gap-2 pointer-events-auto">
-            <div className="bg-stone-900/85 backdrop-blur-md px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-extrabold text-white border border-white/20 shadow-md flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-              <span>Frosty's Outdoor Restaurant & Counter</span>
+            <div className="bg-stone-900/85 backdrop-blur-md pl-1.5 pr-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-extrabold text-white border border-white/20 shadow-md flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full overflow-hidden border border-[#70B9F7] shrink-0">
+                <img
+                  src={logoUrl}
+                  alt="Frosty's"
+                  className="w-full h-full object-cover rounded-full"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <span>Frosty's Ice Cream Parlour & Grill</span>
             </div>
             <div className="bg-stone-900/85 backdrop-blur-md px-3 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-extrabold text-amber-300 border border-white/20 shadow-md flex items-center gap-1.5">
               <i className="fa-solid fa-star text-amber-400"></i>
@@ -91,9 +100,9 @@ export const Hero: React.FC<HeroProps> = ({
             <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
               <SlideFillButton
                 href="#menu"
-                fill="#dc2626"
+                fill="#1A4B8E"
                 textColor="#ffffff"
-                hoverFill="#1e293b"
+                hoverFill="#153e77"
                 hoverTextColor="#ffffff"
                 direction="up"
                 rounded={12}
@@ -107,14 +116,14 @@ export const Hero: React.FC<HeroProps> = ({
                 onClick={onOpenOrderModal}
                 fill="#ffffff"
                 textColor="#1c1917"
-                hoverFill="#dc2626"
+                hoverFill="#1A4B8E"
                 hoverTextColor="#ffffff"
                 direction="up"
                 rounded={12}
                 padding="10px 16px"
                 className="flex-1 sm:flex-initial text-xs sm:text-sm shadow-md"
               >
-                <i className="fa-brands fa-whatsapp text-red-600 text-sm"></i>
+                <i className="fa-brands fa-whatsapp text-[#1A4B8E] text-sm"></i>
                 <span>WhatsApp Order</span>
               </SlideFillButton>
             </div>
@@ -124,9 +133,21 @@ export const Hero: React.FC<HeroProps> = ({
         {/* Content & Action Area */}
         <div className="max-w-3xl mx-auto text-center space-y-4">
           <div>
-            <span className="inline-block text-xs font-extrabold uppercase tracking-widest mb-1.5 text-red-700 bg-white border border-red-200 px-3 py-1 rounded-full shadow-2xs">
-              Fresh Handcrafted Menu
-            </span>
+            {/* Prominent Circular Brand Hero Logo */}
+            <div className="flex flex-col items-center justify-center gap-2 mb-2">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full overflow-hidden p-1 bg-gradient-to-tr from-[#1A4B8E] via-[#70B9F7] to-[#1A4B8E] shadow-xl shadow-[#1A4B8E]/25 border-2 border-white shrink-0 hover:scale-105 transition-transform duration-300">
+                <img
+                  src={logoUrl}
+                  alt="Frosty's Ice Cream Parlour & Grill Logo"
+                  className="w-full h-full object-cover rounded-full select-none"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <span className="inline-block text-[11px] sm:text-xs font-black uppercase tracking-widest text-[#1A4B8E] bg-[#F0F7FF] border border-[#70B9F7]/50 px-3.5 py-1 rounded-full shadow-2xs">
+                Ice Cream Parlour & Grill • Green City, Lahore
+              </span>
+            </div>
+
             <div className="h-11 sm:h-14 md:h-16 w-full max-w-2xl mx-auto my-2">
               <FluidText
                 text="SATISFY MIDNIGHT CRAVINGS"
@@ -139,11 +160,11 @@ export const Hero: React.FC<HeroProps> = ({
                   fontSize: "36px",
                   textAlign: "center",
                 }}
-                paletteColors={["#dc2626", "#2563eb", "#ec4899", "#f59e0b", "#06b6d4"]}
+                paletteColors={["#1A4B8E", "#70B9F7", "#0284c7", "#f59e0b", "#ef4444"]}
                 className="w-full h-full"
               />
             </div>
-            <p className="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-red-600 mb-1">
+            <p className="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-[#1A4B8E] mb-1">
               Pure Dairy Ice Cream Scoops & Flame-Grilled Treats
             </p>
             <p className="text-sm sm:text-base text-stone-600 mt-2 leading-relaxed max-w-2xl mx-auto">

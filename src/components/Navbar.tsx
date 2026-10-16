@@ -4,7 +4,8 @@ import { getStoreStatus } from '../utils/hours';
 import { ShopMode } from '../types';
 import { FrostyLogo } from './FrostyLogo';
 import { SlideFillButton } from './SlideFillButton';
-import realLogoImg from '../assets/images/frostys_icecream_grill_logo_1791734533960.jpg';
+import { useBrandLogo } from '../utils/logoStorage';
+import { LogoUploadModal } from './LogoUploadModal';
 
 interface NavbarProps {
   cartCount: number;
@@ -31,7 +32,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showLogoModal, setShowLogoModal] = useState(false);
   const [status, setStatus] = useState(getStoreStatus());
+  const { logoUrl } = useBrandLogo();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,39 +73,54 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           
           {/* Brand Logo with Frosty's Real Restaurant Emblem */}
-          <a
-            href="#hero"
-            className="flex items-center gap-2.5 sm:gap-3 group focus:outline-none cursor-pointer shrink-0"
-            id="navbar-logo"
-            title="Frosty's Ice Cream & Grill - Green City, Lahore"
-          >
-            <div className="relative shrink-0">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-105 p-0.5 bg-gradient-to-tr from-red-600 via-blue-600 to-blue-800 shadow-stone-900/15 border border-stone-200">
-                <img
-                  src={realLogoImg}
-                  alt="Frosty's Ice Cream & Grill"
-                  className="w-full h-full object-cover rounded-full"
-                  referrerPolicy="no-referrer"
-                />
+          <div className="flex items-center gap-2 shrink-0">
+            <a
+              href="#hero"
+              className="flex items-center gap-2.5 sm:gap-3 group focus:outline-none cursor-pointer shrink-0"
+              id="navbar-logo"
+              title="Frosty's Ice Cream Parlour & Grill - Green City, Lahore"
+            >
+              <div className="relative shrink-0">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-105 p-0.5 bg-gradient-to-tr from-[#1A4B8E] via-[#70B9F7] to-[#1A4B8E] shadow-[#1A4B8E]/20 border border-white">
+                  <img
+                    src={logoUrl}
+                    alt="Frosty's Ice Cream Parlour & Grill"
+                    className="w-full h-full object-cover rounded-full"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowLogoModal(true);
+                  }}
+                  className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#1A4B8E] hover:bg-[#153e77] text-white text-[9px] flex items-center justify-center shadow-md border border-white transition-transform hover:scale-110"
+                  title="Upload / Change Logo Image"
+                  aria-label="Upload custom logo"
+                >
+                  <i className="fa-solid fa-camera"></i>
+                </button>
               </div>
-            </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-heading font-black text-lg sm:text-2xl tracking-tight text-stone-900 group-hover:text-red-600 transition-colors">
+                <span className="font-heading font-black text-lg sm:text-2xl tracking-tight text-stone-900 group-hover:text-[#1A4B8E] transition-colors">
                   Frosty's
                 </span>
                 <span
                   className={`inline-block w-2 h-2 rounded-full ${
-                    status.isOpen ? 'bg-blue-500 animate-pulse' : 'bg-amber-400'
+                    status.isOpen ? 'bg-[#70B9F7] animate-pulse' : 'bg-amber-400'
                   }`}
                   title={status.isOpen ? 'Open Now (5 PM - 2 AM)' : 'Opens at 5 PM'}
                 ></span>
               </div>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-red-600 block -mt-0.5 sm:-mt-1">
-                Ice Cream & Grill • Green City
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#1A4B8E] block -mt-0.5 sm:-mt-1">
+                Ice Cream Parlour & Grill • Green City
               </span>
             </div>
           </a>
+          </div>
 
           {/* Desktop Nav Links */}
           <nav className="hidden lg:flex items-center gap-6 text-sm font-bold text-stone-600" id="desktop-nav">
@@ -110,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <a
                 key={link.name}
                 href={link.href}
-                className="hover:text-red-600 transition-colors"
+                className="hover:text-[#1A4B8E] transition-colors"
               >
                 {link.name}
               </a>
@@ -148,7 +166,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <SlideFillButton
               onClick={onOpenOrderModal}
               id="btn-order-now-nav"
-              fill="#dc2626"
+              fill="#1A4B8E"
               textColor="#ffffff"
               hoverFill="#0f172a"
               hoverTextColor="#ffffff"
@@ -160,7 +178,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <i className="fa-solid fa-cart-shopping text-xs sm:text-sm"></i>
               <span className="hidden sm:inline">Cart</span>
               {cartCount > 0 && (
-                <span className="bg-white text-red-700 font-extrabold text-[11px] px-1.5 py-0.2 rounded-full min-w-5 text-center shadow-xs">
+                <span className="bg-white text-[#1A4B8E] font-extrabold text-[11px] px-1.5 py-0.2 rounded-full min-w-5 text-center shadow-xs">
                   {cartCount}
                 </span>
               )}
@@ -240,6 +258,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
         </div>
       )}
+
+      {/* Interactive Logo Upload & Customizer Dialog */}
+      <LogoUploadModal
+        isOpen={showLogoModal}
+        onClose={() => setShowLogoModal(false)}
+      />
     </header>
   );
 };

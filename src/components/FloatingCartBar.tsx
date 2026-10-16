@@ -67,6 +67,15 @@ export const FloatingCartBar: React.FC<FloatingCartBarProps> = ({
           </button>
         </div>
 
+        {/* Delivery Policy Note */}
+        <div className="text-[10px] text-stone-500 font-semibold flex items-center justify-between border-t border-stone-100 pt-1.5 px-0.5">
+          <span className="flex items-center gap-1 text-blue-700 font-bold">
+            <i className="fa-solid fa-truck-fast text-[11px]"></i>
+            <span>Delivery: Green City (FREE) • Paragon (Rs. 100)</span>
+          </span>
+          <span className="text-stone-400 font-medium">WhatsApp Direct</span>
+        </div>
+
       </div>
     </aside>
   );

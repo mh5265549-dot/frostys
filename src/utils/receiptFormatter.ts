@@ -9,6 +9,8 @@ export interface ReceiptData {
   addressOrTable: string;
   notes?: string;
   subtotal: number;
+  deliveryFee?: number;
+  deliveryZone?: string;
   receiptNumber?: string;
 }
 
@@ -54,7 +56,7 @@ function padStart(str: string, length: number): string {
  *          THANK YOU FOR VISITING FROSTYS!
  */
 export function generateThermalReceiptText(data: ReceiptData): { plainReceipt: string; whatsappMessage: string } {
-  const { cart, orderType, customerName, customerPhone, addressOrTable, notes, subtotal, receiptNumber } = data;
+  const { cart, orderType, customerName, customerPhone, addressOrTable, notes, subtotal, deliveryFee, deliveryZone, receiptNumber } = data;
 
   const now = new Date();
   const day = String(now.getDate()).padStart(2, '0');
@@ -154,24 +156,34 @@ export function generateThermalReceiptText(data: ReceiptData): { plainReceipt: s
 
   lines.push(divider);
 
-  // Subtotal, Tax, Total
+  // Subtotal, Delivery Fee (if delivery), Tax, Total
   const subtotalLabel = padStart('Subtotal', 26);
   const subtotalVal = padStart(`Rs. ${subtotal}`, 24);
   lines.push(`${subtotalLabel}${subtotalVal}`);
+
+  const effectiveDeliveryFee = isDelivery ? (deliveryFee !== undefined ? deliveryFee : 0) : 0;
+  if (isDelivery) {
+    const zoneName = deliveryZone ? (deliveryZone.toLowerCase().includes('paragon') ? 'Paragon' : 'Green City') : 'Green City';
+    const deliveryLabel = padStart(`Delivery (${zoneName})`, 26);
+    const feeDisplay = effectiveDeliveryFee > 0 ? `Rs. ${effectiveDeliveryFee}` : 'FREE';
+    const deliveryVal = padStart(feeDisplay, 24);
+    lines.push(`${deliveryLabel}${deliveryVal}`);
+  }
 
   const taxLabel = padStart('Tax (5%)', 26);
   const taxVal = padStart('Rs. 0', 24);
   lines.push(`${taxLabel}${taxVal}`);
 
+  const grandTotal = subtotal + effectiveDeliveryFee;
   const totalLabel = padStart('Total', 26);
-  const totalVal = padStart(`Rs. ${subtotal}`, 24);
+  const totalVal = padStart(`Rs. ${grandTotal}`, 24);
   lines.push(`${totalLabel}${totalVal}`);
 
   lines.push(divider);
 
   // Payment
   lines.push(`Payment Method: ${padStart('Cash', 34)}`);
-  lines.push(`Received:       ${padStart(`Rs. ${subtotal}`, 34)}`);
+  lines.push(`Received:       ${padStart(`Rs. ${grandTotal}`, 34)}`);
   lines.push(`Change:         ${padStart('Rs. 0', 34)}`);
 
   lines.push(divider);

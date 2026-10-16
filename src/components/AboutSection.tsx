@@ -128,9 +128,9 @@ export const AboutSection: React.FC = () => {
                   <i className="fa-solid fa-chair text-sm"></i>
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-stone-900">Outdoor Dining, Takeaway & Fast Delivery</h4>
+                  <h4 className="font-bold text-sm text-stone-900">Outdoor Dining, Takeaway & Delivery</h4>
                   <p className="text-xs text-stone-600">
-                    Enjoy pleasant open-air dining at our outdoor seating or order for prompt delivery across Green City in spill-proof packaging.
+                    Enjoy pleasant open-air dining or order for fast delivery across Green City (Free delivery) and Paragon (Rs. 100 delivery charges).
                   </p>
                 </div>
               </div>

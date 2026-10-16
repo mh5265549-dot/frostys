@@ -48,6 +48,11 @@ import bbqFamilyDealImg from '../assets/images/bbq_family_deal_1791645638407.jpg
 import honeyBbqWingsImg from '../assets/images/honey_bbq_wings_1791653221319.jpg';
 import reshmiKababImg from '../assets/images/reshmi_kabab_1791653242881.jpg';
 import desiBbqSidesImg from '../assets/images/desi_bbq_sides_1791653272084.jpg';
+import freshGardenSaladImg from '../assets/images/fresh_garden_salad_1792069582015.jpg';
+import bbqExtraSauceDipsImg from '../assets/images/bbq_extra_sauce_dips_1792069598908.jpg';
+import freshMintRaitaImg from '../assets/images/fresh_mint_raita_bowl_1792069622368.jpg';
+import freshTandooriSadaNaanImg from '../assets/images/fresh_tandoori_sada_naan_1792069649039.jpg';
+import hotTandooriSadaRotiImg from '../assets/images/hot_tandoori_sada_roti_1792069677018.jpg';
 import tikkaBotiImg from '../assets/images/tikka_boti_skewers_1791699969012.jpg';
 import bbqChestPieceImg from '../assets/images/tikka_chest_piece_1791700059819.jpg';
 import bbqLegPieceImg from '../assets/images/bbq_leg_piece_1791699995231.jpg';
@@ -104,6 +109,11 @@ export {
   honeyBbqWingsImg,
   reshmiKababImg,
   desiBbqSidesImg,
+  freshGardenSaladImg,
+  bbqExtraSauceDipsImg,
+  freshMintRaitaImg,
+  freshTandooriSadaNaanImg,
+  hotTandooriSadaRotiImg,
   tikkaBotiImg,
   bbqChestPieceImg,
   bbqLegPieceImg,
@@ -1085,7 +1095,7 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'fast-food-bbq',
     price: 150,
     description: 'Crisp garden salad with fresh sliced cucumbers, ripe juicy tomatoes, crunchy red onions, and lemon wedges.',
-    image: desiBbqSidesImg,
+    image: freshGardenSaladImg,
     popular: false,
     badge: '🥗 Fresh & Crisp',
     rating: 4.8,
@@ -1099,7 +1109,7 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'fast-food-bbq',
     price: 70,
     description: 'Portion cup of signature garlic-mayo dip, smoky BBQ sauce, or spicy green chutney.',
-    image: desiBbqSidesImg,
+    image: bbqExtraSauceDipsImg,
     popular: false,
     badge: 'Dip Cup',
     rating: 4.7,
@@ -1113,7 +1123,7 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'fast-food-bbq',
     price: 50,
     description: 'Cooling, refreshing homemade yogurt whipped with fresh wild mint, roasted cumin, and subtle spices.',
-    image: desiBbqSidesImg,
+    image: freshMintRaitaImg,
     popular: true,
     badge: '🌿 Fresh Mint',
     rating: 4.9,
@@ -1127,7 +1137,7 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'fast-food-bbq',
     price: 35,
     description: 'Fresh warm plain naan baked fresh in the hot clay tandoor. The quintessential companion for BBQ!',
-    image: desiBbqSidesImg,
+    image: freshTandooriSadaNaanImg,
     popular: true,
     badge: '🔥 Clay Tandoor',
     rating: 4.9,
@@ -1141,7 +1151,7 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'fast-food-bbq',
     price: 20,
     description: 'Hot, light whole wheat tandoori roti baked to order in the clay oven.',
-    image: desiBbqSidesImg,
+    image: hotTandooriSadaRotiImg,
     popular: false,
     badge: '🔥 Hot Roti',
     rating: 4.8,
@@ -1228,7 +1238,7 @@ export const REVIEWS: Review[] = [
 ];
 
 export const STORE_INFO = {
-  name: "Frosty's Ice Cream & Grill",
+  name: "Frosty's Ice Cream Parlour & Grill",
   iceCreamTagline: "Artisanal Scoops, Sundaes & Charcoal Grill Delivered Fresh!",
   grillTagline: "Grilled Fresh. Made Right.",
   tagline: "Artisanal Scoops, Sundaes & Charcoal Grill Delivered Fresh!",
@@ -1243,6 +1253,11 @@ export const STORE_INFO = {
   hoursEnd: 2,    // 2:00 AM
   googleMapsUrl: "https://maps.google.com/?q=Green+City+Commercial+Lahore+Pakistan",
   mapEmbedIframeSrc: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13610.742385153213!2d74.4235!3d31.4725!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3919050d2d6c5dfd%3A0x6b86e8cb5012a6a8!2sGreen%20City%2C%20Lahore%2C%20Punjab%2C%20Pakistan!5e0!3m2!1sen!2spk!4v1700000000000!5m2!1sen!2spk",
+  deliveryZones: {
+    greencity: { name: 'Green City', fee: 0, label: 'Free Delivery' },
+    paragon: { name: 'Paragon', fee: 100, label: 'Rs. 100 Delivery Charge' },
+  },
+  deliveryPolicyNotice: "Free Delivery in Green City • Rs. 100 Delivery Charges only in Paragon",
 };
 
 

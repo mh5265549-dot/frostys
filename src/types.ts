@@ -75,6 +75,8 @@ export interface OrderRecord {
     customizationsText?: string;
   }[];
   totalAmount: number;
+  deliveryFee?: number;
+  deliveryZone?: 'paragon' | 'greencity';
   status: 'Received (WhatsApp)' | 'Confirmed' | 'Preparing' | 'Completed' | 'Cancelled';
   notes?: string;
 }

@@ -16,15 +16,15 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminModal }) => {
           {/* Col 1: Brand Info */}
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-red-600 via-blue-600 to-blue-800 flex items-center justify-center p-0.5 shadow-sm overflow-hidden">
-                <FrostyLogo variant="real" size="custom" className="w-9 h-9" animate={false} />
+              <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#1A4B8E] via-[#70B9F7] to-[#1A4B8E] flex items-center justify-center p-0.5 shadow-md shadow-[#1A4B8E]/20 overflow-hidden border border-white">
+                <FrostyLogo variant="real" size="custom" className="w-10 h-10" animate={false} />
               </div>
               <div>
                 <span className="font-heading font-black text-xl tracking-tight text-stone-900 block">
                   Frosty's
                 </span>
-                <span className="text-[10px] uppercase font-bold text-red-600 tracking-wider">
-                  Ice Cream & Grill • Green City, Lahore
+                <span className="text-[10px] uppercase font-bold text-[#1A4B8E] tracking-wider">
+                  Ice Cream Parlour & Grill • Green City, Lahore
                 </span>
               </div>
             </div>

@@ -42,6 +42,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [addressOrTable, setAddressOrTable] = useState('');
+  const [selectedDeliveryZone, setSelectedDeliveryZone] = useState<'greencity' | 'paragon'>('greencity');
   const [notes, setNotes] = useState('');
   const [addressError, setAddressError] = useState<string | null>(null);
 
@@ -54,6 +55,15 @@ export const OrderModal: React.FC<OrderModalProps> = ({
   if (!isOpen) return null;
 
   const subtotal = cart.reduce((sum, item) => sum + item.totalPrice, 0);
+
+  const normalizedAddress = addressOrTable.toLowerCase();
+  const isParagon = orderType === 'delivery' && (
+    selectedDeliveryZone === 'paragon' || 
+    normalizedAddress.includes('paragon')
+  );
+  const deliveryFee = orderType === 'delivery' ? (isParagon ? 100 : 0) : 0;
+  const deliveryZoneLabel = isParagon ? 'Paragon' : 'Green City';
+  const grandTotal = subtotal + deliveryFee;
 
   const hasConeInCart = cart.some((item) => {
     // Check if container is selected as Cone
@@ -183,6 +193,8 @@ export const OrderModal: React.FC<OrderModalProps> = ({
       addressOrTable,
       notes,
       subtotal,
+      deliveryFee,
+      deliveryZone: orderType === 'delivery' ? deliveryZoneLabel : undefined,
     });
 
     const encodedMsg = encodeURIComponent(whatsappMessage);
@@ -195,6 +207,8 @@ export const OrderModal: React.FC<OrderModalProps> = ({
         customerPhone,
         address: addressOrTable,
         orderType,
+        deliveryFee: orderType === 'delivery' ? deliveryFee : undefined,
+        deliveryZone: orderType === 'delivery' ? (isParagon ? 'paragon' : 'greencity') : undefined,
         items: cart.map((ci) => {
           const parts: string[] = [];
           if (ci.selectedContainer && isConeCupApplicable(ci.menuItem)) {
@@ -232,7 +246,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
             customizationsText: parts.join(' | '),
           };
         }),
-        totalAmount: subtotal,
+        totalAmount: grandTotal,
         notes,
       });
     }
@@ -595,12 +609,72 @@ export const OrderModal: React.FC<OrderModalProps> = ({
               </div>
             </div>
 
+            {/* Delivery Area Selector (Only Paragon is 100 Rs; Green City is Free) */}
+            {orderType === 'delivery' && (
+              <div className="p-3.5 rounded-2xl bg-gradient-to-r from-blue-50/90 via-sky-50/70 to-indigo-50/90 border border-blue-200/90 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-stone-800 flex items-center gap-1.5">
+                    <i className="fa-solid fa-truck-fast text-blue-600"></i>
+                    <span>Delivery Area (Paragon or Green City) *</span>
+                  </span>
+                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                    Official Delivery Zone
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedDeliveryZone('greencity');
+                      if (addressError) setAddressError(null);
+                    }}
+                    className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
+                      !isParagon
+                        ? 'bg-white border-blue-600 shadow-xs ring-2 ring-blue-600/20'
+                        : 'bg-white/60 border-stone-200 hover:bg-white text-stone-600'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-stone-900">Green City</span>
+                      <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">FREE</span>
+                    </div>
+                    <span className="text-[11px] text-stone-500 block mt-0.5 font-medium">Rs. 0 Delivery Charge</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedDeliveryZone('paragon');
+                      if (addressError) setAddressError(null);
+                    }}
+                    className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
+                      isParagon
+                        ? 'bg-amber-50/90 border-amber-600 shadow-xs ring-2 ring-amber-600/30'
+                        : 'bg-white/60 border-stone-200 hover:bg-white text-stone-600'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-stone-900">Paragon</span>
+                      <span className="text-[10px] font-extrabold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">Rs. 100</span>
+                    </div>
+                    <span className="text-[11px] text-amber-800 block mt-0.5 font-medium">+Rs. 100 Delivery Charges</span>
+                  </button>
+                </div>
+
+                <div className="text-[11px] text-stone-600 flex items-center gap-1.5 pt-0.5 font-medium">
+                  <i className="fa-solid fa-circle-info text-blue-600 text-xs shrink-0"></i>
+                  <span>There is <strong>Rs. 100 delivery charges only in Paragon</strong>. Delivery in <strong>Green City is completely FREE</strong>!</span>
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-bold text-stone-600 mb-1">
                 {orderType === 'dinein'
                   ? 'Table Number (Optional)'
                   : orderType === 'delivery'
-                  ? 'Complete Delivery Address (Paragon or Green City) *'
+                  ? `Complete Delivery Address (${isParagon ? 'Paragon' : 'Green City'}) *`
                   : 'Pickup Time / Vehicle Details (Optional)'}
               </label>
               <input
@@ -615,7 +689,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                   orderType === 'dinein'
                     ? 'e.g. Table 4'
                     : orderType === 'delivery'
-                    ? 'e.g. House #12, Block B, Green City, Lahore'
+                    ? (isParagon ? 'e.g. House #14, Imperial Block, Paragon City, Lahore' : 'e.g. House #12, Block B, Green City, Lahore')
                     : 'e.g. Ready in 20 mins'
                 }
                 className={`w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border text-xs text-stone-800 focus:ring-2 focus:ring-[#FF4B72] focus:outline-none ${
@@ -623,9 +697,11 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                 }`}
               />
               {orderType === 'delivery' && !addressError && (
-                <p className="text-[11px] text-amber-800/80 mt-1 flex items-center gap-1 font-medium">
-                  <i className="fa-solid fa-[#FF4B72] fa-circle-info text-[#FF4B72]"></i>
-                  <span>Delivery Zone: Exclusively within <strong>Paragon</strong> & <strong>Green City</strong>.</span>
+                <p className="text-[11px] text-stone-600 mt-1 flex items-center gap-1 font-medium">
+                  <i className="fa-solid fa-location-dot text-blue-600"></i>
+                  <span>
+                    Delivering to <strong>{isParagon ? 'Paragon City (Rs. 100 delivery fee applies)' : 'Green City (Free delivery)'}</strong>.
+                  </span>
                 </p>
               )}
               {addressError && (
@@ -716,6 +792,31 @@ export const OrderModal: React.FC<OrderModalProps> = ({
               )}
             </div>
 
+            {/* Order Price Summary Breakdown */}
+            <div className="p-3.5 rounded-2xl bg-stone-100 border border-stone-200/90 space-y-2">
+              <div className="flex items-center justify-between text-xs text-stone-600">
+                <span>Items Subtotal ({cart.length} item{cart.length === 1 ? '' : 's'})</span>
+                <span className="font-bold text-stone-800">Rs. {subtotal}</span>
+              </div>
+
+              {orderType === 'delivery' && (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="flex items-center gap-1.5 text-stone-600">
+                    <i className="fa-solid fa-truck-fast text-stone-400"></i>
+                    <span>Delivery Charges ({isParagon ? 'Paragon' : 'Green City'})</span>
+                  </span>
+                  <span className={`font-extrabold ${deliveryFee > 0 ? 'text-amber-700' : 'text-emerald-600'}`}>
+                    {deliveryFee > 0 ? `+Rs. ${deliveryFee}` : 'FREE (Rs. 0)'}
+                  </span>
+                </div>
+              )}
+
+              <div className="pt-2 border-t border-stone-200 flex items-center justify-between text-sm font-black text-stone-900">
+                <span>Total Payable</span>
+                <span className="text-[#FF4B72] font-heading font-black text-lg">Rs. {grandTotal}</span>
+              </div>
+            </div>
+
             {/* WhatsApp Receipt Pattern Preview */}
             <div className="pt-1">
               <button
@@ -743,6 +844,8 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                     addressOrTable,
                     notes,
                     subtotal,
+                    deliveryFee,
+                    deliveryZone: orderType === 'delivery' ? deliveryZoneLabel : undefined,
                   }).plainReceipt}
                 </div>
               )}
@@ -756,8 +859,17 @@ export const OrderModal: React.FC<OrderModalProps> = ({
           <div>
             <span className="text-xs font-semibold text-stone-500 block">Total Amount</span>
             <span className="font-heading font-black text-2xl text-[#2D1B18]">
-              Rs. {subtotal}
+              Rs. {grandTotal}
             </span>
+            {orderType === 'delivery' && (
+              <span className="text-[11px] font-bold block mt-0.5">
+                {deliveryFee > 0 ? (
+                  <span className="text-amber-700">Includes Rs. 100 Paragon delivery charge</span>
+                ) : (
+                  <span className="text-emerald-700">Includes Free Delivery (Green City)</span>
+                )}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">

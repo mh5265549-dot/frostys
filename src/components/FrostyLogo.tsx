@@ -1,7 +1,8 @@
 import React from 'react';
-import realLogoImg from '../assets/images/frostys_icecream_grill_logo_1791734533960.jpg';
+import defaultLogoImg from '../assets/images/frostys_snowman_parlour_grill_logo_1791736660141.jpg';
+import { useBrandLogo } from '../utils/logoStorage';
 
-export { realLogoImg as FROSTY_REAL_LOGO_URL };
+export const FROSTY_REAL_LOGO_URL = defaultLogoImg;
 
 export type FrostyLogoVariant = 'ice' | 'fire' | 'green' | 'blue' | 'real';
 
@@ -32,6 +33,7 @@ export const FrostyLogo: React.FC<FrostyLogoProps> = ({
   showBadgeBackground = false,
   useReal = true,
 }) => {
+  const { logoUrl } = useBrandLogo();
   const isFire = variant === 'fire';
   const isIce = variant === 'ice';
   const sizeClasses = SIZE_MAP[size] || SIZE_MAP.md;
@@ -39,7 +41,7 @@ export const FrostyLogo: React.FC<FrostyLogoProps> = ({
   const badgeBgClasses = showBadgeBackground
     ? isFire
       ? 'bg-gradient-to-tr from-[#240B07] via-[#3A140B] to-[#170503] border-2 border-orange-500/60 shadow-lg shadow-orange-950/50 rounded-2xl p-1.5'
-      : 'bg-gradient-to-tr from-red-600 via-blue-600 to-white border-2 border-white/80 shadow-lg shadow-blue-950/20 rounded-2xl p-1.5'
+      : 'bg-gradient-to-tr from-[#1A4B8E] via-[#70B9F7] to-white border-2 border-white/90 shadow-lg shadow-[#1A4B8E]/25 rounded-2xl p-1.5'
     : '';
 
   // Use realistic restaurant emblem photo logo if not explicitly in fire/ice animation mode
@@ -50,7 +52,7 @@ export const FrostyLogo: React.FC<FrostyLogoProps> = ({
         title="Frosty's Ice Cream & Grill"
       >
         <img
-          src={realLogoImg}
+          src={logoUrl || defaultLogoImg}
           alt="Frosty's Ice Cream & Grill"
           className={`w-full h-full object-cover rounded-full drop-shadow-md select-none transition-transform duration-300 ${
             animate ? 'hover:scale-105' : ''
