@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Review, Complaint } from '../types';
-import { FluidText } from './FluidText';
+import { SlideFillButton } from './SlideFillButton';
 
 interface ReviewsSectionProps {
   reviews: Review[];
@@ -15,281 +15,163 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   onOpenFeedbackModal,
   onOpenComplaintModal,
 }) => {
-  const [activeTab, setActiveTab] = useState<'reviews' | 'complaints'>('reviews');
-  const [starFilter, setStarFilter] = useState<number | 'all'>('all');
+  const [filterRating, setFilterRating] = useState<number | null>(null);
 
-  const filteredReviews = reviews.filter((r) => {
-    if (starFilter === 'all') return true;
-    return r.rating === starFilter;
-  });
+  if (!reviews || reviews.length === 0) {
+    return null;
+  }
 
-  const totalReviews = reviews.length;
-  const avgRating =
-    totalReviews > 0
-      ? (reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews).toFixed(1)
+  const filteredReviews = filterRating
+    ? reviews.filter((r) => r.rating === filterRating)
+    : reviews;
+
+  const averageRating =
+    reviews.length > 0
+      ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
       : '5.0';
 
   return (
     <section id="reviews" className="py-16 sm:py-20 bg-[#FAFAF9] text-stone-900 relative overflow-hidden border-t border-stone-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold uppercase tracking-wider">
-            <i className="fa-solid fa-comments text-red-600"></i>
-            <span>Customer Voice & Reviews</span>
-          </div>
-          <div className="h-10 sm:h-12 w-full max-w-lg mx-auto my-1">
-            <FluidText
-              text="REVIEWS & CUSTOMER VOICE"
-              color="#1C1917"
-              align="center"
-              headingLevel={2}
-              font={{
-                fontFamily: "Outfit, 'Plus Jakarta Sans', sans-serif",
-                fontWeight: 900,
-                fontSize: "28px",
-                textAlign: "center",
-              }}
-              paletteColors={["#dc2626", "#2563eb", "#ec4899", "#f59e0b", "#06b6d4"]}
-              className="w-full h-full"
-            />
-          </div>
-          <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
-            Real feedback and verified ratings for Frosty's at 8B Commercial, Green City Lahore.
-          </p>
-
-          {/* Action CTAs: Rating & Leave Review / File Complaint */}
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-            <div className="bg-white border border-stone-200 px-4 py-2 rounded-2xl flex items-center gap-3 shadow-2xs">
-              <div className="flex items-center gap-1 text-amber-400 text-base">
-                <i className="fa-solid fa-star"></i>
-                <span className="font-extrabold text-stone-900 text-sm ml-1">{avgRating}</span>
-                <span className="text-stone-400 text-xs font-medium">/ 5</span>
-              </div>
-              <span className="text-xs text-stone-500 border-l border-stone-200 pl-3 font-semibold">
-                {totalReviews} Verified {totalReviews === 1 ? 'Review' : 'Reviews'}
-              </span>
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold uppercase tracking-wider mb-3">
+              <i className="fa-solid fa-star text-amber-500"></i>
+              <span>Customer Love & Feedback</span>
             </div>
+            <h2 className="font-heading font-black text-2xl sm:text-4xl text-stone-900 tracking-tight">
+              Real Reviews from Lahore Foodies
+            </h2>
+            <p className="text-stone-600 text-sm sm:text-base mt-2 max-w-xl">
+              Authentic verified customer testimonials and feedback from late-night dessert lovers and grill fans across Green City & Paragon.
+            </p>
+          </div>
 
-            <button
+          <div className="flex items-center gap-3 shrink-0 flex-wrap">
+            <SlideFillButton
               onClick={onOpenFeedbackModal}
-              className="px-4 py-2 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-xs transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+              fill="#2563eb"
+              textColor="#ffffff"
+              hoverFill="#1d4ed8"
+              hoverTextColor="#ffffff"
+              direction="up"
+              rounded={12}
+              padding="12px 20px"
+              className="text-xs font-bold shadow-md shadow-blue-500/10 cursor-pointer"
             >
-              <i className="fa-solid fa-pen-to-square"></i>
-              <span>Leave Feedback</span>
-            </button>
+              <i className="fa-solid fa-pen-nib"></i>
+              <span>Leave a Review</span>
+            </SlideFillButton>
 
             <button
               onClick={onOpenComplaintModal}
-              className="px-4 py-2 rounded-2xl bg-white hover:bg-stone-50 text-stone-700 text-xs font-bold shadow-xs border border-stone-200 transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+              className="px-4 py-3 rounded-xl border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
             >
-              <i className="fa-solid fa-triangle-exclamation text-amber-500"></i>
-              <span>File a Ticket</span>
+              <i className="fa-solid fa-circle-exclamation text-amber-600"></i>
+              <span>Resolution Desk</span>
             </button>
           </div>
         </div>
 
-        {/* Section Navigation Tabs (Reviews vs Complaint Tracker) */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-stone-100 p-1 rounded-2xl border border-stone-200 inline-flex items-center gap-1">
-            <button
-              onClick={() => setActiveTab('reviews')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                activeTab === 'reviews'
-                  ? 'bg-white text-stone-900 shadow-xs'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              <i className="fa-solid fa-star text-amber-400"></i>
-              <span>Reviews ({reviews.length})</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('complaints')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                activeTab === 'complaints'
-                  ? 'bg-white text-rose-700 shadow-xs'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              <i className="fa-solid fa-shield-heart text-rose-500"></i>
-              <span>Resolution Tickets ({complaints.length})</span>
-            </button>
+        {/* Rating Overview Card */}
+        <div className="mb-10 p-6 rounded-3xl bg-white border border-stone-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4 text-center md:text-left">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500 text-white flex flex-col items-center justify-center font-heading font-black shadow-md shadow-amber-500/20">
+              <span className="text-2xl leading-none">{averageRating}</span>
+              <span className="text-[10px] uppercase font-bold tracking-wider mt-0.5">Rating</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-1 text-amber-400 text-base">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <i key={i} className="fa-solid fa-star"></i>
+                ))}
+              </div>
+              <p className="text-xs text-stone-500 mt-1 font-semibold">
+                Based on {reviews.length} community verified reviews & orders
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* REVIEWS TAB CONTENT */}
-        {activeTab === 'reviews' && (
-          <div className="space-y-6">
-            {/* Filter Chips */}
-            <div className="flex items-center justify-center gap-1.5 flex-wrap text-xs">
-              <span className="text-stone-500 text-[11px] font-semibold mr-1">Rating:</span>
-              {(['all', 5, 4, 3, 2, 1] as const).map((star) => (
+          {/* Filter Pills */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <button
+              onClick={() => setFilterRating(null)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                filterRating === null
+                  ? 'bg-stone-900 text-white'
+                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+              }`}
+            >
+              All ({reviews.length})
+            </button>
+            {[5, 4, 3].map((star) => {
+              const count = reviews.filter((r) => r.rating === star).length;
+              return (
                 <button
                   key={star}
-                  onClick={() => setStarFilter(star)}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                    starFilter === star
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'bg-white text-stone-700 hover:bg-stone-50 border border-stone-200'
+                  onClick={() => setFilterRating(star)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer ${
+                    filterRating === star
+                      ? 'bg-amber-500 text-white'
+                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                   }`}
                 >
-                  {star === 'all' ? (
-                    'All'
-                  ) : (
-                    <span className="flex items-center gap-1">
-                      <span>{star}</span>
-                      <i className="fa-solid fa-star text-amber-400 text-[10px]"></i>
+                  <span>{star}</span>
+                  <i className="fa-solid fa-star text-[10px]"></i>
+                  <span className="text-[10px] opacity-80">({count})</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Reviews Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredReviews.map((rev) => (
+            <div
+              key={rev.id}
+              className="p-6 rounded-3xl bg-white border border-stone-200/90 shadow-2xs hover:shadow-md transition-shadow flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1 text-amber-400 text-xs">
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                      <i
+                        key={idx}
+                        className={`fa-solid fa-star ${idx < rev.rating ? 'text-amber-400' : 'text-stone-200'}`}
+                      ></i>
+                    ))}
+                  </div>
+                  {rev.tag && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+                      {rev.tag}
                     </span>
                   )}
-                </button>
-              ))}
+                </div>
+
+                <p className="text-xs sm:text-sm text-stone-700 leading-relaxed font-medium italic">
+                  "{rev.comment}"
+                </p>
+              </div>
+
+              <div className="pt-4 mt-4 border-t border-stone-100 flex items-center justify-between">
+                <div>
+                  <h4 className="font-heading font-black text-xs text-stone-900">{rev.name}</h4>
+                  {rev.favItem && (
+                    <span className="text-[10px] text-[#1A4B8E] font-bold block">
+                      ❤️ Favorite: {rev.favItem}
+                    </span>
+                  )}
+                </div>
+                {rev.date && (
+                  <span className="text-[10px] text-stone-400 font-semibold">{rev.date}</span>
+                )}
+              </div>
             </div>
-
-            {/* Reviews Cards Grid */}
-            {filteredReviews.length === 0 ? (
-              <div className="p-10 text-center bg-white rounded-3xl border border-stone-200 max-w-md mx-auto space-y-2">
-                <i className="fa-solid fa-comment-slash text-stone-300 text-3xl"></i>
-                <p className="text-xs text-stone-500">No reviews found matching this filter.</p>
-                <button
-                  onClick={() => setStarFilter('all')}
-                  className="text-xs text-red-600 font-bold underline cursor-pointer"
-                >
-                  Reset Filter
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                {filteredReviews.map((rev) => (
-                  <div
-                    key={rev.id}
-                    className="p-5 sm:p-6 rounded-3xl bg-white border border-stone-200/90 shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col justify-between space-y-4 group"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1 text-amber-400 text-xs">
-                          {[...Array(5)].map((_, i) => (
-                            <i
-                              key={i}
-                              className={`fa-solid fa-star ${
-                                i < rev.rating ? 'text-amber-400' : 'text-stone-200'
-                              }`}
-                            ></i>
-                          ))}
-                        </div>
-                        <span className="text-[10px] bg-blue-50 border border-blue-200 text-blue-800 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                          {rev.tag || 'Verified'}
-                        </span>
-                      </div>
-
-                      <p className="text-xs sm:text-sm text-stone-700 leading-relaxed italic">
-                        "{rev.comment}"
-                      </p>
-                    </div>
-
-                    <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
-                      <div>
-                        <h4 className="font-heading font-bold text-xs sm:text-sm text-stone-900">
-                          {rev.name}
-                        </h4>
-                        {rev.favItem && (
-                          <span className="text-[10px] text-red-600 font-semibold block">
-                            Favorite: {rev.favItem}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-[10px] text-stone-400 font-medium">
-                        {rev.date}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* COMPLAINTS & RESOLUTIONS TAB CONTENT */}
-        {activeTab === 'complaints' && (
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-3xl border border-stone-200 max-w-xl mx-auto text-center space-y-3 shadow-xs">
-              <h3 className="font-heading font-bold text-base text-stone-900 flex items-center justify-center gap-2">
-                <i className="fa-solid fa-shield-heart text-rose-500"></i>
-                <span>Our 100% Satisfaction Guarantee</span>
-              </h3>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                If anything went wrong with your order, we promise to fix it promptly. All logged tickets are addressed directly by management.
-              </p>
-              <button
-                onClick={onOpenComplaintModal}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
-              >
-                <i className="fa-solid fa-plus"></i>
-                <span>File a Ticket</span>
-              </button>
-            </div>
-
-            {complaints.length === 0 ? (
-              <div className="p-10 text-center bg-white rounded-3xl border border-stone-200 max-w-md mx-auto space-y-2">
-                <i className="fa-solid fa-circle-check text-blue-600 text-3xl"></i>
-                <p className="text-sm font-bold text-stone-800">No active complaints</p>
-                <p className="text-xs text-stone-500">All orders are running smoothly!</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {complaints.map((cmp) => (
-                  <div
-                    key={cmp.id}
-                    className="p-5 rounded-3xl bg-white border border-stone-200 shadow-2xs space-y-3"
-                  >
-                    <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-stone-800 bg-stone-100 px-2 py-0.5 rounded-md">
-                          #{cmp.ticketNumber}
-                        </span>
-                        <span className="text-xs text-stone-600 font-semibold">
-                          {cmp.category}
-                        </span>
-                      </div>
-
-                      <span
-                        className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 ${
-                          cmp.status === 'Resolved'
-                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                            : cmp.status === 'In Progress'
-                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                            : 'bg-rose-50 text-rose-700 border border-rose-200'
-                        }`}
-                      >
-                        <i
-                          className={`fa-solid text-[9px] ${
-                            cmp.status === 'Resolved'
-                              ? 'fa-circle-check'
-                              : cmp.status === 'In Progress'
-                              ? 'fa-spinner fa-spin'
-                              : 'fa-clock'
-                          }`}
-                        ></i>
-                        <span>{cmp.status}</span>
-                      </span>
-                    </div>
-
-                    <p className="text-xs text-stone-700 leading-relaxed">
-                      "{cmp.description}"
-                    </p>
-
-                    <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
-                      <span>Customer: <strong className="text-stone-800">{cmp.customerName}</strong></span>
-                      <span className="text-[10px]">{cmp.timestamp}</span>
-                    </div>
-
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+          ))}
+        </div>
 
       </div>
     </section>

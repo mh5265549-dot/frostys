@@ -7,7 +7,7 @@ interface InventoryManagerModalProps {
   onClose: () => void;
   inventory: { [itemId: string]: number };
   onUpdateStock: (itemId: string, newStock: number) => void;
-  onResetAllStock: () => void;
+  onResetAllStock?: () => void;
 }
 
 export const InventoryManagerModal: React.FC<InventoryManagerModalProps> = ({
@@ -165,14 +165,16 @@ export const InventoryManagerModal: React.FC<InventoryManagerModalProps> = ({
               </button>
             ))}
 
-            <button
-              onClick={onResetAllStock}
-              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm transition-all whitespace-nowrap flex items-center gap-1.5 ml-auto sm:ml-2 shrink-0"
-              title="Reset all quantities to default stock level"
-            >
-              <i className="fa-solid fa-rotate-right text-xs"></i>
-              <span>Restock All</span>
-            </button>
+            {onResetAllStock && (
+              <button
+                onClick={onResetAllStock}
+                className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm transition-all whitespace-nowrap flex items-center gap-1.5 ml-auto sm:ml-2 shrink-0"
+                title="Reset all quantities to default stock level"
+              >
+                <i className="fa-solid fa-rotate-right text-xs"></i>
+                <span>Restock All</span>
+              </button>
+            )}
           </div>
         </div>
 

@@ -133,7 +133,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   // Specialized Grill State (burgers, BBQ, tacos, wraps, sandwiches, fries, chai, combo meals)
   const isGrillItem =
     item?.category === 'fast-food-bbq' ||
-    item?.category === 'burger' ||
+    (item?.category as string) === 'burger' ||
     (item?.category === 'deals' && (item?.tags?.some((t) => /burger|grill|combo|bbq|platter|deal/i.test(t)) || /burger|deal|platter|bbq/i.test(item?.name || ''))) ||
     item?.tags?.some((t) => /burger|grill|bbq|taco|sandwich|wrap|fries|naan|roti|salad|raita/i.test(t)) ||
     (/burger|golden chicken|ground chicken|grilled chicken|shami|smash|taco|sandwich|wrap|fries|karak chai|boti|tikka|kabab|wings|platter/i.test(item?.name || '') &&

@@ -65,8 +65,8 @@ export const Hero: React.FC<HeroProps> = ({
               <span>Frosty's Ice Cream Parlour & Grill</span>
             </div>
             <div className="bg-stone-900/85 backdrop-blur-md px-3 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-extrabold text-amber-300 border border-white/20 shadow-md flex items-center gap-1.5">
-              <i className="fa-solid fa-star text-amber-400"></i>
-              <span>4.9 / 5.0 (180+ Reviews)</span>
+              <i className="fa-solid fa-moon text-amber-400"></i>
+              <span>Open Late Till 3:00 AM</span>
             </div>
           </div>
 

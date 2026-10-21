@@ -19,6 +19,8 @@ interface OrderModalProps {
     orderType: 'delivery' | 'takeaway' | 'dinein';
     items: { id: string; name: string; quantity: number; price: number; unit?: string }[];
     totalAmount: number;
+    deliveryFee?: number;
+    deliveryZone?: 'paragon' | 'greencity';
     notes?: string;
   }) => void;
   onSaveFeedback?: (newFeedback: Omit<Review, 'id' | 'date'>) => void;
@@ -71,7 +73,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({
     // Check if item name / variant indicates cone
     const lowerName = item.menuItem.name.toLowerCase();
     const lowerVariant = (item.selectedVariant?.name || '').toLowerCase();
-    if (lowerName.includes('waffle cone') && (item.selectedContainer === 'Cone' || (!item.selectedContainer && !lowerVariant.includes('cup')))) {
+    if (lowerName.includes('waffle cone') && (!item.selectedContainer && !lowerVariant.includes('cup'))) {
       return true;
     }
     return false;

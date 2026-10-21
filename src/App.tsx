@@ -56,7 +56,7 @@ export default function App() {
   const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<Category['id'] | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   // Persistent Feedback State
   const [reviews, setReviews] = useState<Review[]>(() => getStoredFeedback());
@@ -92,6 +92,18 @@ export default function App() {
     triggerToast(`Ticket status updated to ${status}`);
   };
 
+
+  // Auto-open admin console if #admin or /admin is in URL
+  useEffect(() => {
+    const checkHash = () => {
+      if (window.location.hash === '#admin' || window.location.pathname.includes('admin')) {
+        setIsAdminModalOpen(true);
+      }
+    };
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    return () => window.removeEventListener('hashchange', checkHash);
+  }, []);
 
   // Persistent Inventory & Order History State
   const [inventory, setInventory] = useState<{ [itemId: string]: number }>(() =>
@@ -351,6 +363,7 @@ export default function App() {
         onOpenAdminModal={() => setIsAdminModalOpen(true)}
         lowStockCount={lowStockCount}
         ordersCount={orderHistory.length}
+        hasReviews={reviews.length > 0}
       />
 
       <main className="flex-1">

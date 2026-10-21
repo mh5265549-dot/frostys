@@ -18,6 +18,7 @@ interface NavbarProps {
   ordersCount?: number;
   activeShop?: ShopMode;
   onSwitchShop?: (shop: ShopMode) => void;
+  hasReviews?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -29,6 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAdminModal,
   lowStockCount = 0,
   ordersCount = 0,
+  hasReviews = false,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -58,7 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { name: 'About', href: '#about' },
     { name: 'Hours', href: '#hours' },
     { name: 'Location', href: '#location' },
-    { name: 'Reviews', href: '#reviews' },
+    ...(hasReviews ? [{ name: 'Reviews', href: '#reviews' }] : []),
   ];
 
   return (

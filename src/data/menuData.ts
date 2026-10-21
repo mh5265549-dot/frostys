@@ -1,13 +1,13 @@
 import { MenuItem, Category, Review } from '../types';
 import heroDessertImg from '../assets/images/hero_menu_spread_1786712734990.jpg';
-import outdoorRestaurantImg from '../assets/images/frostys_outdoor_restaurant_1789574647347.jpg';
+import outdoorRestaurantImg from '../assets/images/frostys_outdoor_patio_real_1790090759773.jpg';
 import waffleConeImg from '../assets/images/waffle_cone_vanilla_1786712752569.jpg';
 import superCupImg from '../assets/images/frosty_super_cup_1786712766136.jpg';
 import oreoShakeImg from '../assets/images/oreo_shake_frosty_1786712781481.jpg';
 import sundaeCupsImg from '../assets/images/sundae_cups_flavors_1786712799225.jpg';
 import signatureSundaeImg from '../assets/images/mango_signature_sundae_1786712813814.jpg';
 import simpleBananaSplitImg from '../assets/images/simple_banana_split_1789575200162.jpg';
-import bananaSplitDeluxeImg from '../assets/images/banana_split_deluxe_1789575217205.jpg';
+import bananaSplitDeluxeImg from '../assets/images/banana_split_deluxe_1789378803615.jpg';
 import layeredSundaeImg from '../assets/images/layered_super_sundae_1786712844405.jpg';
 import kulfiImg from '../assets/images/kulfi_traditional_1786712862075.jpg';
 import iceCreamShakeImg from '../assets/images/ice_cream_shake_tall_1786712877433.jpg';
@@ -20,12 +20,12 @@ import pistachioKulfaImg from '../assets/images/pistachio_kulfa_cup_178671296708
 import smashBurgerImg from '../assets/images/grill_smash_burger_1786712982591.jpg';
 import bbqTikkaImg from '../assets/images/grill_bbq_tikka_1786713000460.jpg';
 import zingerTacosImg from '../assets/images/grill_zinger_tacos_1786713015024.jpg';
-import clubSandwichImg from '../assets/images/grill_club_sandwich_1786713030666.jpg';
+import clubSandwichImg from '../assets/images/triple_decker_sandwich_1789655038591.jpg';
 import grilledChickenBurgerImg from '../assets/images/grilled_chicken_burger_1789378718467.jpg';
 import grilledChickenWrapImg from '../assets/images/grilled_chicken_wrap_1789378734613.jpg';
 import friesSupremeImg from '../assets/images/fries_supreme_1789378751779.jpg';
 import chickenFriesSupremeImg from '../assets/images/chicken_fries_sup_1789378771407.jpg';
-import grilledSandwichImg from '../assets/images/grilled_sandwich_1789378785905.jpg';
+import grilledSandwichImg from '../assets/images/triple_decker_sandwich_1789655038591.jpg';
 import waffleConeFreshImg from '../assets/images/waffle_cone_fresh_1789378821921.jpg';
 import regularFriesImg from '../assets/images/regular_fries_1789378838165.jpg';
 import tripleDeckerSandwichImg from '../assets/images/triple_decker_sandwich_1789655038591.jpg';
@@ -50,7 +50,7 @@ import reshmiKababImg from '../assets/images/reshmi_kabab_1791653242881.jpg';
 import desiBbqSidesImg from '../assets/images/desi_bbq_sides_1791653272084.jpg';
 import freshGardenSaladImg from '../assets/images/fresh_garden_salad_1792069582015.jpg';
 import bbqExtraSauceDipsImg from '../assets/images/bbq_extra_sauce_dips_1792069598908.jpg';
-import freshMintRaitaImg from '../assets/images/fresh_mint_raita_bowl_1792069622368.jpg';
+import freshMintRaitaImg from '../assets/images/fresh_mint_raita_bowl_1792158548953.jpg';
 import freshTandooriSadaNaanImg from '../assets/images/fresh_tandoori_sada_naan_1792069649039.jpg';
 import hotTandooriSadaRotiImg from '../assets/images/hot_tandoori_sada_roti_1792069677018.jpg';
 import tikkaBotiImg from '../assets/images/tikka_boti_skewers_1791699969012.jpg';
@@ -1207,35 +1207,7 @@ export const MENU_ITEMS: MenuItem[] = [
   },
 ];
 
-export const REVIEWS: Review[] = [
-  {
-    id: 'rev-1',
-    name: 'Hamza Malik',
-    rating: 5,
-    comment: 'Frosty\'s is our official 1 AM midnight spot in Green City! The Banana Split Deluxe and Grilled Chicken Burger are unbelievable. Great outdoor dining atmosphere and quick service.',
-    date: '2 days ago',
-    favItem: 'Banana Split Deluxe',
-    tag: 'Verified Late-Night Visitor',
-  },
-  {
-    id: 'rev-2',
-    name: 'Ayesha Khan',
-    rating: 5,
-    comment: 'Finally a proper late night spot in Commercial Green City Lahore! Open till 2 AM is a lifesaver. Loved the Grilled Chicken Fries Supreme and fresh sundaes!',
-    date: '1 week ago',
-    favItem: 'Grilled Chicken Fries Supreme',
-    tag: 'Lahore Foodie',
-  },
-  {
-    id: 'rev-3',
-    name: 'Bilal Ahmed',
-    rating: 5,
-    comment: 'The Cold Spanish Latte and Grilled Chicken Wrap are super fresh and juicy. 10/10 recommend for fast food and ice cream lovers in Green City!',
-    date: '2 weeks ago',
-    favItem: 'Grilled Chicken Wrap',
-    tag: 'Night Owl',
-  },
-];
+export const REVIEWS: Review[] = [];
 
 export const STORE_INFO = {
   name: "Frosty's Ice Cream Parlour & Grill",

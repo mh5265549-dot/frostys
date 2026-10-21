@@ -106,3 +106,22 @@ export interface Complaint {
 
 export type ShopMode = 'all' | 'ice-cream' | 'grill';
 
+export interface ExpenseRecord {
+  id: string;
+  title: string;
+  category:
+    | 'Rent'
+    | 'Staff Wages'
+    | 'Utilities (Electricity & Gas)'
+    | 'Generator Fuel'
+    | 'Packaging & Disposables'
+    | 'Maintenance & Repairs'
+    | 'Marketing'
+    | 'Other';
+  amount: number;
+  date: string;
+  createdAt: string;
+  notes?: string;
+  paidBy?: string;
+}
+

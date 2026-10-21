@@ -7,8 +7,9 @@ interface OrderHistoryModalProps {
   onClose: () => void;
   orders: OrderRecord[];
   onUpdateStatus: (orderId: string, status: OrderRecord['status']) => void;
-  onClearHistory: () => void;
-  onAddToCart: (item: any, quantity: number) => void;
+  onClearHistory?: () => void;
+  onAddToCart?: (item: any, quantity: number) => void;
+  onReorder?: (order: OrderRecord) => void;
 }
 
 export const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
@@ -18,10 +19,12 @@ export const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
   onUpdateStatus,
   onClearHistory,
   onAddToCart,
+  onReorder: onReorderProp,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showClearConfirmModal, setShowClearConfirmModal] = useState(false);
 
   if (!isOpen) return null;
 
@@ -56,9 +59,14 @@ export const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
   };
 
   const handleReorder = (ord: OrderRecord) => {
+    if (onReorderProp) {
+      onReorderProp(ord);
+      onClose();
+      return;
+    }
     ord.items.forEach((ordItem) => {
       const foundMenuItem = MENU_ITEMS.find((m) => m.id === ordItem.id);
-      if (foundMenuItem) {
+      if (foundMenuItem && onAddToCart) {
         onAddToCart(foundMenuItem, ordItem.quantity);
       }
     });
@@ -126,14 +134,11 @@ export const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
               <span className="text-[10px] uppercase text-stone-400 font-bold block">Storage Memory</span>
               <span className="text-xs font-bold text-stone-700">Saved in browser</span>
             </div>
-            {orders.length > 0 && (
+            {orders.length > 0 && onClearHistory && (
               <button
-                onClick={() => {
-                  if (window.confirm('Are you sure you want to clear all order history logs?')) {
-                    onClearHistory();
-                  }
-                }}
-                className="text-xs font-bold text-rose-600 hover:text-rose-800 underline decoration-rose-300"
+                type="button"
+                onClick={() => setShowClearConfirmModal(true)}
+                className="text-xs font-bold text-rose-600 hover:text-rose-800 underline decoration-rose-300 cursor-pointer"
               >
                 Clear All Logs
               </button>
@@ -307,6 +312,44 @@ export const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
         </div>
 
       </div>
+
+      {/* CLEAR LOGS CONFIRMATION MODAL */}
+      {showClearConfirmModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white text-stone-900 w-full max-w-sm rounded-3xl border border-rose-200 shadow-2xl p-6 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl mx-auto">
+              <i className="fa-solid fa-trash-can"></i>
+            </div>
+            <div className="text-center">
+              <h4 className="font-heading font-black text-base text-stone-900">
+                Clear All Order History?
+              </h4>
+              <p className="text-xs text-stone-500 mt-1.5 leading-relaxed">
+                This will delete all {orders.length} order records stored in this browser session. This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowClearConfirmModal(false)}
+                className="flex-1 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (onClearHistory) onClearHistory();
+                  setShowClearConfirmModal(false);
+                }}
+                className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-black cursor-pointer shadow-md"
+              >
+                Yes, Clear All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
