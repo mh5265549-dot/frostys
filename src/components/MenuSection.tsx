@@ -17,161 +17,205 @@ interface MenuCategoryGroup {
 
 const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
   {
-    id: 'scoops',
-    name: 'Fresh Scoops & Cones',
-    icon: 'fa-solid fa-ice-cream',
-    badge: 'Fresh Flavors',
-    description: 'Pure cream ice cream in freshly rolled crispy waffle cones or cups with toppings.',
-    filter: (item) => item.category === 'scoops',
-    type: 'dessert',
-  },
-  {
-    id: 'sundaes',
-    name: 'Sundaes & Super Cups',
-    icon: 'fa-solid fa-bowl-rice',
-    badge: 'Signature',
-    description: "Frosty's Super Cups, Deluxe Banana Splits, layered sundaes, and fruit purée cups.",
-    filter: (item) => item.category === 'sundaes',
-    type: 'dessert',
-  },
-  {
-    id: 'shakes',
-    name: 'Milkshakes & Frappes',
-    icon: 'fa-solid fa-glass-water',
-    badge: 'Thick & Creamy',
-    description: 'Oreo shakes, dairy milkshakes, cold Spanish latte, and ice cream mocha frappes.',
-    filter: (item) => item.category === 'shakes' || item.category === 'coffees',
-    type: 'dessert',
-  },
-  {
-    id: 'bbq-main',
-    name: 'Main Menu (Charcoal BBQ)',
-    icon: 'fa-solid fa-drumstick-bite',
-    badge: 'Charcoal Grilled',
-    description: 'Malai Boti (4 pcs), Tikka Boti (4 pcs), Chest Piece, Leg Piece, BB Honey Wings, BBQ Chicken Wings, Special Reshmi Kabab & Chicken Kabab.',
-    filter: (item) =>
-      item.tags?.some((t) =>
-        t.toLowerCase().includes('main menu') ||
-        t.toLowerCase().includes('malai boti') ||
-        t.toLowerCase().includes('tikka boti') ||
-        t.toLowerCase().includes('chest piece') ||
-        t.toLowerCase().includes('leg piece') ||
-        t.toLowerCase().includes('honey wings') ||
-        t.toLowerCase().includes('wings') ||
-        t.toLowerCase().includes('reshmi kabab') ||
-        t.toLowerCase().includes('chicken kabab')
-      ) ||
-      item.name.toLowerCase().includes('malai boti') ||
-      item.name.toLowerCase().includes('tikka boti') ||
-      item.name.toLowerCase().includes('chest piece') ||
-      item.name.toLowerCase().includes('leg piece') ||
-      item.name.toLowerCase().includes('wings') ||
-      item.name.toLowerCase().includes('reshmi kabab') ||
-      item.name.toLowerCase().includes('chicken kabab'),
-    type: 'grill',
-  },
-  {
-    id: 'deals-platters',
-    name: 'Deals & Platters',
-    icon: 'fa-solid fa-plate-wheat',
-    badge: 'Value Platters',
-    description: 'Deal 1 (Rs 650), Deal 2 (Rs 1850), and Grand Family BBQ Platter (Rs 3950).',
-    filter: (item) =>
-      item.category === 'deals' ||
-      item.tags?.some((t) =>
-        t.toLowerCase().includes('deals & platters') ||
-        t.toLowerCase().includes('platter') ||
-        t.toLowerCase().includes('deal 1') ||
-        t.toLowerCase().includes('deal 2')
-      ) ||
-      item.name.toLowerCase().includes('deal') ||
-      item.name.toLowerCase().includes('platter'),
-    type: 'grill',
-  },
-  {
-    id: 'bbq-sides',
-    name: 'Sides & Tandoor',
-    icon: 'fa-solid fa-bread-slice',
-    badge: 'Fresh & Hot',
-    description: 'Fresh Salad (Rs 150), Extra Sauce (Rs 70), Mint Raita (Rs 50), Sada Naan (Rs 35), and Sada Roti (Rs 20).',
-    filter: (item) =>
-      item.tags?.some((t) =>
-        t.toLowerCase().includes('sides') ||
-        t.toLowerCase().includes('salad') ||
-        t.toLowerCase().includes('sauce') ||
-        t.toLowerCase().includes('raita') ||
-        t.toLowerCase().includes('naan') ||
-        t.toLowerCase().includes('roti')
-      ) ||
-      item.name.toLowerCase().includes('salad') ||
-      item.name.toLowerCase().includes('sauce') ||
-      item.name.toLowerCase().includes('raita') ||
-      item.name.toLowerCase().includes('naan') ||
-      item.name.toLowerCase().includes('roti'),
-    type: 'grill',
-  },
-  {
-    id: 'burgers',
-    name: 'Burgers & Sandwiches',
+    id: 'fast-food',
+    name: 'fast food',
     icon: 'fa-solid fa-burger',
-    badge: 'Fresh & Grilled',
-    description: 'Flame-grilled chicken fillet burgers, smash burger deals, and triple-decker club sandwiches.',
-    filter: (item) =>
-      item.tags?.some((t) => t.toLowerCase().includes('burger') || t.toLowerCase().includes('sandwich')) ||
-      item.name.toLowerCase().includes('burger') ||
-      item.name.toLowerCase().includes('sandwich'),
+    badge: 'Burgers & Rolls',
+    description: 'Flame-grilled burgers, crispy tacos, loaded fries supreme, and freshly toasted paratha rolls.',
+    filter: (item) => {
+      const cat = (item.category || '').toLowerCase();
+      const name = item.name.toLowerCase();
+      const tags = (item.tags || []).map((t) => t.toLowerCase());
+      return (
+        cat === 'fast-food' ||
+        cat === 'burgers' ||
+        cat === 'tacos' ||
+        cat === 'fries' ||
+        cat === 'sandwiches' ||
+        tags.some((t) =>
+          t.includes('fast food') ||
+          t.includes('burger') ||
+          t.includes('roll') ||
+          t.includes('taco') ||
+          t.includes('fries') ||
+          t.includes('sandwich')
+        ) ||
+        name.includes('burger') ||
+        name.includes('roll') ||
+        name.includes('taco') ||
+        name.includes('fries') ||
+        name.includes('sandwich')
+      );
+    },
     type: 'grill',
   },
   {
-    id: 'tacos-wraps',
-    name: 'Tacos & Wraps',
-    icon: 'fa-solid fa-shapes',
-    badge: 'Crispy & Grilled',
-    description: 'Crispy chicken tacos with zesty salsa and jumbo flame-grilled chipotle wraps.',
-    filter: (item) =>
-      item.tags?.some((t) => t.toLowerCase().includes('taco') || t.toLowerCase().includes('wrap')) ||
-      item.name.toLowerCase().includes('taco') ||
-      item.name.toLowerCase().includes('wrap'),
+    id: 'grill',
+    name: 'grill',
+    icon: 'fa-solid fa-drumstick-bite',
+    badge: 'Charcoal & Fish',
+    description: 'Grill Fish (Kala Rahu Rs 2200/KG), Charcoal Malai & Tikka Boti, Wings, 19B & Hot Sour Soups, Platters, and Tandoori Sides.',
+    filter: (item) => {
+      const cat = (item.category || '').toLowerCase();
+      const name = item.name.toLowerCase();
+      const tags = (item.tags || []).map((t) => t.toLowerCase());
+      // Exclude fast food items (rolls, burgers, tacos, fries)
+      if (
+        name.includes('roll') ||
+        cat === 'fast-food' ||
+        name.includes('burger') ||
+        name.includes('sandwich') ||
+        name.includes('fries') ||
+        name.includes('taco')
+      ) {
+        return false;
+      }
+      return (
+        cat === 'grill' ||
+        cat === 'bbq' ||
+        cat === 'bbq-main' ||
+        cat === 'bbq-sides' ||
+        cat === 'deals' ||
+        tags.some((t) =>
+          t.includes('grill') ||
+          t.includes('fish') ||
+          t.includes('kala rahu') ||
+          t.includes('bbq') ||
+          t.includes('tikka') ||
+          t.includes('malai boti') ||
+          t.includes('kabab') ||
+          t.includes('soup') ||
+          t.includes('salad') ||
+          t.includes('raita') ||
+          t.includes('naan') ||
+          t.includes('roti') ||
+          t.includes('platter') ||
+          t.includes('wings')
+        ) ||
+        name.includes('fish') ||
+        name.includes('soup') ||
+        name.includes('tikka') ||
+        name.includes('malai boti') ||
+        name.includes('kabab') ||
+        name.includes('wings') ||
+        name.includes('platter') ||
+        name.includes('chest piece') ||
+        name.includes('leg piece') ||
+        name.includes('salad') ||
+        name.includes('raita') ||
+        name.includes('naan') ||
+        name.includes('roti')
+      );
+    },
     type: 'grill',
   },
   {
-    id: 'fries-sides',
-    name: 'Fries',
-    icon: 'fa-solid fa-bowl-food',
-    badge: 'Hot & Loaded',
-    description: 'Hot shoestring fries, melted cheese fries, and grilled chicken fries supreme.',
-    filter: (item) =>
-      item.tags?.some((t) => t.toLowerCase().includes('fries')) ||
-      item.name.toLowerCase().includes('fries'),
-    type: 'grill',
-  },
-  {
-    id: 'chai',
-    name: 'Karak Chai',
+    id: 'drinks',
+    name: 'drinks (hot/cold beverages)',
     icon: 'fa-solid fa-mug-hot',
-    badge: 'Clay Matka',
-    description: 'Authentic Pakistani hot Karak Chai brewed fresh with whole milk & spices in a clay matka cup.',
-    filter: (item) =>
-      item.tags?.some((t) => t.toLowerCase().includes('chai') || t.toLowerCase().includes('tea')) ||
-      item.name.toLowerCase().includes('chai'),
-    type: 'grill',
-  },
-  {
-    id: 'sodas-chillers',
-    name: 'Soda Chillers & Kulfi',
-    icon: 'fa-solid fa-glass-water-droplet',
-    badge: '20 Flavors',
-    description: 'Refreshing fruit & mint fizzy soda chillers and traditional rich cream Kulfi.',
-    filter: (item) => item.category === 'sodas' || item.category === 'kulfi',
+    badge: 'Hot & Cold',
+    description: 'Thick creamy milkshakes, cold Spanish latte, iced coffees, fruit soda chillers, and hot Karak Chai matka.',
+    filter: (item) => {
+      const cat = (item.category || '').toLowerCase();
+      const name = item.name.toLowerCase();
+      const tags = (item.tags || []).map((t) => t.toLowerCase());
+      // Exclude green tea items
+      if (
+        cat === 'green-teas' ||
+        name.includes('green tea') ||
+        name.includes('qehwa') ||
+        tags.includes('green tea') ||
+        tags.includes('qehwa')
+      ) {
+        return false;
+      }
+      return (
+        cat === 'drinks' ||
+        cat === 'shakes' ||
+        cat === 'coffees' ||
+        cat === 'sodas' ||
+        cat === 'chai' ||
+        item.isBeverage === true ||
+        tags.some((t) =>
+          t.includes('shake') ||
+          t.includes('coffee') ||
+          t.includes('frappe') ||
+          t.includes('soda') ||
+          t.includes('chiller') ||
+          t.includes('chai')
+        ) ||
+        name.includes('shake') ||
+        name.includes('coffee') ||
+        name.includes('frappe') ||
+        name.includes('chiller') ||
+        name.includes('chai') ||
+        name.includes('latte')
+      );
+    },
     type: 'dessert',
   },
   {
-    id: 'deals',
-    name: 'Special Deals',
-    icon: 'fa-solid fa-tags',
-    badge: 'Value Combos',
-    description: 'Family, friends, and special treat combos at discounted prices.',
-    filter: (item) => item.category === 'deals' || !!item.originalPrice,
+    id: 'ice-cream',
+    name: 'ice cream',
+    icon: 'fa-solid fa-ice-cream',
+    badge: 'Cups & Cones',
+    description: 'Pure cream artisanal ice cream cups, Super Cups, Deluxe Banana Splits, and crispy freshly rolled waffle cones.',
+    filter: (item) => {
+      const cat = (item.category || '').toLowerCase();
+      const name = item.name.toLowerCase();
+      const tags = (item.tags || []).map((t) => t.toLowerCase());
+      if (
+        cat === 'shakes' ||
+        cat === 'coffees' ||
+        cat === 'sodas' ||
+        cat === 'chai' ||
+        cat === 'green-teas' ||
+        name.includes('shake') ||
+        name.includes('chai')
+      ) {
+        return false;
+      }
+      return (
+        cat === 'ice-cream' ||
+        cat === 'scoops' ||
+        cat === 'sundaes' ||
+        cat === 'kulfi' ||
+        tags.some((t) =>
+          t.includes('ice cream') ||
+          t.includes('scoop') ||
+          t.includes('sundae') ||
+          t.includes('cone') ||
+          t.includes('cup') ||
+          t.includes('kulfi')
+        ) ||
+        name.includes('ice cream') ||
+        name.includes('cone') ||
+        name.includes('scoop') ||
+        name.includes('sundae') ||
+        name.includes('split') ||
+        name.includes('cup') ||
+        name.includes('kulfi')
+      );
+    },
+    type: 'dessert',
+  },
+  {
+    id: 'green-teas',
+    name: "Green tea's",
+    icon: 'fa-solid fa-leaf',
+    badge: 'Qehwa & Herbal',
+    description: 'Hot steaming Peshawari Qehwa, Cardamom & Mint Green Tea, and Lemon & Honey Green Tea.',
+    filter: (item) => {
+      const cat = (item.category || '').toLowerCase();
+      const name = item.name.toLowerCase();
+      const tags = (item.tags || []).map((t) => t.toLowerCase());
+      return (
+        cat === 'green-teas' ||
+        tags.some((t) => t.includes('green tea') || t.includes('qehwa')) ||
+        name.includes('green tea') ||
+        name.includes('qehwa')
+      );
+    },
     type: 'deal',
   },
 ];
@@ -579,8 +623,8 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                 </div>
 
                 {/* Horizontal Media Object Item Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
-                  {groupItems.map((item, idx) => {
+                {(() => {
+                  const renderItemCard = (item: MenuItem, idx: number) => {
                     const itemStock = inventory[item.id] ?? 15;
                     const isSoldOut = itemStock === 0;
                     const isDeal = item.category === 'deals' || !!item.originalPrice;
@@ -700,7 +744,10 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    const needsModal = (item.variants && item.variants.length > 1) || item.category === 'scoops' || item.category === 'sundaes';
+                                    const needsModal =
+                                      (item.variants && item.variants.length > 1) ||
+                                      item.category === 'scoops' ||
+                                      item.category === 'sundaes';
                                     if (needsModal || !onAddToCart) {
                                       onSelectItem(item);
                                     } else {
@@ -741,8 +788,82 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                         </div>
                       </motion.div>
                     );
-                  })}
-                </div>
+                  };
+
+                  if (group.id === 'ice-cream') {
+                    const isConeItem = (it: MenuItem) => {
+                      const n = it.name.toLowerCase();
+                      const id = it.id.toLowerCase();
+                      const tags = (it.tags || []).map((t) => t.toLowerCase());
+                      return (
+                        n.includes('cone') ||
+                        id.includes('cone') ||
+                        tags.some((t) => t.includes('cone'))
+                      );
+                    };
+
+                    const coneItems = groupItems.filter(isConeItem);
+                    const cupItems = groupItems.filter((it) => !isConeItem(it));
+
+                    return (
+                      <div className="space-y-8">
+                        {/* 1. Ice Cream Cups & Sundaes First */}
+                        {cupItems.length > 0 && (
+                          <div className="space-y-3.5">
+                            {coneItems.length > 0 && (
+                              <div className="flex items-center gap-2 text-xs font-bold text-blue-900 bg-blue-50/90 px-3.5 py-1.5 rounded-xl border border-blue-200/70 w-fit">
+                                <i className="fa-solid fa-bowl-rice text-blue-600"></i>
+                                <span>Cups, Bowls & Sundaes ({cupItems.length})</span>
+                              </div>
+                            )}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
+                              {cupItems.map((item, idx) => renderItemCard(item, idx))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 2. Distinct Heading for Cones Followed by Cone Items */}
+                        {coneItems.length > 0 && (
+                          <div className="pt-4 space-y-4">
+                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 shadow-2xs flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-base shadow-xs shrink-0">
+                                  <i className="fa-solid fa-ice-cream"></i>
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
+                                      Cones
+                                    </h4>
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider">
+                                      Fresh Waffle & Crunchy Cones
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-stone-600 mt-0.5">
+                                    Freshly rolled crispy waffle cones and crunchy soft-serve cones (Takeaway & Dine-In Only).
+                                  </p>
+                                </div>
+                              </div>
+                              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
+                                {coneItems.length} {coneItems.length === 1 ? 'cone' : 'cones'}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
+                              {coneItems.map((item, idx) => renderItemCard(item, idx))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
+                      {groupItems.map((item, idx) => renderItemCard(item, idx))}
+                    </div>
+                  );
+                })()}
               </motion.section>
             ))}
           </div>

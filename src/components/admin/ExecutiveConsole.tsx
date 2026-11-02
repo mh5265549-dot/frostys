@@ -8,6 +8,21 @@ import {
   getStoreOperationalSettings,
   saveStoreOperationalSettings,
 } from '../../utils/operationalStore';
+import { saveItemIngredientCost } from '../../utils/costAndFinance';
+import {
+  grillFishImg,
+  parathaRollsImg,
+  soupImg,
+  greenTeaImg,
+  waffleConeFreshImg,
+  superCupImg,
+  sundaeCupsImg,
+  oreoShakeImg,
+  grilledChickenBurgerImg,
+  grilledChickenWrapImg,
+  friesSupremeImg,
+  karakChaiImg,
+} from '../../data/menuData';
 import { RealTimeOrderDispatchHub } from './RealTimeOrderDispatchHub';
 import { RecipeCostManager } from './RecipeCostManager';
 import { DeliveryZonesSettings } from './DeliveryZonesSettings';
@@ -97,10 +112,38 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
   const [passwordError, setPasswordError] = useState('');
   const [showDemoHint, setShowDemoHint] = useState(false);
 
-  // Active Tab: matching screenshot's left navigation
+  // Active Tab: matching screenshot's left navigation + Add Product tab
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'orders' | 'menu' | 'finance' | 'users' | 'security' | 'system'
+    'overview' | 'orders' | 'menu' | 'add-product' | 'finance' | 'users' | 'security' | 'system'
   >('overview');
+
+  // Add Product Form State
+  const [newProductName, setNewProductName] = useState('');
+  const [newProductPrice, setNewProductPrice] = useState<string>('');
+  const [newProductCost, setNewProductCost] = useState<string>('');
+  const [newProductPicture, setNewProductPicture] = useState(grillFishImg);
+  const [newProductCustomUrl, setNewProductCustomUrl] = useState('');
+  const [newProductCategory, setNewProductCategory] = useState<'fast-food' | 'grill' | 'drinks' | 'ice-cream' | 'green-teas'>('grill');
+  const [newProductUnit, setNewProductUnit] = useState('Per Piece');
+  const [newProductDescription, setNewProductDescription] = useState('');
+  const [newProductStock, setNewProductStock] = useState<number>(25);
+  const [newProductBadge, setNewProductBadge] = useState('');
+  const [productAddedSuccess, setProductAddedSuccess] = useState<string | null>(null);
+
+  const PRESET_PICTURES = [
+    { label: 'Grill Fish (Kala Rahu)', img: grillFishImg },
+    { label: 'Chicken Paratha Roll', img: parathaRollsImg },
+    { label: '19B / Hot Sour Soup', img: soupImg },
+    { label: 'Peshawari Green Tea', img: greenTeaImg },
+    { label: 'Crispy Waffle Cone', img: waffleConeFreshImg },
+    { label: 'Frosty Super Cup', img: superCupImg },
+    { label: 'Sundae Cups / Split', img: sundaeCupsImg },
+    { label: 'Thick Oreo Shake', img: oreoShakeImg },
+    { label: 'Grilled Chicken Burger', img: grilledChickenBurgerImg },
+    { label: 'Grilled Chicken Wrap', img: grilledChickenWrapImg },
+    { label: 'Fries Supreme', img: friesSupremeImg },
+    { label: 'Hot Karak Chai', img: karakChaiImg },
+  ];
 
   // Time Range Filter: Today | Yesterday | 7 Days
   const [timeRange, setTimeRange] = useState<'today' | 'yesterday' | '7days'>('today');
@@ -547,6 +590,24 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                       <i className="fa-solid fa-utensils text-sm"></i>
                       <span>Menu & Catalog CRUD</span>
                     </div>
+                  </button>
+
+                  {/* Nav Item: Add Product */}
+                  <button
+                    onClick={() => setActiveTab('add-product')}
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      activeTab === 'add-product'
+                        ? 'bg-[#1E1915] text-white shadow-xs'
+                        : 'text-[#6B635B] hover:text-[#1E1915] hover:bg-[#F1ECE3]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <i className="fa-solid fa-circle-plus text-sm text-[#C25E34]"></i>
+                      <span>Add Product</span>
+                    </div>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
+                      New
+                    </span>
                   </button>
 
                   {/* Nav Item 4: Financials & Costs */}
@@ -1141,6 +1202,480 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                             })}
                         </tbody>
                       </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB: ADD NEW PRODUCT (Direct User Requirement 1) */}
+              {activeTab === 'add-product' && (
+                <div className="space-y-6 max-w-5xl mx-auto">
+                  {/* Header */}
+                  <div className="bg-white p-5 rounded-2xl border border-[#EDE8DF] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#C25E34]"></span>
+                        <h3 className="font-heading font-black text-xl text-[#1E1915]">
+                          Add New Product to Frosty's Menu
+                        </h3>
+                      </div>
+                      <p className="text-xs text-[#7A7067] mt-1">
+                        Add items with retail selling price, ingredient making cost, category, and photo. Live profit margins are automatically calibrated.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-start sm:self-auto">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('menu')}
+                        className="px-3.5 py-1.5 rounded-xl border border-[#E4DDD2] hover:bg-[#FAF8F5] text-xs font-bold text-[#6B635B] transition-all cursor-pointer flex items-center gap-1.5"
+                      >
+                        <i className="fa-solid fa-list text-[11px]"></i>
+                        <span>View Catalog ({menuItems.length})</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {productAddedSuccess && (
+                    <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center justify-between gap-3 animate-fade-in shadow-xs">
+                      <div className="flex items-center gap-2">
+                        <i className="fa-solid fa-circle-check text-base text-emerald-600"></i>
+                        <span>{productAddedSuccess}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('menu')}
+                        className="underline text-emerald-900 hover:text-emerald-950 font-black cursor-pointer"
+                      >
+                        View in Catalog →
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* LEFT 2 COLS: Form Inputs */}
+                    <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-[#EDE8DF] shadow-xs space-y-5">
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          if (!newProductName.trim()) {
+                            alert('Please enter a product name');
+                            return;
+                          }
+                          const priceNum = parseFloat(newProductPrice);
+                          if (!priceNum || priceNum <= 0) {
+                            alert('Please enter a valid retail price in Rs.');
+                            return;
+                          }
+                          const costNum = parseFloat(newProductCost) || 0;
+                          const finalImage = newProductCustomUrl.trim() || newProductPicture;
+
+                          const newId = `product-${Date.now()}`;
+                          const newItem: MenuItem = {
+                            id: newId,
+                            name: newProductName.trim(),
+                            price: priceNum,
+                            makingCost: costNum,
+                            category: newProductCategory,
+                            image: finalImage,
+                            description:
+                              newProductDescription.trim() ||
+                              `${newProductName.trim()} prepared fresh to order at Frosty's.`,
+                            unit: newProductUnit,
+                            popular: false,
+                            badge: newProductBadge.trim() || undefined,
+                            rating: 5.0,
+                            isConeCupAllowed:
+                              newProductCategory === 'ice-cream' &&
+                              newProductName.toLowerCase().includes('cone'),
+                            isBeverage:
+                              newProductCategory === 'drinks' || newProductCategory === 'green-teas',
+                            tags: [
+                              newProductCategory === 'fast-food'
+                                ? 'Fast Food'
+                                : newProductCategory === 'grill'
+                                ? 'Grill'
+                                : newProductCategory === 'drinks'
+                                ? 'Drinks'
+                                : newProductCategory === 'ice-cream'
+                                ? 'Ice Cream'
+                                : "Green Tea's",
+                              newProductName.trim(),
+                            ],
+                          };
+
+                          if (onAddNewProduct) {
+                            onAddNewProduct(newItem, newProductStock);
+                          }
+                          saveItemIngredientCost(newId, costNum, 'Custom item added via Admin');
+
+                          setProductAddedSuccess(`Added "${newItem.name}" to menu catalog & COGS ledger!`);
+                          setTimeout(() => setProductAddedSuccess(null), 6000);
+
+                          setNewProductName('');
+                          setNewProductPrice('');
+                          setNewProductCost('');
+                          setNewProductCustomUrl('');
+                          setNewProductDescription('');
+                          setNewProductBadge('');
+                        }}
+                        className="space-y-4"
+                      >
+                        {/* 1. Product Name */}
+                        <div>
+                          <label className="block text-xs font-bold text-[#1E1915] mb-1">
+                            Product Name *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={newProductName}
+                            onChange={(e) => setNewProductName(e.target.value)}
+                            placeholder="e.g. Grill Fish (Kala Rahu), Jumbo Paratha Roll, Soft Serve Cone"
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-semibold text-[#1E1915] focus:outline-none focus:border-[#C25E34]"
+                          />
+                        </div>
+
+                        {/* 2. Retail Price & Cost to Make Per Piece (Requested Options) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-bold text-[#1E1915] mb-1">
+                              Retail Selling Price (Rs.) *
+                            </label>
+                            <div className="relative">
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8A8177]">
+                                Rs.
+                              </span>
+                              <input
+                                type="number"
+                                required
+                                min="1"
+                                step="any"
+                                value={newProductPrice}
+                                onChange={(e) => setNewProductPrice(e.target.value)}
+                                placeholder="e.g. 600"
+                                className="w-full pl-11 pr-3.5 py-2.5 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-bold text-[#1E1915] focus:outline-none focus:border-[#C25E34]"
+                              />
+                            </div>
+                            <span className="text-[10px] text-[#8A8177] mt-0.5 block">
+                              Customer selling price on the menu
+                            </span>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-[#1E1915] mb-1">
+                              Cost to Make Per Piece (Rs.) *
+                            </label>
+                            <div className="relative">
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8A8177]">
+                                Rs.
+                              </span>
+                              <input
+                                type="number"
+                                min="0"
+                                step="any"
+                                value={newProductCost}
+                                onChange={(e) => setNewProductCost(e.target.value)}
+                                placeholder="e.g. 320"
+                                className="w-full pl-11 pr-3.5 py-2.5 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-bold text-[#1E1915] focus:outline-none focus:border-[#C25E34]"
+                              />
+                            </div>
+                            <span className="text-[10px] text-[#8A8177] mt-0.5 block">
+                              Raw ingredients, preparation & packaging
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* 3. Category & Unit */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-bold text-[#1E1915] mb-1">
+                              Menu Category *
+                            </label>
+                            <select
+                              value={newProductCategory}
+                              onChange={(e) =>
+                                setNewProductCategory(
+                                  e.target.value as
+                                    | 'fast-food'
+                                    | 'grill'
+                                    | 'drinks'
+                                    | 'ice-cream'
+                                    | 'green-teas'
+                                )
+                              }
+                              className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-bold text-[#1E1915] focus:outline-none focus:border-[#C25E34]"
+                            >
+                              <option value="fast-food">fast food (Burgers, Rolls, Fries, Wraps)</option>
+                              <option value="grill">grill (Fish Kala Rahu, BBQ Boti, Wings, Soups, Sides)</option>
+                              <option value="drinks">drinks (hot/cold beverages) (Shakes, Coffees, Soda, Chai)</option>
+                              <option value="ice-cream">ice cream (Super Cups, Sundaes, Cones)</option>
+                              <option value="green-teas">Green tea's (Peshawari Qehwa, Mint & Honey Green Tea)</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-[#1E1915] mb-1">
+                              Serving Unit / Portion
+                            </label>
+                            <input
+                              type="text"
+                              value={newProductUnit}
+                              onChange={(e) => setNewProductUnit(e.target.value)}
+                              placeholder="e.g. Per Piece, Per KG, Single Bowl, Hot Cup"
+                              className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-semibold text-[#1E1915] focus:outline-none focus:border-[#C25E34]"
+                            />
+                          </div>
+                        </div>
+
+                        {/* 4. Picture (Requested Option: Presets + File Upload + Custom URL) */}
+                        <div className="space-y-2 pt-1 border-t border-[#EDE8DF]">
+                          <label className="block text-xs font-bold text-[#1E1915]">
+                            Product Picture *
+                          </label>
+
+                          {/* Quick 1-Click Preset Gallery */}
+                          <div>
+                            <span className="text-[11px] font-bold text-[#8A8177] mb-1.5 block">
+                              Select from High-Definition Photo Presets:
+                            </span>
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                              {PRESET_PICTURES.map((preset) => {
+                                const isSelected =
+                                  newProductPicture === preset.img && !newProductCustomUrl;
+                                return (
+                                  <button
+                                    key={preset.label}
+                                    type="button"
+                                    onClick={() => {
+                                      setNewProductPicture(preset.img);
+                                      setNewProductCustomUrl('');
+                                    }}
+                                    className={`relative p-1 rounded-xl border text-left transition-all cursor-pointer group ${
+                                      isSelected
+                                        ? 'border-[#C25E34] ring-2 ring-[#C25E34]/20 bg-amber-50/50'
+                                        : 'border-[#EDE8DF] hover:border-[#8A8177]'
+                                    }`}
+                                  >
+                                    <img
+                                      src={preset.img}
+                                      alt={preset.label}
+                                      className="w-full h-12 object-cover rounded-lg"
+                                    />
+                                    <div className="text-[9px] font-bold text-[#1E1915] mt-1 line-clamp-1">
+                                      {preset.label}
+                                    </div>
+                                    {isSelected && (
+                                      <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#C25E34] text-white flex items-center justify-center text-[8px]">
+                                        <i className="fa-solid fa-check"></i>
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Upload from Device or Custom URL */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <div>
+                              <span className="text-[11px] font-bold text-[#6B635B] block mb-1">
+                                Or Upload Image from Device:
+                              </span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = () => {
+                                      if (typeof reader.result === 'string') {
+                                        setNewProductCustomUrl(reader.result);
+                                      }
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                                className="w-full text-xs text-[#6B635B] file:mr-2.5 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#F1ECE3] file:text-[#1E1915] hover:file:bg-[#E4DDD2] cursor-pointer"
+                              />
+                            </div>
+
+                            <div>
+                              <span className="text-[11px] font-bold text-[#6B635B] block mb-1">
+                                Or Image URL:
+                              </span>
+                              <input
+                                type="url"
+                                value={newProductCustomUrl}
+                                onChange={(e) => setNewProductCustomUrl(e.target.value)}
+                                placeholder="https://example.com/item.jpg"
+                                className="w-full px-3 py-1.5 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-mono text-[#1E1915] focus:outline-none focus:border-[#C25E34]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 5. Description & Initial Stock */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                          <div className="sm:col-span-2">
+                            <label className="block text-xs font-bold text-[#1E1915] mb-1">
+                              Appetizing Description
+                            </label>
+                            <textarea
+                              rows={2}
+                              value={newProductDescription}
+                              onChange={(e) => setNewProductDescription(e.target.value)}
+                              placeholder="Describe fresh ingredients, marinade, and serving details..."
+                              className="w-full px-3.5 py-2 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs text-[#1E1915] focus:outline-none focus:border-[#C25E34]"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-[#1E1915] mb-1">
+                              Initial Stock Count
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={newProductStock}
+                              onChange={(e) => setNewProductStock(Math.max(0, parseInt(e.target.value) || 0))}
+                              className="w-full px-3.5 py-2 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-bold text-[#1E1915] focus:outline-none focus:border-[#C25E34]"
+                            />
+                            <label className="block text-xs font-bold text-[#1E1915] mt-2 mb-1">
+                              Optional Ribbon Badge
+                            </label>
+                            <input
+                              type="text"
+                              value={newProductBadge}
+                              onChange={(e) => setNewProductBadge(e.target.value)}
+                              placeholder="e.g. 🔥 Best Seller"
+                              className="w-full px-3 py-1.5 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-semibold text-[#1E1915]"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <div className="pt-3 border-t border-[#EDE8DF] flex items-center justify-end gap-3">
+                          <button
+                            type="submit"
+                            className="px-6 py-3 rounded-2xl bg-[#C25E34] hover:bg-[#a54c25] active:scale-95 text-white font-heading font-black text-xs transition-all shadow-md cursor-pointer flex items-center gap-2"
+                          >
+                            <i className="fa-solid fa-plus text-xs"></i>
+                            <span>Add Product to Live Menu</span>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+
+                    {/* RIGHT COL: Live Profit & Margin Telemetry Card */}
+                    <div className="space-y-4">
+                      {/* Product Preview Card */}
+                      <div className="bg-white p-5 rounded-3xl border border-[#EDE8DF] shadow-xs space-y-4">
+                        <div className="text-[10px] font-black text-[#8A8177] uppercase tracking-wider">
+                          Live Product Card Preview
+                        </div>
+
+                        <div className="rounded-2xl border border-[#EDE8DF] overflow-hidden bg-[#FAF8F5] flex flex-col">
+                          <div className="relative h-36 bg-stone-200">
+                            <img
+                              src={newProductCustomUrl.trim() || newProductPicture}
+                              alt={newProductName || 'Preview'}
+                              className="w-full h-full object-cover"
+                            />
+                            {newProductBadge && (
+                              <span className="absolute top-2 left-2 text-white text-[9px] font-black px-2 py-0.5 rounded-md shadow-xs bg-red-600">
+                                {newProductBadge}
+                              </span>
+                            )}
+                            <span className="absolute bottom-2 right-2 bg-white/95 text-stone-800 text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-2xs">
+                              <i className="fa-solid fa-star text-amber-400 text-[9px] mr-0.5"></i> 5.0
+                            </span>
+                          </div>
+
+                          <div className="p-3.5 space-y-1">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-heading font-black text-sm text-[#1E1915] truncate">
+                                {newProductName.trim() || 'Product Name Preview'}
+                              </h4>
+                              <span className="px-2 py-0.5 rounded text-[9px] font-black bg-blue-50 text-blue-700 uppercase">
+                                {newProductCategory}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-[#7A7067] line-clamp-2">
+                              {newProductDescription.trim() || 'Delicious freshly prepared item.'}
+                            </p>
+                            <div className="pt-2 border-t border-[#EDE8DF] flex items-center justify-between">
+                              <div>
+                                <span className="text-[10px] text-[#8A8177] block">Selling Price</span>
+                                <span className="font-heading font-black text-sm text-[#1E1915]">
+                                  Rs. {newProductPrice ? Number(newProductPrice).toLocaleString() : '0'}
+                                </span>
+                              </div>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
+                                In Stock ({newProductStock})
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Profit Telemetry */}
+                        {(() => {
+                          const priceVal = parseFloat(newProductPrice) || 0;
+                          const costVal = parseFloat(newProductCost) || 0;
+                          const unitProfit = Math.max(0, priceVal - costVal);
+                          const marginPercent = priceVal > 0 ? ((unitProfit / priceVal) * 100).toFixed(1) : '0';
+                          const isHighMargin = parseFloat(marginPercent) >= 50;
+
+                          return (
+                            <div className="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E4DDD2] space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-[#1E1915]">
+                                  Financial Breakdown
+                                </span>
+                                <span
+                                  className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                                    isHighMargin
+                                      ? 'bg-emerald-100 text-emerald-800'
+                                      : 'bg-amber-100 text-amber-800'
+                                  }`}
+                                >
+                                  {isHighMargin ? 'High Margin Item' : 'Standard Margin'}
+                                </span>
+                              </div>
+
+                              <div className="space-y-1.5 text-xs">
+                                <div className="flex items-center justify-between text-[#6B635B]">
+                                  <span>Retail Price:</span>
+                                  <span className="font-bold text-[#1E1915]">Rs. {priceVal.toLocaleString()}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-[#6B635B]">
+                                  <span>Ingredient/Unit Cost:</span>
+                                  <span className="font-bold text-rose-600">- Rs. {costVal.toLocaleString()}</span>
+                                </div>
+                                <div className="pt-1.5 border-t border-[#E4DDD2] flex items-center justify-between text-xs font-black">
+                                  <span className="text-[#1E1915]">Net Profit Per Unit:</span>
+                                  <span className="text-emerald-700 font-heading text-sm">
+                                    Rs. {unitProfit.toLocaleString()}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-[#6B635B]">Profit Margin %:</span>
+                                  <span className="font-extrabold text-[#C25E34]">{marginPercent}%</span>
+                                </div>
+                              </div>
+
+                              {/* Visual Margin Bar */}
+                              <div className="w-full h-2 rounded-full bg-[#E4DDD2] overflow-hidden mt-1">
+                                <div
+                                  className="h-full bg-gradient-to-r from-amber-500 to-emerald-500 rounded-full transition-all duration-300"
+                                  style={{ width: `${Math.min(100, Math.max(0, parseFloat(marginPercent)))}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
                     </div>
                   </div>
                 </div>

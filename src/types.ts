@@ -1,7 +1,22 @@
+export type MenuCategoryType =
+  | 'fast-food'
+  | 'grill'
+  | 'drinks'
+  | 'ice-cream'
+  | 'green-teas'
+  | 'scoops'
+  | 'sundaes'
+  | 'deals'
+  | 'fast-food-bbq'
+  | 'shakes'
+  | 'kulfi'
+  | 'coffees'
+  | 'sodas';
+
 export interface MenuItem {
   id: string;
   name: string;
-  category: 'scoops' | 'sundaes' | 'deals' | 'fast-food-bbq' | 'shakes' | 'kulfi' | 'coffees' | 'sodas';
+  category: MenuCategoryType;
   price: number; // In PKR
   originalPrice?: number; // Original PKR price before discount
   makingCost?: number; // In PKR - raw ingredient & preparation cost to make product
@@ -32,7 +47,7 @@ export interface MenuItem {
 }
 
 export interface Category {
-  id: 'all' | 'scoops' | 'sundaes' | 'deals' | 'fast-food-bbq' | 'shakes' | 'kulfi' | 'coffees' | 'sodas';
+  id: 'all' | MenuCategoryType;
   name: string;
   icon: string;
   description: string;

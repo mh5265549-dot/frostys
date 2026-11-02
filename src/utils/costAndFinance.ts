@@ -123,6 +123,60 @@ export const DEFAULT_RECIPE_COSTS: Record<string, { cost: number; breakdown: str
     breakdown: 'Whole Wheat Atta, Tandoor Baking, Butter Paper Wrapping',
   },
 
+  // Seafood, Soups & Paratha Rolls
+  'grill-fish-kala-rahu': {
+    cost: 1100,
+    breakdown: 'Fresh Kala Rahu River Fish (1 KG), Secret Lahori Masala, Mustard Oil, Skewers, Chutneys',
+  },
+  'soup-19b': {
+    cost: 200,
+    breakdown: 'Shredded Chicken, Black Mushrooms, Egg Drops, Dark Broth, Seasoning, Bowl Packaging',
+  },
+  'soup-hot-and-sour': {
+    cost: 160,
+    breakdown: 'Chicken, Egg Ribbons, Carrots, Cabbage, Chili Vinegar Sauce, Spices, Bowl Packaging',
+  },
+  'roll-jumbo-paratha': {
+    cost: 380,
+    breakdown: 'Large Crispy Paratha, Double Chicken Boti, Sliced Red Onions, Garlic Sauce, Wrapper',
+  },
+  'roll-malai-boti-garlic-cheese': {
+    cost: 260,
+    breakdown: 'Flaky Paratha, Creamy Malai Boti, Melted Mozzarella & Cheddar, Roasted Garlic Mayo, Wrapper',
+  },
+  'roll-malai-boti-cheese': {
+    cost: 240,
+    breakdown: 'Flaky Paratha, Malai Boti, Melted Cheese, Mint Sauce, Foil Wrapper',
+  },
+  'roll-malai-boti-garlic': {
+    cost: 230,
+    breakdown: 'Paratha, Malai Boti, Garlic Sauce Spread, Crispy Onions, Wrapper',
+  },
+  'roll-malai-boti': {
+    cost: 210,
+    breakdown: 'Flaky Paratha, Charcoal Malai Boti, Mint Chutney, Sliced Onions, Wrapper',
+  },
+  'roll-chicken-tikka-boti': {
+    cost: 190,
+    breakdown: 'Paratha, Charcoal Chicken Tikka Boti, Spices, Mint Raita Sauce, Wrapper',
+  },
+  'roll-chicken-kabab': {
+    cost: 180,
+    breakdown: 'Paratha, Chicken Seekh Kabab, Sliced Onions, Garlic Mayo Sauce, Wrapper',
+  },
+  'gt-peshawari-qehwa': {
+    cost: 35,
+    breakdown: 'Authentic Green Tea Leaves, Green Cardamom, Fresh Mint, Rock Candies, Serving Glass',
+  },
+  'gt-cardamom-mint': {
+    cost: 40,
+    breakdown: 'Green Tea, Crushed Elaichi Pods, Wild Mint, Glass',
+  },
+  'gt-lemon-honey': {
+    cost: 45,
+    breakdown: 'Green Tea, Fresh Lemon Juice, Pure Natural Honey, Glass',
+  },
+
   // Ice Cream & Desserts
   'waffle-cone-classic': {
     cost: 35,
