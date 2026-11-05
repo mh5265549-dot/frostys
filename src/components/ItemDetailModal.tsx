@@ -919,6 +919,14 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               <i className="fa-solid fa-ban"></i>
               <span>Out of Stock</span>
             </button>
+          ) : item?.isComingSoon || item?.badge?.toLowerCase().includes('coming soon') ? (
+            <button
+              disabled
+              className="w-full py-3.5 rounded-2xl bg-amber-100 text-amber-900 border border-amber-300 font-bold text-sm cursor-not-allowed flex items-center justify-center gap-2 shadow-xs"
+            >
+              <i className="fa-solid fa-clock text-amber-600"></i>
+              <span>Coming Soon – Available Soon</span>
+            </button>
           ) : isAdded ? (
             <button
               disabled

@@ -662,11 +662,17 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                             </div>
                           )}
 
-                          {/* Deal / Special Ribbon */}
-                          {!isSoldOut && (item.badge || item.originalPrice) && (
-                            <span className="absolute top-2 left-2 text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-md shadow-xs uppercase tracking-wider bg-red-600">
-                              {item.badge || 'DEAL'}
+                          {/* Deal / Special Ribbon / Coming Soon */}
+                          {!isSoldOut && (item.isComingSoon || item.badge?.toLowerCase().includes('coming soon')) ? (
+                            <span className="absolute top-2 left-2 text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-md shadow-xs uppercase tracking-wider bg-amber-600 animate-pulse">
+                              ⏳ Coming Soon
                             </span>
+                          ) : (
+                            !isSoldOut && (item.badge || item.originalPrice) && (
+                              <span className="absolute top-2 left-2 text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-md shadow-xs uppercase tracking-wider bg-red-600">
+                                {item.badge || 'DEAL'}
+                              </span>
+                            )
                           )}
 
                           {/* Rating Pill */}
@@ -739,6 +745,17 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                                 >
                                   <i className="fa-solid fa-ban text-[9px]"></i>
                                   <span>Sold Out</span>
+                                </button>
+                              ) : item.isComingSoon || item.badge?.toLowerCase().includes('coming soon') ? (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onSelectItem(item);
+                                  }}
+                                  className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-300 font-bold text-[11px] sm:text-xs hover:bg-amber-100 transition-colors flex items-center gap-1 cursor-pointer"
+                                >
+                                  <i className="fa-solid fa-clock text-[9px] text-amber-600"></i>
+                                  <span>Coming Soon</span>
                                 </button>
                               ) : (
                                 <button
