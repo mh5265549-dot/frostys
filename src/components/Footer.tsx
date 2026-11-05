@@ -140,8 +140,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminModal }) => {
                 className="text-stone-500 hover:text-stone-800 font-bold underline flex items-center gap-1 transition-colors cursor-pointer"
                 title="Owner Admin Panel Login"
               >
-                <i className="fa-solid fa-lock text-[10px]"></i>
-                <span>Owner Portal</span>
+                <i className="fa-solid fa-id-badge text-[10px]"></i>
+                <span>Admin & Staff Entrance</span>
               </button>
             )}
           </p>

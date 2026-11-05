@@ -140,17 +140,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right Actions: Cart & Menu */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             
-            {/* Admin Control Lock Button */}
+            {/* Admin & Staff Entrance Button */}
             {onOpenAdminModal && (
               <button
                 onClick={onOpenAdminModal}
                 id="btn-admin-lock-nav"
-                className="p-2 sm:px-2.5 sm:py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 border border-stone-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
-                title="Owner Admin Control (Password Protected)"
-                aria-label="Admin Control Lock"
+                className="p-2 sm:px-2.5 sm:py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 border border-stone-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95 shadow-2xs"
+                title="Admin & Staff Entrance (Password Protected)"
+                aria-label="Admin & Staff Entrance"
               >
-                <i className="fa-solid fa-lock text-stone-700 text-xs sm:text-sm"></i>
-                <span className="hidden xl:inline text-[11px] font-bold">Admin</span>
+                <i className="fa-solid fa-id-badge text-amber-600 text-xs sm:text-sm"></i>
+                <span className="hidden sm:inline text-[11px] font-bold">Admin / Staff</span>
               </button>
             )}
 
@@ -243,7 +243,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </a>
           </div>
 
-          {/* Admin Portal Button if configured */}
+          {/* Admin & Staff Entrance */}
           {onOpenAdminModal && (
             <div className="pt-1">
               <button
@@ -251,10 +251,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setMobileMenuOpen(false);
                   onOpenAdminModal();
                 }}
-                className="w-full py-2 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold flex items-center justify-center gap-2"
+                className="w-full py-2.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-950 text-xs font-bold flex items-center justify-center gap-2 border border-amber-200 shadow-2xs"
               >
-                <i className="fa-solid fa-lock text-stone-500"></i>
-                <span>Owner Portal (PIN Protected)</span>
+                <i className="fa-solid fa-id-badge text-amber-700"></i>
+                <span>Admin & Staff Entrance</span>
               </button>
             </div>
           )}

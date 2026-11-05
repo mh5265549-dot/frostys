@@ -305,14 +305,18 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
   }, [orders]);
 
   // Handle password login
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = (
+    e?: React.FormEvent,
+    targetTab: 'overview' | 'orders' | 'menu' | 'add-product' | 'finance' | 'users' | 'security' | 'system' = 'overview'
+  ) => {
+    if (e) e.preventDefault();
     if (!passwordInput.trim()) {
-      setPasswordError('Please enter admin password');
+      setPasswordError('Please enter the password (Default: 1234567)');
       return;
     }
     if (checkAdminPassword(passwordInput.trim())) {
       setIsAuthenticated(true);
+      setActiveTab(targetTab);
       setPasswordError('');
       setPasswordInput('');
     } else {
@@ -629,20 +633,21 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
 
             <div>
               <h2 className="font-heading font-black text-2xl text-[#1E1915]">
-                Frosty's Admin Console
+                Frosty's Admin & Staff Entrance
               </h2>
               <p className="text-xs text-[#7A7067] uppercase tracking-widest mt-1 font-bold">
-                GREEN CITY X OPERATIONS CONSOLE
+                GREEN CITY X OPERATIONS & TEAM CONSOLE
               </p>
-              <p className="text-xs text-[#8A8177] mt-3">
-                Enter your administrative password to access the real-time telemetry, revenue ledger, and KDS dispatch hub.
+              <p className="text-xs text-[#8A8177] mt-2.5">
+                Enter security password to access live telemetry, orders, menu CRUD, or staff attendance.
               </p>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-4 text-left">
+            <form onSubmit={(e) => handleLogin(e, 'overview')} className="space-y-4 text-left">
               <div>
-                <label className="block text-xs font-bold text-[#4A423A] mb-1.5">
-                  Admin Security Password
+                <label className="block text-xs font-bold text-[#4A423A] mb-1.5 flex items-center justify-between">
+                  <span>Security Password</span>
+                  <span className="text-[11px] text-[#7A7067] font-normal">Default: 1234567</span>
                 </label>
                 <input
                   type="password"
@@ -664,27 +669,54 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                 </div>
               )}
 
-              <button
-                type="submit"
-                className="w-full py-3.5 rounded-xl bg-[#1E1915] hover:bg-[#2C241E] text-white font-black text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md flex items-center justify-center gap-2"
-              >
-                <i className="fa-solid fa-lock-open text-xs text-[#D99B26]"></i>
-                <span>Unlock Operations Console</span>
-              </button>
-
-              <div className="pt-2 text-center">
+              <div className="space-y-2.5 pt-1">
+                {/* 1. Staff Entrance Button (Prominent) */}
                 <button
                   type="button"
-                  onClick={() => setShowDemoHint(!showDemoHint)}
+                  onClick={() => {
+                    if (!passwordInput.trim()) {
+                      // Convenience helper: if password empty, autofill default password for staff ease
+                      setPasswordInput('1234567');
+                      setTimeout(() => {
+                        if (checkAdminPassword('1234567')) {
+                          setIsAuthenticated(true);
+                          setActiveTab('users');
+                          setPasswordError('');
+                          setPasswordInput('');
+                        }
+                      }, 50);
+                    } else {
+                      handleLogin(undefined, 'users');
+                    }
+                  }}
+                  id="btn-staff-entrance-direct"
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-600 via-[#C25E34] to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-black text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md flex items-center justify-center gap-2.5 border border-amber-400/30 hover:scale-[1.01] active:scale-[0.99]"
+                >
+                  <i className="fa-solid fa-id-badge text-sm text-amber-200"></i>
+                  <span>Staff Entrance (Shift & Attendance Hub)</span>
+                </button>
+
+                {/* 2. Full Admin Operations Console Button */}
+                <button
+                  type="submit"
+                  className="w-full py-3 rounded-xl bg-[#1E1915] hover:bg-[#2C241E] text-white font-black text-xs uppercase tracking-wider transition-all cursor-pointer shadow-xs flex items-center justify-center gap-2"
+                >
+                  <i className="fa-solid fa-lock-open text-xs text-[#D99B26]"></i>
+                  <span>Unlock Full Operations Console</span>
+                </button>
+              </div>
+
+              <div className="pt-1 text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPasswordInput('1234567');
+                    setShowDemoHint(true);
+                  }}
                   className="text-xs text-[#C25E34] hover:underline font-semibold cursor-pointer"
                 >
-                  {showDemoHint ? 'Hide demo password' : '🔑 Need demo password?'}
+                  {showDemoHint ? '✓ Demo password filled (1234567)' : '🔑 Auto-fill demo password'}
                 </button>
-                {showDemoHint && (
-                  <p className="text-xs font-mono text-[#4A423A] bg-[#FAF8F5] p-2 rounded-lg border border-[#EDE8DF] mt-2">
-                    Default: <strong>1234567</strong>
-                  </p>
-                )}
               </div>
             </form>
 
@@ -751,6 +783,20 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                 <i className="fa-regular fa-moon"></i>
               </div>
 
+              {/* Top Bar Staff Entrance Shortcut */}
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs ${
+                  activeTab === 'users'
+                    ? 'bg-[#1E1915] text-white border-[#1E1915] font-black'
+                    : 'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-300'
+                }`}
+                title="Open Staff Attendance & Roster"
+              >
+                <i className="fa-solid fa-id-badge text-xs text-amber-600"></i>
+                <span className="hidden sm:inline font-bold">Staff Entrance</span>
+              </button>
+
               {/* View Storefront Button */}
               <button
                 onClick={onClose}
@@ -770,6 +816,43 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
               </button>
             </div>
           </header>
+
+          {/* Mobile Responsive Navigation Strip (< md screens) */}
+          <div className="md:hidden flex items-center gap-1.5 overflow-x-auto p-2 bg-[#F6F2EB] border-b border-[#EDE8DF] shrink-0 no-scrollbar">
+            {[
+              { id: 'overview', label: 'Overview', icon: 'fa-border-all' },
+              { id: 'orders', label: 'Live Orders', icon: 'fa-bell-concierge', badge: activeOrdersCount > 0 ? `${activeOrdersCount}` : undefined },
+              { id: 'menu', label: 'Menu Catalog', icon: 'fa-utensils' },
+              { id: 'add-product', label: 'Add Product', icon: 'fa-circle-plus' },
+              { id: 'finance', label: 'Financials', icon: 'fa-coins' },
+              { id: 'users', label: 'Staff Entrance', icon: 'fa-id-badge', isStaff: true },
+              { id: 'security', label: 'Security', icon: 'fa-shield-halved' },
+              { id: 'system', label: 'Settings', icon: 'fa-sliders' },
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 flex items-center gap-1.5 transition-all ${
+                    isActive
+                      ? 'bg-[#1E1915] text-white shadow-xs'
+                      : tab.isStaff
+                      ? 'bg-amber-100 text-amber-950 font-black border border-amber-300'
+                      : 'bg-white text-[#6B635B] hover:text-[#1E1915] border border-[#E4DDD2]'
+                  }`}
+                >
+                  <i className={`fa-solid ${tab.icon} ${tab.isStaff && !isActive ? 'text-amber-700' : 'text-xs'}`}></i>
+                  <span>{tab.label}</span>
+                  {tab.badge && (
+                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-[#C25E34] text-white">
+                      {tab.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
           {/* MAIN WRAPPER: SIDEBAR + CONTENT AREA */}
           <div className="flex-1 flex min-h-0 overflow-hidden">
@@ -882,9 +965,10 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                     </div>
                   </button>
 
-                  {/* Nav Item 5: User & Staff Hub */}
+                  {/* Nav Item 5: Staff Entrance (Team Roster & Attendance) */}
                   <button
                     onClick={() => setActiveTab('users')}
+                    id="sidebar-staff-entrance-btn"
                     className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       activeTab === 'users'
                         ? 'bg-[#1E1915] text-white shadow-xs'
@@ -892,14 +976,12 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <i className="fa-solid fa-user-group text-sm"></i>
-                      <span>User & Staff Hub</span>
+                      <i className={`fa-solid fa-id-badge text-sm ${activeTab === 'users' ? 'text-[#D99B26]' : 'text-amber-600'}`}></i>
+                      <span className="font-extrabold">Staff Entrance</span>
                     </div>
-                    {complaints.filter((c) => c.status === 'Pending').length > 0 && (
-                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-rose-500 text-white">
-                        {complaints.filter((c) => c.status === 'Pending').length}
-                      </span>
-                    )}
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-500/10 text-amber-800 border border-amber-500/20">
+                      Attendance Hub
+                    </span>
                   </button>
 
                   {/* Nav Item 6: Security Audit Logs */}
