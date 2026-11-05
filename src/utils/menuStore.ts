@@ -1,7 +1,7 @@
 import { MenuItem } from '../types';
 import { MENU_ITEMS } from '../data/menuData';
 
-const MENU_STORAGE_KEY = 'frostys_custom_menu_catalog_v11';
+const MENU_STORAGE_KEY = 'frostys_custom_menu_catalog_v13';
 const PASSWORD_STORAGE_KEY = 'frostys_admin_password_v2';
 const DEFAULT_PASSWORD = '1234567';
 
@@ -16,15 +16,35 @@ export function getStoredMenuItems(): MenuItem[] {
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      // Auto-merge newly added default items (e.g. Charcoal BBQ, Platters, Malai Boti)
+      // Auto-merge newly added default items (e.g. Kashmiri Pink Chai, All-Flavors Cup, Greek Gyro)
       const existingIds = new Set(parsed.map((p: MenuItem) => p.id));
       const missingDefaults = MENU_ITEMS.filter((item) => !existingIds.has(item.id));
-      if (missingDefaults.length > 0) {
-        const merged = [...parsed, ...missingDefaults];
-        saveCustomMenuItems(merged);
-        return merged;
-      }
-      return parsed;
+      let merged = missingDefaults.length > 0 ? [...parsed, ...missingDefaults] : parsed;
+
+      // Always synchronize official updates for shami burger, soft serve, and chai
+      const defaultMap = new Map(MENU_ITEMS.map((m) => [m.id, m]));
+      merged = merged.map((it: MenuItem) => {
+        const def = defaultMap.get(it.id);
+        if (it.id === 'waffle-cone-classic' && def) {
+          return { ...it, ...def };
+        }
+        if (it.id === 'ff-shami-burger' && (it.name !== 'Shami Burger' || it.price !== 350)) {
+          return { ...it, name: 'Shami Burger', price: 350, unit: 'Single Burger (350 PKR)' };
+        }
+        if (it.id === 'ff-karak-chai' && def) {
+          return { ...it, image: def.image, badge: def.badge, description: def.description, unit: def.unit };
+        }
+        if (it.id === 'ff-chicken-fries-supreme' && def) {
+          return { ...it, image: def.image };
+        }
+        if (it.id === 'ff-fries-supreme' && def) {
+          return { ...it, image: def.image };
+        }
+        return it;
+      });
+
+      saveCustomMenuItems(merged);
+      return merged;
     }
   } catch (err) {
     console.error('Failed to parse custom menu items from localStorage:', err);

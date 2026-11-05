@@ -15,6 +15,92 @@ interface MenuCategoryGroup {
   type?: 'dessert' | 'grill' | 'deal';
 }
 
+/**
+ * Strict ice cream classifier:
+ * Categorizes all scoops, cones, sundaes, super cups, kulfi, and ice cream deals.
+ * Guarantees that ice cream items are NEVER shown under fast food, grill, drinks, or green teas.
+ */
+export const isIceCreamItem = (item: MenuItem): boolean => {
+  const cat = (item.category || '').toLowerCase();
+  const name = item.name.toLowerCase();
+  const id = item.id.toLowerCase();
+  const tags = (item.tags || []).map((t) => t.toLowerCase());
+
+  // Beverages (shakes, coffees, sodas, and chai) are drinks, NOT pure ice cream desserts
+  if (
+    cat === 'shakes' ||
+    cat === 'coffees' ||
+    cat === 'sodas' ||
+    cat === 'chai' ||
+    cat === 'green-teas' ||
+    item.isBeverage === true
+  ) {
+    return false;
+  }
+
+  // Ice cream specific categories
+  if (
+    cat === 'ice-cream' ||
+    cat === 'scoops' ||
+    cat === 'sundaes' ||
+    cat === 'kulfi'
+  ) {
+    return true;
+  }
+
+  // Ice cream deals & combos
+  if (
+    id === 'deal-family' ||
+    id === 'deal-friends' ||
+    id === 'deal-super-sundae' ||
+    tags.some(
+      (t) =>
+        t.includes('scoop') ||
+        t.includes('sundae') ||
+        t.includes('5 scoops') ||
+        t.includes('6 scoops') ||
+        t.includes('super sundae')
+    ) ||
+    name.includes('super sundae') ||
+    name.includes('scoop')
+  ) {
+    return true;
+  }
+
+  // Pure ice cream tag or name identifiers
+  if (
+    tags.some(
+      (t) =>
+        t.includes('ice cream') ||
+        t.includes('scoop') ||
+        t.includes('sundae') ||
+        t.includes('cone') ||
+        t.includes('waffle cone') ||
+        t.includes('kulfi') ||
+        t.includes('banana split') ||
+        t.includes('super cup') ||
+        t.includes('kulfa')
+    )
+  ) {
+    return true;
+  }
+
+  if (
+    name.includes('ice cream') ||
+    name.includes('cone') ||
+    name.includes('scoop') ||
+    name.includes('sundae') ||
+    name.includes('banana split') ||
+    name.includes('super cup') ||
+    name.includes('kulfi') ||
+    name.includes('kulfa')
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
 const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
   {
     id: 'fast-food',
@@ -23,28 +109,41 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     badge: 'Burgers & Rolls',
     description: 'Flame-grilled burgers, crispy tacos, loaded fries supreme, and freshly toasted paratha rolls.',
     filter: (item) => {
+      // STRICT RULE: Ice creams must NEVER appear in fast food
+      if (isIceCreamItem(item)) {
+        return false;
+      }
       const cat = (item.category || '').toLowerCase();
       const name = item.name.toLowerCase();
       const tags = (item.tags || []).map((t) => t.toLowerCase());
+
+      // Only match authentic savory rolls (paratha rolls, tikka rolls, kabab rolls) - NEVER waffle cones!
+      const isSavoryRoll =
+        (name.includes('roll') && !name.includes('cone') && !name.includes('waffle') && !name.includes('cream')) ||
+        tags.some((t) => t.includes('paratha roll') || t.includes('boti roll') || t.includes('kabab roll') || t.includes('jumbo roll'));
+
       return (
         cat === 'fast-food' ||
         cat === 'burgers' ||
         cat === 'tacos' ||
         cat === 'fries' ||
         cat === 'sandwiches' ||
+        item.id === 'deal-crispy-burger-meal' ||
+        isSavoryRoll ||
         tags.some((t) =>
           t.includes('fast food') ||
           t.includes('burger') ||
-          t.includes('roll') ||
           t.includes('taco') ||
           t.includes('fries') ||
-          t.includes('sandwich')
+          t.includes('sandwich') ||
+          t.includes('gyro')
         ) ||
         name.includes('burger') ||
-        name.includes('roll') ||
         name.includes('taco') ||
         name.includes('fries') ||
-        name.includes('sandwich')
+        name.includes('sandwich') ||
+        name.includes('wrap') ||
+        name.includes('gyro')
       );
     },
     type: 'grill',
@@ -56,26 +155,42 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     badge: 'Charcoal & Fish',
     description: 'Grill Fish (Kala Rahu Rs 2200/KG), Charcoal Malai & Tikka Boti, Wings, 19B & Hot Sour Soups, Platters, and Tandoori Sides.',
     filter: (item) => {
+      // STRICT RULE: Ice creams must NEVER appear in grill
+      if (isIceCreamItem(item)) {
+        return false;
+      }
       const cat = (item.category || '').toLowerCase();
       const name = item.name.toLowerCase();
       const tags = (item.tags || []).map((t) => t.toLowerCase());
-      // Exclude fast food items (rolls, burgers, tacos, fries)
+
+      // Exclude fast food items (rolls, burgers, tacos, fries, wraps, gyro, sandwiches)
       if (
         name.includes('roll') ||
         cat === 'fast-food' ||
         name.includes('burger') ||
         name.includes('sandwich') ||
         name.includes('fries') ||
-        name.includes('taco')
+        name.includes('taco') ||
+        name.includes('wrap') ||
+        name.includes('gyro') ||
+        item.id === 'deal-crispy-burger-meal'
       ) {
         return false;
       }
+
+      // Only BBQ & Grill Deals (e.g. Deal 1, Deal 2, Family BBQ Platter)
+      const isBbqDeal =
+        item.id === 'deal-1' ||
+        item.id === 'deal-2' ||
+        item.id === 'deal-family-bbq-platter' ||
+        tags.some((t) => t.includes('bbq deal') || t.includes('tikka deal') || t.includes('bbq platter'));
+
       return (
         cat === 'grill' ||
         cat === 'bbq' ||
         cat === 'bbq-main' ||
         cat === 'bbq-sides' ||
-        cat === 'deals' ||
+        isBbqDeal ||
         tags.some((t) =>
           t.includes('grill') ||
           t.includes('fish') ||
@@ -116,9 +231,14 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     badge: 'Hot & Cold',
     description: 'Thick creamy milkshakes, cold Spanish latte, iced coffees, fruit soda chillers, and hot Karak Chai matka.',
     filter: (item) => {
+      // STRICT RULE: Pure ice cream desserts must NEVER appear in drinks
+      if (isIceCreamItem(item)) {
+        return false;
+      }
       const cat = (item.category || '').toLowerCase();
       const name = item.name.toLowerCase();
       const tags = (item.tags || []).map((t) => t.toLowerCase());
+
       // Exclude green tea items
       if (
         cat === 'green-teas' ||
@@ -129,6 +249,7 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
       ) {
         return false;
       }
+
       return (
         cat === 'drinks' ||
         cat === 'shakes' ||
@@ -161,41 +282,8 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     badge: 'Cups & Cones',
     description: 'Pure cream artisanal ice cream cups, Super Cups, Deluxe Banana Splits, and crispy freshly rolled waffle cones.',
     filter: (item) => {
-      const cat = (item.category || '').toLowerCase();
-      const name = item.name.toLowerCase();
-      const tags = (item.tags || []).map((t) => t.toLowerCase());
-      if (
-        cat === 'shakes' ||
-        cat === 'coffees' ||
-        cat === 'sodas' ||
-        cat === 'chai' ||
-        cat === 'green-teas' ||
-        name.includes('shake') ||
-        name.includes('chai')
-      ) {
-        return false;
-      }
-      return (
-        cat === 'ice-cream' ||
-        cat === 'scoops' ||
-        cat === 'sundaes' ||
-        cat === 'kulfi' ||
-        tags.some((t) =>
-          t.includes('ice cream') ||
-          t.includes('scoop') ||
-          t.includes('sundae') ||
-          t.includes('cone') ||
-          t.includes('cup') ||
-          t.includes('kulfi')
-        ) ||
-        name.includes('ice cream') ||
-        name.includes('cone') ||
-        name.includes('scoop') ||
-        name.includes('sundae') ||
-        name.includes('split') ||
-        name.includes('cup') ||
-        name.includes('kulfi')
-      );
+      // ALL and ONLY ice cream items belong in this section
+      return isIceCreamItem(item);
     },
     type: 'dessert',
   },
@@ -206,6 +294,9 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     badge: 'Qehwa & Herbal',
     description: 'Hot steaming Peshawari Qehwa, Cardamom & Mint Green Tea, and Lemon & Honey Green Tea.',
     filter: (item) => {
+      if (isIceCreamItem(item)) {
+        return false;
+      }
       const cat = (item.category || '').toLowerCase();
       const name = item.name.toLowerCase();
       const tags = (item.tags || []).map((t) => t.toLowerCase());
@@ -309,25 +400,32 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
         continue;
       }
 
-      const groupItems = filteredItems.filter((item) => {
-        const matches = group.filter(item);
-        if (matches) {
-          matchedIds.add(item.id);
-        }
-        return matches;
-      });
+      const groupItems = filteredItems.filter((item) => group.filter(item));
+      groupItems.forEach((item) => matchedIds.add(item.id));
 
-      if (groupItems.length > 0) {
+      const isDealItem = (it: MenuItem) =>
+        it.category === 'deals' ||
+        it.id.startsWith('deal-') ||
+        (it.badge && it.badge.toLowerCase().includes('deal')) ||
+        (it.tags && it.tags.some((t) => t.toLowerCase().includes('deal') || t.toLowerCase().includes('combo deal')));
+
+      const regularItems = groupItems.filter((it) => !isDealItem(it));
+      const dealItems = groupItems.filter(isDealItem);
+      const sortedGroupItems = [...regularItems, ...dealItems];
+
+      if (sortedGroupItems.length > 0) {
         sections.push({
           group,
-          items: groupItems,
+          items: sortedGroupItems,
         });
       }
     }
 
     // Catch any remaining items that didn't match specific group filters
     if (!activeCategory || activeCategory === 'all') {
-      const leftoverItems = filteredItems.filter((item) => !matchedIds.has(item.id));
+      const leftoverItems = filteredItems.filter(
+        (item) => !matchedIds.has(item.id) && !isIceCreamItem(item)
+      );
       if (leftoverItems.length > 0) {
         sections.push({
           group: {
@@ -811,28 +909,83 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                     const isConeItem = (it: MenuItem) => {
                       const n = it.name.toLowerCase();
                       const id = it.id.toLowerCase();
-                      const tags = (it.tags || []).map((t) => t.toLowerCase());
                       return (
-                        n.includes('cone') ||
-                        id.includes('cone') ||
-                        tags.some((t) => t.includes('cone'))
+                        id === 'waffle-cone-classic' ||
+                        n.includes('waffle cone') ||
+                        (n.includes('cone') && !n.includes('cup'))
                       );
                     };
 
                     const coneItems = groupItems.filter(isConeItem);
                     const cupItems = groupItems.filter((it) => !isConeItem(it));
 
+                    const ICE_CREAM_FLAVORS = [
+                      { name: 'Vanilla Bean', emoji: '🍨', color: 'bg-amber-50 text-amber-900 border-amber-200' },
+                      { name: 'Dutch Chocolate', emoji: '🍫', color: 'bg-stone-100 text-stone-800 border-stone-300' },
+                      { name: 'Chaunsa Mango', emoji: '🥭', color: 'bg-orange-50 text-orange-900 border-orange-200' },
+                      { name: 'Pistachio Kulfa', emoji: '🥜', color: 'bg-emerald-50 text-emerald-900 border-emerald-200' },
+                      { name: 'Chocolate Chip', emoji: '🍪', color: 'bg-amber-50 text-stone-900 border-stone-200' },
+                      { name: 'Strawberry Swirl', emoji: '🍓', color: 'bg-pink-50 text-pink-900 border-pink-200' },
+                      { name: 'Caramel Praline', emoji: '🌰', color: 'bg-yellow-50 text-yellow-900 border-yellow-200' },
+                      { name: 'Lotus Biscoff', emoji: '🧇', color: 'bg-amber-100 text-amber-950 border-amber-300' },
+                    ];
+
                     return (
                       <div className="space-y-8">
-                        {/* 1. Ice Cream Cups & Sundaes First */}
+                        {/* 1. Ice Cream Cups & All Flavors In One Place */}
                         {cupItems.length > 0 && (
-                          <div className="space-y-3.5">
-                            {coneItems.length > 0 && (
-                              <div className="flex items-center gap-2 text-xs font-bold text-blue-900 bg-blue-50/90 px-3.5 py-1.5 rounded-xl border border-blue-200/70 w-fit">
-                                <i className="fa-solid fa-bowl-rice text-blue-600"></i>
-                                <span>Cups, Bowls & Sundaes ({cupItems.length})</span>
+                          <div className="space-y-4">
+                            {/* Unified Cup & All Flavors Showcase Card */}
+                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50/90 via-sky-50/70 to-indigo-50/80 border border-blue-200/90 shadow-2xs space-y-3">
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg shadow-xs shrink-0">
+                                    <i className="fa-solid fa-bowl-rice"></i>
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
+                                        Ice Cream Cups (All Flavors)
+                                      </h4>
+                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-300 uppercase tracking-wider">
+                                        10+ Artisanal Flavors
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-stone-600 mt-0.5">
+                                      Pure dairy cream scoops served in branded cups. Single (Rs. 150) • Double (Rs. 250) • Triple (Rs. 350) + <strong>2 Free Syrups & Toppings included</strong>!
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white text-blue-800 border border-blue-200 shadow-2xs">
+                                    {cupItems.length} Cup Items & Sundaes
+                                  </span>
+                                </div>
                               </div>
-                            )}
+
+                              {/* Interactive Flavor Badges Showcase */}
+                              <div className="pt-1 flex flex-wrap gap-1.5 sm:gap-2">
+                                {ICE_CREAM_FLAVORS.map((flv) => (
+                                  <button
+                                    key={flv.name}
+                                    type="button"
+                                    onClick={() => {
+                                      const matchedCup = cupItems.find(
+                                        (c) => c.name.toLowerCase().includes(flv.name.toLowerCase()) || c.id === 'ice-cream-cup-all-flavors'
+                                      ) || cupItems[0];
+                                      onSelectItem(matchedCup);
+                                    }}
+                                    className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-2xs flex items-center gap-1.5 ${flv.color}`}
+                                    title={`Click to order ${flv.name} Cup`}
+                                  >
+                                    <span>{flv.emoji}</span>
+                                    <span>{flv.name}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
                               {cupItems.map((item, idx) => renderItemCard(item, idx))}
                             </div>

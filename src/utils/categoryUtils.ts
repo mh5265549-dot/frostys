@@ -150,9 +150,10 @@ export function allowsSyrupAndToppings(item: MenuItem | null | undefined): boole
     name.includes('taco') ||
     name.includes('sandwich') ||
     name.includes('wrap') ||
+    name.includes('gyro') ||
     name.includes('fries') ||
     name.includes('chai') ||
-    tags.some((t) => /burger|grill|bbq|taco|sandwich|wrap|fries/i.test(t))
+    tags.some((t) => /burger|grill|bbq|taco|sandwich|wrap|gyro|fries/i.test(t))
   ) {
     return false;
   }

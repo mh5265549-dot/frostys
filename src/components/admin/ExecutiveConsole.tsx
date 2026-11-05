@@ -8,7 +8,10 @@ import {
   getStoreOperationalSettings,
   saveStoreOperationalSettings,
 } from '../../utils/operationalStore';
-import { saveItemIngredientCost } from '../../utils/costAndFinance';
+import {
+  saveItemIngredientCost,
+  DEFAULT_RECIPE_COSTS,
+} from '../../utils/costAndFinance';
 import {
   grillFishImg,
   parathaRollsImg,
@@ -22,6 +25,8 @@ import {
   grilledChickenWrapImg,
   friesSupremeImg,
   karakChaiImg,
+  greekGyroImg,
+  kashmiriPinkChaiImg,
 } from '../../data/menuData';
 import { RealTimeOrderDispatchHub } from './RealTimeOrderDispatchHub';
 import { RecipeCostManager } from './RecipeCostManager';
@@ -46,6 +51,70 @@ interface ExecutiveConsoleProps {
     resolutionNotes?: string
   ) => void;
 }
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  role: string;
+  picture: string;
+  contactNumber: string;
+  emergencyContact: string;
+  emergencyRelation?: string;
+  arrivalTime: string;
+  arrivalDate?: string;
+  status: 'On Duty' | 'Checked In' | 'Off Duty';
+}
+
+const DEFAULT_STAFF_MEMBERS: StaffMember[] = [
+  {
+    id: 'staff-1',
+    name: 'Tariq Mehmood',
+    role: 'Head Charcoal Grill Master',
+    picture: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=400&q=80',
+    contactNumber: '0300 4821950',
+    emergencyContact: '0321 9876543 (Brother - Aslam)',
+    emergencyRelation: 'Brother',
+    arrivalTime: '09:30 AM PKT',
+    arrivalDate: 'Today',
+    status: 'On Duty',
+  },
+  {
+    id: 'staff-2',
+    name: 'Muhammad Ali',
+    role: 'Ice Cream & Dessert Artisan',
+    picture: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=400&q=80',
+    contactNumber: '0321 5567890',
+    emergencyContact: '0302 4433221 (Father - Ghulam)',
+    emergencyRelation: 'Father',
+    arrivalTime: '09:45 AM PKT',
+    arrivalDate: 'Today',
+    status: 'On Duty',
+  },
+  {
+    id: 'staff-3',
+    name: 'Usman Javed',
+    role: 'Dispatch Lead & Courier Rider',
+    picture: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+    contactNumber: '0333 8765432',
+    emergencyContact: '0312 9988776 (Uncle - Rafiq)',
+    emergencyRelation: 'Uncle',
+    arrivalTime: '10:00 AM PKT',
+    arrivalDate: 'Today',
+    status: 'On Duty',
+  },
+  {
+    id: 'staff-4',
+    name: 'Zainab Bibi',
+    role: 'Cashier & Front Desk Host',
+    picture: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+    contactNumber: '0304 1122334',
+    emergencyContact: '0300 7766554 (Mother - Parveen)',
+    emergencyRelation: 'Mother',
+    arrivalTime: '09:15 AM PKT',
+    arrivalDate: 'Today',
+    status: 'On Duty',
+  },
+];
 
 // Hourly PKT sales curve data points matching the screenshot
 interface HourlyDataPoint {
@@ -130,6 +199,40 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
   const [newProductBadge, setNewProductBadge] = useState('');
   const [productAddedSuccess, setProductAddedSuccess] = useState<string | null>(null);
 
+  const [catalogSubMode, setCatalogSubMode] = useState<'add' | 'edit'>('add');
+  const [selectedEditItemId, setSelectedEditItemId] = useState<string | null>(null);
+  const [catalogSearchQuery, setCatalogSearchQuery] = useState('');
+
+  // Staff Attendance & Directory State
+  const [staffList, setStaffList] = useState<StaffMember[]>(() => {
+    try {
+      const stored = localStorage.getItem('frostys_staff_roster_v2');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {
+      // fallback
+    }
+    return DEFAULT_STAFF_MEMBERS;
+  });
+  const [showAddStaffModal, setShowAddStaffModal] = useState(false);
+  const [newStaffName, setNewStaffName] = useState('');
+  const [newStaffRole, setNewStaffRole] = useState('Kitchen / Service Specialist');
+  const [newStaffPhone, setNewStaffPhone] = useState('');
+  const [newStaffEmergency, setNewStaffEmergency] = useState('');
+  const [newStaffArrivalTime, setNewStaffArrivalTime] = useState('');
+  const [newStaffPicture, setNewStaffPicture] = useState('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80');
+
+  const saveStaffList = (updated: StaffMember[]) => {
+    setStaffList(updated);
+    try {
+      localStorage.setItem('frostys_staff_roster_v2', JSON.stringify(updated));
+    } catch (e) {
+      console.error('Failed to save staff roster:', e);
+    }
+  };
+
   const PRESET_PICTURES = [
     { label: 'Grill Fish (Kala Rahu)', img: grillFishImg },
     { label: 'Chicken Paratha Roll', img: parathaRollsImg },
@@ -142,7 +245,9 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
     { label: 'Grilled Chicken Burger', img: grilledChickenBurgerImg },
     { label: 'Grilled Chicken Wrap', img: grilledChickenWrapImg },
     { label: 'Fries Supreme', img: friesSupremeImg },
+    { label: 'Greek Gyro', img: greekGyroImg },
     { label: 'Hot Karak Chai', img: karakChaiImg },
+    { label: 'Kashmiri Pink Chai', img: kashmiriPinkChaiImg },
   ];
 
   // Time Range Filter: Today | Yesterday | 7 Days
@@ -242,6 +347,158 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
     setNewPassword('');
     setConfirmPassword('');
     setPassMessage({ text: 'Password successfully updated!', type: 'success' });
+  };
+
+  const handleSelectProductForEdit = (item: MenuItem) => {
+    setSelectedEditItemId(item.id);
+    setCatalogSubMode('edit');
+    setNewProductName(item.name);
+    setNewProductPrice(String(item.price));
+    setNewProductCost(String(item.makingCost ?? (DEFAULT_RECIPE_COSTS[item.id]?.cost ?? Math.round(item.price * 0.45))));
+    const catStr = String(item.category || '');
+    setNewProductCategory(
+      (catStr === 'fast-food' || catStr === 'burgers' || catStr === 'fast-food-bbq')
+        ? 'fast-food'
+        : (catStr === 'grill' || catStr === 'bbq' || catStr === 'bbq-main' || catStr === 'bbq-sides')
+        ? 'grill'
+        : (catStr === 'drinks' || catStr === 'shakes' || catStr === 'coffees' || catStr === 'sodas' || catStr === 'chai')
+        ? 'drinks'
+        : catStr === 'green-teas'
+        ? 'green-teas'
+        : 'ice-cream'
+    );
+    setNewProductUnit(item.unit || 'Per Piece');
+    setNewProductDescription(item.description || '');
+    setNewProductStock(inventory[item.id] ?? 20);
+    setNewProductBadge(item.badge || '');
+    setNewProductCustomUrl(item.image || '');
+    
+    // Smooth scroll to top of form
+    const formEl = document.getElementById('product-form-container');
+    if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleResetCatalogForm = () => {
+    setSelectedEditItemId(null);
+    setCatalogSubMode('add');
+    setNewProductName('');
+    setNewProductPrice('');
+    setNewProductCost('');
+    setNewProductCustomUrl('');
+    setNewProductDescription('');
+    setNewProductBadge('');
+    setNewProductStock(25);
+  };
+
+  const handleUpdateExistingProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedEditItemId) return;
+    const existing = menuItems.find((m) => m.id === selectedEditItemId);
+    if (!existing) return;
+
+    const priceNum = parseFloat(newProductPrice);
+    if (!priceNum || priceNum <= 0) {
+      alert('Please enter a valid retail price in Rs.');
+      return;
+    }
+    const costNum = parseFloat(newProductCost) || 0;
+    const finalImage = newProductCustomUrl.trim() || newProductPicture;
+
+    const updatedItem: MenuItem = {
+      ...existing,
+      name: newProductName.trim() || existing.name,
+      price: priceNum,
+      makingCost: costNum,
+      category: newProductCategory,
+      image: finalImage,
+      description: newProductDescription.trim() || existing.description,
+      unit: newProductUnit,
+      badge: newProductBadge.trim() || undefined,
+    };
+
+    onUpdateMenuItem(updatedItem);
+    onUpdateStock(selectedEditItemId, newProductStock);
+    saveItemIngredientCost(selectedEditItemId, costNum, 'Updated via Admin Console');
+
+    setProductAddedSuccess(`Updated "${updatedItem.name}" successfully!`);
+    setTimeout(() => setProductAddedSuccess(null), 6000);
+  };
+
+  const handleDeleteExistingProduct = (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to permanently remove "${name}" from Frosty's menu?`)) {
+      if (onDeleteProduct) {
+        onDeleteProduct(id);
+      }
+      if (selectedEditItemId === id) {
+        handleResetCatalogForm();
+      }
+      setProductAddedSuccess(`Removed "${name}" from menu catalog.`);
+      setTimeout(() => setProductAddedSuccess(null), 6000);
+    }
+  };
+
+  // Staff Attendance Methods
+  const handleStaffClockIn = (staffId: string) => {
+    const updated = staffList.map((s) => {
+      if (s.id === staffId) {
+        const arrivalStr = currentTimePKT ? `${currentTimePKT} PKT` : 'Just Now';
+        return {
+          ...s,
+          arrivalTime: arrivalStr,
+          arrivalDate: 'Today',
+          status: 'On Duty' as const,
+        };
+      }
+      return s;
+    });
+    saveStaffList(updated);
+  };
+
+  const handleToggleStaffStatus = (staffId: string) => {
+    const updated = staffList.map((s) => {
+      if (s.id === staffId) {
+        const nextStatus = s.status === 'On Duty' ? ('Off Duty' as const) : ('On Duty' as const);
+        return {
+          ...s,
+          status: nextStatus,
+        };
+      }
+      return s;
+    });
+    saveStaffList(updated);
+  };
+
+  const handleAddStaffMember = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newStaffName.trim()) {
+      alert('Please enter staff name');
+      return;
+    }
+    const newStaff: StaffMember = {
+      id: `staff-${Date.now()}`,
+      name: newStaffName.trim(),
+      role: newStaffRole.trim() || 'Service Specialist',
+      picture: newStaffPicture.trim() || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
+      contactNumber: newStaffPhone.trim() || '0300 0000000',
+      emergencyContact: newStaffEmergency.trim() || 'Not Provided',
+      arrivalTime: newStaffArrivalTime.trim() || (currentTimePKT ? `${currentTimePKT} PKT` : '10:00 AM PKT'),
+      arrivalDate: 'Today',
+      status: 'On Duty',
+    };
+    const updated = [newStaff, ...staffList];
+    saveStaffList(updated);
+    setShowAddStaffModal(false);
+    setNewStaffName('');
+    setNewStaffPhone('');
+    setNewStaffEmergency('');
+    setNewStaffArrivalTime('');
+  };
+
+  const handleDeleteStaffMember = (staffId: string, name: string) => {
+    if (window.confirm(`Are you sure you want to remove "${name}" from the staff roster?`)) {
+      const updated = staffList.filter((s) => s.id !== staffId);
+      saveStaffList(updated);
+    }
   };
 
   // Selected curve data based on timeRange
@@ -1209,32 +1466,89 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
 
               {/* TAB: ADD NEW PRODUCT (Direct User Requirement 1) */}
               {activeTab === 'add-product' && (
-                <div className="space-y-6 max-w-5xl mx-auto">
-                  {/* Header */}
+                <div className="space-y-6 max-w-5xl mx-auto" id="product-form-container">
+                  {/* Header & Mode Switcher */}
                   <div className="bg-white p-5 rounded-2xl border border-[#EDE8DF] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full bg-[#C25E34]"></span>
                         <h3 className="font-heading font-black text-xl text-[#1E1915]">
-                          Add New Product to Frosty's Menu
+                          {catalogSubMode === 'edit'
+                            ? 'Edit or Remove Existing Menu Product'
+                            : "Add New Product to Frosty's Menu"}
                         </h3>
                       </div>
                       <p className="text-xs text-[#7A7067] mt-1">
-                        Add items with retail selling price, ingredient making cost, category, and photo. Live profit margins are automatically calibrated.
+                        {catalogSubMode === 'edit'
+                          ? 'Modify retail price, recipe cost, photos, categories, or permanently remove products from the catalog.'
+                          : 'Add items with retail selling price, ingredient making cost, category, and photo. Live profit margins are automatically calibrated.'}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2 self-start sm:self-auto">
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab('menu')}
-                        className="px-3.5 py-1.5 rounded-xl border border-[#E4DDD2] hover:bg-[#FAF8F5] text-xs font-bold text-[#6B635B] transition-all cursor-pointer flex items-center gap-1.5"
-                      >
-                        <i className="fa-solid fa-list text-[11px]"></i>
-                        <span>View Catalog ({menuItems.length})</span>
-                      </button>
+                    <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+                      {/* Sub-mode Toggle */}
+                      <div className="flex items-center p-1 bg-[#FAF8F5] rounded-xl border border-[#E4DDD2]">
+                        <button
+                          type="button"
+                          onClick={handleResetCatalogForm}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-heading font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            catalogSubMode === 'add'
+                              ? 'bg-[#1E1915] text-white shadow-xs'
+                              : 'text-[#6B635B] hover:text-[#1E1915]'
+                          }`}
+                        >
+                          <i className="fa-solid fa-plus text-[10px]"></i>
+                          <span>Add New</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCatalogSubMode('edit');
+                            if (!selectedEditItemId && menuItems.length > 0) {
+                              handleSelectProductForEdit(menuItems[0]);
+                            }
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-heading font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            catalogSubMode === 'edit'
+                              ? 'bg-[#C25E34] text-white shadow-xs'
+                              : 'text-[#6B635B] hover:text-[#1E1915]'
+                          }`}
+                        >
+                          <i className="fa-solid fa-pen-to-square text-[10px]"></i>
+                          <span>Edit & Remove ({menuItems.length})</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
+
+                  {catalogSubMode === 'edit' && (
+                    <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in shadow-2xs">
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse shrink-0"></span>
+                        <span className="font-black text-amber-950">Select Item to Modify:</span>
+                        <span className="font-bold text-amber-800 truncate">
+                          {selectedEditItemId
+                            ? menuItems.find((m) => m.id === selectedEditItemId)?.name
+                            : 'Choose from dropdown below'}
+                        </span>
+                      </div>
+                      <select
+                        value={selectedEditItemId || ''}
+                        onChange={(e) => {
+                          const it = menuItems.find((m) => m.id === e.target.value);
+                          if (it) handleSelectProductForEdit(it);
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-white border border-amber-300 text-xs font-bold text-[#1E1915] max-w-xs focus:outline-none cursor-pointer"
+                      >
+                        <option value="">-- Choose item to edit or delete --</option>
+                        {menuItems.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.name} (Rs. {m.price})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   {productAddedSuccess && (
                     <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center justify-between gap-3 animate-fade-in shadow-xs">
@@ -1242,13 +1556,6 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                         <i className="fa-solid fa-circle-check text-base text-emerald-600"></i>
                         <span>{productAddedSuccess}</span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab('menu')}
-                        className="underline text-emerald-900 hover:text-emerald-950 font-black cursor-pointer"
-                      >
-                        View in Catalog →
-                      </button>
                     </div>
                   )}
 
@@ -1256,7 +1563,7 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                     {/* LEFT 2 COLS: Form Inputs */}
                     <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-[#EDE8DF] shadow-xs space-y-5">
                       <form
-                        onSubmit={(e) => {
+                        onSubmit={catalogSubMode === 'edit' ? handleUpdateExistingProduct : (e) => {
                           e.preventDefault();
                           if (!newProductName.trim()) {
                             alert('Please enter a product name');
@@ -1555,15 +1862,52 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                           </div>
                         </div>
 
-                        {/* Submit Button */}
-                        <div className="pt-3 border-t border-[#EDE8DF] flex items-center justify-end gap-3">
-                          <button
-                            type="submit"
-                            className="px-6 py-3 rounded-2xl bg-[#C25E34] hover:bg-[#a54c25] active:scale-95 text-white font-heading font-black text-xs transition-all shadow-md cursor-pointer flex items-center gap-2"
-                          >
-                            <i className="fa-solid fa-plus text-xs"></i>
-                            <span>Add Product to Live Menu</span>
-                          </button>
+                        {/* Submit & Edit Buttons */}
+                        <div className="pt-3 border-t border-[#EDE8DF]">
+                          {catalogSubMode === 'edit' ? (
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (selectedEditItemId) {
+                                    const it = menuItems.find((m) => m.id === selectedEditItemId);
+                                    handleDeleteExistingProduct(selectedEditItemId, it?.name || newProductName);
+                                  }
+                                }}
+                                className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs cursor-pointer flex items-center justify-center gap-2 shadow-xs transition-colors"
+                              >
+                                <i className="fa-solid fa-trash-can text-xs"></i>
+                                <span>Delete / Remove Item</span>
+                              </button>
+
+                              <div className="flex items-center gap-2 justify-end">
+                                <button
+                                  type="button"
+                                  onClick={handleResetCatalogForm}
+                                  className="px-4 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#4A423A] font-bold text-xs cursor-pointer transition-colors"
+                                >
+                                  Cancel Edit
+                                </button>
+                                <button
+                                  type="submit"
+                                  className="px-6 py-2.5 rounded-xl bg-[#C25E34] hover:bg-[#a54c25] active:scale-95 text-white font-heading font-black text-xs transition-all shadow-md cursor-pointer flex items-center gap-2"
+                                >
+                                  <i className="fa-solid fa-check text-xs"></i>
+                                  <span>Save & Update Item</span>
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-end">
+                              <button
+                                type="submit"
+                                className="px-6 py-3 rounded-2xl bg-[#C25E34] hover:bg-[#a54c25] active:scale-95 text-white font-heading font-black text-xs transition-all shadow-md cursor-pointer flex items-center gap-2"
+                              >
+                                <i className="fa-solid fa-plus text-xs"></i>
+                                <span>Add Product to Live Menu</span>
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </form>
                     </div>
@@ -1678,6 +2022,134 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                       </div>
                     </div>
                   </div>
+
+                  {/* DIRECT USER REQUIREMENT: Live Directory to Change/Edit or Remove Any Item */}
+                  <div className="bg-white p-6 rounded-3xl border border-[#EDE8DF] shadow-xs space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <h4 className="font-heading font-black text-lg text-[#1E1915] flex items-center gap-2">
+                          <i className="fa-solid fa-list-check text-[#C25E34]"></i>
+                          <span>Live Menu Catalog (Click Any Item to Edit or Remove)</span>
+                        </h4>
+                        <p className="text-xs text-[#7A7067]">
+                          Quickly search, modify prices, or delete items permanently from the active customer menu.
+                        </p>
+                      </div>
+
+                      <div className="w-full sm:w-64 relative">
+                        <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[#8A8177]"></i>
+                        <input
+                          type="text"
+                          value={catalogSearchQuery}
+                          onChange={(e) => setCatalogSearchQuery(e.target.value)}
+                          placeholder="Search any menu item..."
+                          className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-semibold text-[#1E1915] focus:outline-none focus:border-[#C25E34]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto rounded-2xl border border-[#EDE8DF]">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="border-b border-[#EDE8DF] bg-[#FAF8F5] text-[#8A8177] font-mono text-[10px] uppercase">
+                            <th className="p-3">Product Name & Category</th>
+                            <th className="p-3">Retail Price</th>
+                            <th className="p-3">Making Cost</th>
+                            <th className="p-3">Stock Status</th>
+                            <th className="p-3 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#EDE8DF]">
+                          {menuItems
+                            .filter((item) =>
+                              catalogSearchQuery
+                                ? item.name.toLowerCase().includes(catalogSearchQuery.toLowerCase()) ||
+                                  item.category.toLowerCase().includes(catalogSearchQuery.toLowerCase())
+                                : true
+                            )
+                            .map((item) => {
+                              const isOutOfStock = (inventory[item.id] ?? 15) <= 0;
+                              const isCurrentlyEditing = selectedEditItemId === item.id;
+                              const cost = item.makingCost ?? (DEFAULT_RECIPE_COSTS[item.id]?.cost ?? Math.round(item.price * 0.45));
+                              return (
+                                <tr
+                                  key={item.id}
+                                  className={`transition-colors ${
+                                    isCurrentlyEditing
+                                      ? 'bg-amber-50/80 font-bold'
+                                      : 'hover:bg-[#FAF8F5]/80'
+                                  }`}
+                                >
+                                  <td className="p-3">
+                                    <div className="flex items-center gap-3">
+                                      <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="w-10 h-10 rounded-xl object-cover border border-[#EDE8DF] shrink-0"
+                                      />
+                                      <div>
+                                        <div className="font-heading font-black text-[#1E1915] flex items-center gap-1.5">
+                                          <span>{item.name}</span>
+                                          {item.badge && (
+                                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-50 text-red-700 border border-red-200">
+                                              {item.badge}
+                                            </span>
+                                          )}
+                                        </div>
+                                        <span className="text-[10px] text-[#8A8177] capitalize">
+                                          {item.category.replace('-', ' ')} • {item.unit || 'Standard'}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="p-3 font-mono font-bold text-[#1E1915]">
+                                    Rs. {item.price}
+                                  </td>
+                                  <td className="p-3 font-mono text-stone-600">
+                                    Rs. {cost}
+                                  </td>
+                                  <td className="p-3">
+                                    <button
+                                      type="button"
+                                      onClick={() => onUpdateStock(item.id, isOutOfStock ? 15 : 0)}
+                                      className={`px-2.5 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-colors ${
+                                        isOutOfStock
+                                          ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                          : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                      }`}
+                                    >
+                                      {isOutOfStock ? '🔴 Out of Stock' : '🟢 In Stock'}
+                                    </button>
+                                  </td>
+                                  <td className="p-3 text-right">
+                                    <div className="flex items-center justify-end gap-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleSelectProductForEdit(item)}
+                                        className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold text-xs cursor-pointer transition-colors flex items-center gap-1"
+                                        title="Edit this item"
+                                      >
+                                        <i className="fa-solid fa-pen-to-square text-[10px]"></i>
+                                        <span>Edit</span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeleteExistingProduct(item.id, item.name)}
+                                        className="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs cursor-pointer transition-colors flex items-center gap-1"
+                                        title="Permanently remove this item"
+                                      >
+                                        <i className="fa-solid fa-trash text-[10px]"></i>
+                                        <span>Remove</span>
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -1698,7 +2170,298 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
 
               {/* TAB 5: USER & STAFF HUB */}
               {activeTab === 'users' && (
-                <div className="space-y-6 max-w-4xl mx-auto">
+                <div className="space-y-6 max-w-5xl mx-auto">
+                  {/* DIRECT USER REQUIREMENT: Staff Management Hub with Name, Picture, Contact, Emergency Contact, and Arrival Time */}
+                  <div className="bg-white p-6 rounded-3xl border border-[#EDE8DF] shadow-xs space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EDE8DF] pb-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#C25E34]"></span>
+                          <h3 className="font-heading font-black text-xl text-[#1E1915]">
+                            Frosty's Staff Directory & Shift Attendance Hub
+                          </h3>
+                        </div>
+                        <p className="text-xs text-[#7A7067] mt-1">
+                          Track when staff reached at Frosty's, manage phone numbers, emergency contact protocols, and active shift rosters.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 self-start sm:self-auto">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNewStaffArrivalTime(currentTimePKT ? `${currentTimePKT} PKT` : '10:00 AM PKT');
+                            setShowAddStaffModal(true);
+                          }}
+                          className="px-4 py-2 rounded-xl bg-[#C25E34] hover:bg-[#a54c25] text-white text-xs font-heading font-black cursor-pointer flex items-center gap-2 shadow-xs transition-colors"
+                        >
+                          <i className="fa-solid fa-user-plus text-xs"></i>
+                          <span>Add Staff Member</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Quick Shift Summary Pills */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#EDE8DF]">
+                        <span className="text-[10px] font-bold text-[#8A8177] uppercase block">Total Roster</span>
+                        <span className="font-heading font-black text-lg text-[#1E1915]">{staffList.length} Members</span>
+                      </div>
+                      <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200">
+                        <span className="text-[10px] font-bold text-emerald-700 uppercase block">On Duty Now</span>
+                        <span className="font-heading font-black text-lg text-emerald-900">
+                          {staffList.filter((s) => s.status === 'On Duty').length} Active
+                        </span>
+                      </div>
+                      <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200">
+                        <span className="text-[10px] font-bold text-blue-700 uppercase block">Current PKT Time</span>
+                        <span className="font-mono font-bold text-lg text-blue-900">{currentTimePKT || 'Live PKT'}</span>
+                      </div>
+                      <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200">
+                        <span className="text-[10px] font-bold text-amber-700 uppercase block">Store Location</span>
+                        <span className="font-heading font-bold text-xs text-amber-950 mt-1 block">Green City & Paragon</span>
+                      </div>
+                    </div>
+
+                    {/* Add Staff Modal / Inline Card */}
+                    {showAddStaffModal && (
+                      <div className="p-5 rounded-3xl bg-[#FAF8F5] border-2 border-[#C25E34]/30 space-y-4 animate-fade-in shadow-sm">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-heading font-black text-sm text-[#1E1915] flex items-center gap-2">
+                            <i className="fa-solid fa-id-card text-[#C25E34]"></i>
+                            <span>Register New Staff Member</span>
+                          </h4>
+                          <button
+                            type="button"
+                            onClick={() => setShowAddStaffModal(false)}
+                            className="text-stone-400 hover:text-stone-700 text-sm cursor-pointer"
+                          >
+                            <i className="fa-solid fa-xmark"></i>
+                          </button>
+                        </div>
+
+                        <form onSubmit={handleAddStaffMember} className="space-y-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs font-bold text-[#1E1915] mb-1">
+                                Full Name *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={newStaffName}
+                                onChange={(e) => setNewStaffName(e.target.value)}
+                                placeholder="e.g. Tariq Mehmood"
+                                className="w-full px-3.5 py-2 rounded-xl bg-white border border-[#E4DDD2] text-xs font-bold text-[#1E1915]"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-[#1E1915] mb-1">
+                                Role / Designation *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={newStaffRole}
+                                onChange={(e) => setNewStaffRole(e.target.value)}
+                                placeholder="e.g. Head Charcoal Grill Master, Ice Cream Specialist"
+                                className="w-full px-3.5 py-2 rounded-xl bg-white border border-[#E4DDD2] text-xs font-bold text-[#1E1915]"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-[#1E1915] mb-1">
+                                Contact Number *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={newStaffPhone}
+                                onChange={(e) => setNewStaffPhone(e.target.value)}
+                                placeholder="e.g. 0300 4821950"
+                                className="w-full px-3.5 py-2 rounded-xl bg-white border border-[#E4DDD2] text-xs font-mono font-bold text-[#1E1915]"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-[#1E1915] mb-1">
+                                Emergency Contact Number & Name/Relation *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={newStaffEmergency}
+                                onChange={(e) => setNewStaffEmergency(e.target.value)}
+                                placeholder="e.g. 0321 9876543 (Brother - Aslam)"
+                                className="w-full px-3.5 py-2 rounded-xl bg-white border border-[#E4DDD2] text-xs font-mono font-bold text-rose-700"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-[#1E1915] mb-1">
+                                Time Reached at Frosty's *
+                              </label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  required
+                                  value={newStaffArrivalTime}
+                                  onChange={(e) => setNewStaffArrivalTime(e.target.value)}
+                                  placeholder="e.g. 09:30 AM PKT"
+                                  className="w-full px-3.5 py-2 rounded-xl bg-white border border-[#E4DDD2] text-xs font-bold text-[#1E1915]"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setNewStaffArrivalTime(currentTimePKT ? `${currentTimePKT} PKT` : 'Just Now')}
+                                  className="px-3 py-2 rounded-xl bg-[#1E1915] text-white text-[11px] font-bold shrink-0 cursor-pointer"
+                                  title="Stamp current time"
+                                >
+                                  Now
+                                </button>
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-[#1E1915] mb-1">
+                                Profile Picture URL
+                              </label>
+                              <input
+                                type="url"
+                                value={newStaffPicture}
+                                onChange={(e) => setNewStaffPicture(e.target.value)}
+                                placeholder="https://example.com/photo.jpg"
+                                className="w-full px-3.5 py-2 rounded-xl bg-white border border-[#E4DDD2] text-xs text-[#1E1915]"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E4DDD2]">
+                            <button
+                              type="button"
+                              onClick={() => setShowAddStaffModal(false)}
+                              className="px-4 py-2 rounded-xl bg-stone-200 text-stone-700 font-bold text-xs cursor-pointer"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="submit"
+                              className="px-5 py-2 rounded-xl bg-[#C25E34] hover:bg-[#a54c25] text-white font-heading font-black text-xs cursor-pointer shadow-xs"
+                            >
+                              Save Staff Member
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    )}
+
+                    {/* Staff Cards Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {staffList.map((staff) => (
+                        <div
+                          key={staff.id}
+                          className="p-4 rounded-2xl bg-white border border-[#EDE8DF] shadow-2xs hover:border-[#C25E34]/40 transition-all space-y-3"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={staff.picture}
+                                alt={staff.name}
+                                className="w-13 h-13 rounded-2xl object-cover border border-[#EDE8DF] shrink-0"
+                              />
+                              <div>
+                                <div className="font-heading font-black text-sm text-[#1E1915]">
+                                  {staff.name}
+                                </div>
+                                <div className="text-[11px] font-bold text-[#7A7067]">
+                                  {staff.role}
+                                </div>
+                                <div className="mt-1">
+                                  <span
+                                    className={`text-[9px] font-black px-2 py-0.5 rounded-full ${
+                                      staff.status === 'On Duty'
+                                        ? 'bg-emerald-100 text-emerald-800'
+                                        : 'bg-stone-100 text-stone-600'
+                                    }`}
+                                  >
+                                    ● {staff.status}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteStaffMember(staff.id, staff.name)}
+                              className="text-stone-300 hover:text-rose-600 p-1 transition-colors cursor-pointer"
+                              title="Remove from roster"
+                            >
+                              <i className="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                          </div>
+
+                          {/* Shift Arrival Time Display */}
+                          <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200/80 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <i className="fa-solid fa-clock text-blue-600 text-sm"></i>
+                              <div>
+                                <span className="text-[10px] text-blue-700 font-bold block uppercase tracking-wider">
+                                  Reached at Frosty's
+                                </span>
+                                <span className="text-xs font-black text-blue-950 font-mono">
+                                  {staff.arrivalTime || 'Not Marked Yet'}
+                                </span>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleStaffClockIn(staff.id)}
+                              className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] cursor-pointer shadow-2xs flex items-center gap-1 transition-colors"
+                              title="Record current time as arrival"
+                            >
+                              <i className="fa-solid fa-location-dot text-[9px]"></i>
+                              <span>Record Arrival</span>
+                            </button>
+                          </div>
+
+                          {/* Contact Details */}
+                          <div className="space-y-1.5 text-xs pt-1 border-t border-[#EDE8DF]">
+                            <div className="flex items-center justify-between text-[#6B635B]">
+                              <span className="flex items-center gap-1.5 font-medium">
+                                <i className="fa-solid fa-phone text-stone-400 text-[10px]"></i>
+                                <span>Phone:</span>
+                              </span>
+                              <span className="font-mono font-bold text-[#1E1915]">{staff.contactNumber}</span>
+                            </div>
+
+                            <div className="p-2 rounded-xl bg-rose-50/70 border border-rose-200/60 flex items-center justify-between gap-2 text-rose-950 text-xs">
+                              <span className="flex items-center gap-1.5 font-bold text-rose-800 text-[11px]">
+                                <i className="fa-solid fa-triangle-exclamation text-rose-600 text-[10px]"></i>
+                                <span>Emergency:</span>
+                              </span>
+                              <span className="font-mono font-bold text-rose-900 text-[11px] truncate max-w-[200px]">
+                                {staff.emergencyContact}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-1">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleStaffStatus(staff.id)}
+                              className="text-[11px] font-bold text-stone-500 hover:text-[#1E1915] cursor-pointer"
+                            >
+                              {staff.status === 'On Duty' ? 'Mark Shift Ended' : 'Set as On-Duty'}
+                            </button>
+                            <span className="text-[10px] text-stone-400">Green City Askari X</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Super Admin Security Password Section */}
                   <div className="bg-white p-5 rounded-3xl border border-[#EDE8DF] space-y-4">
                     <h3 className="font-heading font-black text-lg text-[#1E1915]">
                       Super Admin Security & Password

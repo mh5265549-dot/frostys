@@ -66,9 +66,25 @@ export const DEFAULT_RECIPE_COSTS: Record<string, { cost: number; breakdown: str
     cost: 95,
     breakdown: 'Potatoes, Cooking Oil, House Seasoning, Branded Takeout Box',
   },
+  'ff-shami-burger': {
+    cost: 160,
+    breakdown: 'Spiced Shami Tikki, Farm Egg Omelette, Sesame Bun, Onions, Mint Chutney, Box',
+  },
+  'ff-greek-gyro': {
+    cost: 320,
+    breakdown: 'Warm Greek Pita, Sliced Marinated Herb Grilled Chicken, Tzatziki, Sliced Onions, Tomatoes, Crispy Fries',
+  },
   'ff-karak-chai': {
     cost: 55,
-    breakdown: 'Full-Cream Milk, Premium Tea Leaves, Cardamom, Traditional Clay Matka Cup',
+    breakdown: 'Full-Cream Milk, Premium Tea Leaves, Cardamom, Frosty\'s Branded Cup',
+  },
+  'ff-kashmiri-pink-chai': {
+    cost: 65,
+    breakdown: 'Kashmiri Green Tea, Whole Milk, Crushed Pistachios, Sliced Almonds, Cardamom, Frosty\'s Cup',
+  },
+  'ice-cream-cup-all-flavors': {
+    cost: 48,
+    breakdown: 'Pure Dairy Cream Scoop, 2 Free Toppings/Syrup, Branded Cup & Spoon',
   },
 
   // Charcoal BBQ Grill
