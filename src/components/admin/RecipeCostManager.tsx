@@ -118,10 +118,10 @@ export const RecipeCostManager: React.FC<RecipeCostManagerProps> = ({
         <div>
           <h3 className="font-heading font-black text-lg sm:text-xl text-amber-100 flex items-center gap-2">
             <i className="fa-solid fa-kitchen-set text-amber-400"></i>
-            <span>Recipe & Ingredient Cost Management (Cost Price Setup)</span>
+            <span>Recipe Costs & Profit per Item</span>
           </h3>
           <p className="text-xs text-stone-400 mt-1 max-w-2xl">
-            Configure raw ingredient expenditures and packaging costs per unit. When wholesale ingredient prices fluctuate, updates here immediately recalculate all historical and real-time net profit margins.
+            Enter what each dish costs you to prepare (patty, bun, dairy, sauces, packaging). Frosty's calculates your real profit margin for every item sold.
           </p>
         </div>
 
@@ -141,15 +141,15 @@ export const RecipeCostManager: React.FC<RecipeCostManagerProps> = ({
       {/* High-Level Recipe Margins Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="p-3.5 rounded-2xl bg-[#1C1210] border border-stone-800">
-          <span className="text-[10px] uppercase font-bold text-stone-400 block mb-1">Catalog Items</span>
+          <span className="text-[10px] uppercase font-bold text-stone-400 block mb-1">Total Menu Items</span>
           <span className="font-heading font-black text-xl text-amber-300">{totalItemsCount} Products</span>
-          <span className="text-[11px] text-stone-500 block mt-0.5">Fully Costed</span>
+          <span className="text-[11px] text-stone-500 block mt-0.5">Costed & Tracked</span>
         </div>
 
         <div className="p-3.5 rounded-2xl bg-[#1C1210] border border-stone-800">
-          <span className="text-[10px] uppercase font-bold text-stone-400 block mb-1">Avg Recipe Margin</span>
+          <span className="text-[10px] uppercase font-bold text-stone-400 block mb-1">Average Profit Margin</span>
           <span className="font-heading font-black text-xl text-emerald-400">{averageMargin.toFixed(1)}%</span>
-          <span className="text-[11px] text-stone-500 block mt-0.5">Across All Categories</span>
+          <span className="text-[11px] text-stone-500 block mt-0.5">Across All Food & Ice Cream</span>
         </div>
 
         <div className="p-3.5 rounded-2xl bg-[#1C1210] border border-stone-800">
@@ -157,7 +157,7 @@ export const RecipeCostManager: React.FC<RecipeCostManagerProps> = ({
           <span className="font-heading font-black text-xl text-orange-400">
             {menuItems.filter(isGrillOrderItem).length} Items
           </span>
-          <span className="text-[11px] text-stone-500 block mt-0.5">~47% Target Margin</span>
+          <span className="text-[11px] text-stone-500 block mt-0.5">Target: ~47% Profit</span>
         </div>
 
         <div className="p-3.5 rounded-2xl bg-[#1C1210] border border-stone-800">
@@ -165,7 +165,7 @@ export const RecipeCostManager: React.FC<RecipeCostManagerProps> = ({
           <span className="font-heading font-black text-xl text-sky-400">
             {menuItems.filter((i) => !isGrillOrderItem(i)).length} Items
           </span>
-          <span className="text-[11px] text-stone-500 block mt-0.5">~60% Target Margin</span>
+          <span className="text-[11px] text-stone-500 block mt-0.5">Target: ~60% Profit</span>
         </div>
       </div>
 
@@ -229,11 +229,11 @@ export const RecipeCostManager: React.FC<RecipeCostManagerProps> = ({
               <tr>
                 <th className="py-3 px-4">Menu Item & Details</th>
                 <th className="py-3 px-3">Category</th>
-                <th className="py-3 px-3 text-right">Retail Price</th>
-                <th className="py-3 px-3 text-right">Ingredient Cost (COGS)</th>
-                <th className="py-3 px-4">Ingredient Cost Breakdown</th>
-                <th className="py-3 px-3 text-right">Unit Profit</th>
-                <th className="py-3 px-3 text-right">Margin %</th>
+                <th className="py-3 px-3 text-right">Customer Price</th>
+                <th className="py-3 px-3 text-right">Making Cost</th>
+                <th className="py-3 px-4">What's in the Recipe</th>
+                <th className="py-3 px-3 text-right">Your Profit</th>
+                <th className="py-3 px-3 text-right">Profit Margin</th>
                 <th className="py-3 px-4 text-center">Action</th>
               </tr>
             </thead>

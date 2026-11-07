@@ -117,14 +117,14 @@ export const RealTimeOrderDispatchHub: React.FC<RealTimeOrderDispatchHubProps> =
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <h3 className="font-heading font-black text-lg sm:text-xl text-amber-100 flex items-center gap-2">
               <i className="fa-solid fa-bell-concierge text-amber-400"></i>
-              <span>Real-Time Order Dispatch & Operations Hub</span>
+              <span>Live Orders & Kitchen Queue</span>
             </h3>
             <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
-              Auto-Stream
+              Live Stream
             </span>
           </div>
           <p className="text-xs text-stone-400 mt-1">
-            Fast-paced live queue for counter cashiers & kitchen prep. Tracks melting alerts, fulfillment zones, and automated WhatsApp status dispatches.
+            Live orders from dine-in, takeaway, and delivery. Update prep status and click WhatsApp buttons to notify customers.
           </p>
         </div>
 

@@ -229,7 +229,7 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     name: 'drinks (hot/cold beverages)',
     icon: 'fa-solid fa-mug-hot',
     badge: 'Hot & Cold',
-    description: 'Thick creamy milkshakes, cold Spanish latte, iced coffees, fruit soda chillers, and hot Karak Chai matka.',
+    description: 'Iced signature coffees & Spanish latte, thick creamy milkshakes, hot Karak Chai & Kashmiri Pink Tea, and fruit chillers.',
     filter: (item) => {
       // STRICT RULE: Pure ice cream desserts must NEVER appear in drinks
       if (isIceCreamItem(item)) {
@@ -291,8 +291,8 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     id: 'green-teas',
     name: "Green tea's",
     icon: 'fa-solid fa-leaf',
-    badge: 'Qehwa & Herbal',
-    description: 'Hot steaming Peshawari Qehwa, Cardamom & Mint Green Tea, and Lemon & Honey Green Tea.',
+    badge: 'Lemon & Cardamom',
+    description: 'Hot steaming Lemon and Cardamom green tea brewed fresh with natural herbs.',
     filter: (item) => {
       if (isIceCreamItem(item)) {
         return false;
@@ -411,7 +411,62 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
 
       const regularItems = groupItems.filter((it) => !isDealItem(it));
       const dealItems = groupItems.filter(isDealItem);
-      const sortedGroupItems = [...regularItems, ...dealItems];
+      let sortedGroupItems = [...regularItems, ...dealItems];
+
+      if (group.id === 'drinks') {
+        const isCoffee = (it: MenuItem) => {
+          const n = it.name.toLowerCase();
+          const c = (it.category || '').toLowerCase();
+          const tags = (it.tags || []).map((t) => t.toLowerCase());
+          return (
+            c === 'coffees' ||
+            n.includes('coffee') ||
+            n.includes('latte') ||
+            n.includes('frappe') ||
+            n.includes('espresso') ||
+            n.includes('cappuccino') ||
+            tags.some((t) =>
+              t.includes('coffee') ||
+              t.includes('latte') ||
+              t.includes('frappe') ||
+              t.includes('cold brew')
+            )
+          );
+        };
+
+        const isShake = (it: MenuItem) => {
+          if (isCoffee(it)) return false;
+          const n = it.name.toLowerCase();
+          const c = (it.category || '').toLowerCase();
+          const tags = (it.tags || []).map((t) => t.toLowerCase());
+          return (
+            c === 'shakes' ||
+            n.includes('shake') ||
+            tags.some((t) => t.includes('shake') || t.includes('milkshake'))
+          );
+        };
+
+        const isTea = (it: MenuItem) => {
+          if (isCoffee(it) || isShake(it)) return false;
+          const n = it.name.toLowerCase();
+          const c = (it.category || '').toLowerCase();
+          const tags = (it.tags || []).map((t) => t.toLowerCase());
+          return (
+            c === 'chai' ||
+            it.id.includes('chai') ||
+            n.includes('chai') ||
+            n.includes('tea') ||
+            tags.some((t) => t.includes('chai') || t.includes('tea'))
+          );
+        };
+
+        const coffees = regularItems.filter(isCoffee);
+        const shakes = regularItems.filter(isShake);
+        const teas = regularItems.filter(isTea);
+        const others = regularItems.filter((it) => !isCoffee(it) && !isShake(it) && !isTea(it));
+
+        sortedGroupItems = [...coffees, ...shakes, ...teas, ...others, ...dealItems];
+      }
 
       if (sortedGroupItems.length > 0) {
         sections.push({
@@ -906,94 +961,238 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                   };
 
                   if (group.id === 'ice-cream') {
-                    const isConeItem = (it: MenuItem) => {
+                    const isSoftServe = (it: MenuItem) => {
                       const n = it.name.toLowerCase();
                       const id = it.id.toLowerCase();
+                      const tags = (it.tags || []).map((t) => t.toLowerCase());
                       return (
                         id === 'waffle-cone-classic' ||
-                        n.includes('waffle cone') ||
-                        (n.includes('cone') && !n.includes('cup'))
+                        n.includes('soft serve') ||
+                        tags.some((t) => t.includes('soft serve'))
                       );
                     };
 
-                    const coneItems = groupItems.filter(isConeItem);
-                    const cupItems = groupItems.filter((it) => !isConeItem(it));
+                    const isSeparateBasicFlavor = (it: MenuItem) => {
+                      const id = it.id.toLowerCase();
+                      return [
+                        'scoop-vanilla',
+                        'scoop-chocolate',
+                        'scoop-chocolate-chip',
+                        'scoop-strawberry',
+                        'scoop-mango',
+                        'scoop-praline',
+                        'scoop-coffee',
+                        'scoop-coconut',
+                        'scoop-kulfa',
+                        'ice-cream-scoops-mix',
+                      ].includes(id);
+                    };
 
-                    const ICE_CREAM_FLAVORS = [
-                      { name: 'Vanilla Bean', emoji: '🍨', color: 'bg-amber-50 text-amber-900 border-amber-200' },
-                      { name: 'Dutch Chocolate', emoji: '🍫', color: 'bg-stone-100 text-stone-800 border-stone-300' },
-                      { name: 'Chaunsa Mango', emoji: '🥭', color: 'bg-orange-50 text-orange-900 border-orange-200' },
-                      { name: 'Pistachio Kulfa', emoji: '🥜', color: 'bg-emerald-50 text-emerald-900 border-emerald-200' },
-                      { name: 'Chocolate Chip', emoji: '🍪', color: 'bg-amber-50 text-stone-900 border-stone-200' },
-                      { name: 'Strawberry Swirl', emoji: '🍓', color: 'bg-pink-50 text-pink-900 border-pink-200' },
-                      { name: 'Caramel Praline', emoji: '🌰', color: 'bg-yellow-50 text-yellow-900 border-yellow-200' },
-                      { name: 'Lotus Biscoff', emoji: '🧇', color: 'bg-amber-100 text-amber-950 border-amber-300' },
+                    const standardScoopItem = groupItems.find(
+                      (it) => it.id === 'ice-cream-cup-all-flavors'
+                    );
+
+                    const pistaKulfaItem = groupItems.find(
+                      (it) =>
+                        it.id === 'scoop-pistachio-kulfa-special' ||
+                        it.name.toLowerCase().includes('pistachio') ||
+                        it.name.toLowerCase().includes('kulfa')
+                    );
+
+                    const softServeItems = groupItems.filter((it) => isSoftServe(it));
+
+                    const otherDessertItems = groupItems.filter(
+                      (it) =>
+                        !isSoftServe(it) &&
+                        it.id !== 'ice-cream-cup-all-flavors' &&
+                        it.id !== 'scoop-pistachio-kulfa-special' &&
+                        !isSeparateBasicFlavor(it) &&
+                        !it.name.toLowerCase().includes('pistachio') &&
+                        !it.name.toLowerCase().includes('kulfa')
+                    );
+
+                    // 8 standard flavors from uploaded menu picture (Pistachio & Kulfa separated)
+                    const STANDARD_ICE_CREAM_FLAVORS = [
+                      { name: 'Vanilla', emoji: '🍨', color: 'bg-amber-50 text-amber-900 border-amber-200 hover:border-amber-400' },
+                      { name: 'Chocolate', emoji: '🍫', color: 'bg-stone-100 text-stone-800 border-stone-300 hover:border-stone-500' },
+                      { name: 'Chocolate Chip', emoji: '🍪', color: 'bg-amber-50 text-stone-900 border-stone-200 hover:border-stone-400' },
+                      { name: 'Strawberry', emoji: '🍓', color: 'bg-pink-50 text-pink-900 border-pink-200 hover:border-pink-400' },
+                      { name: 'Mango', emoji: '🥭', color: 'bg-orange-50 text-orange-900 border-orange-200 hover:border-orange-400' },
+                      { name: 'Praline', emoji: '🌰', color: 'bg-yellow-50 text-yellow-900 border-yellow-200 hover:border-yellow-400' },
+                      { name: 'Coconut', emoji: '🥥', color: 'bg-stone-50 text-stone-900 border-stone-300 hover:border-stone-500' },
+                      { name: 'Coffee', emoji: '☕', color: 'bg-orange-100/70 text-stone-900 border-orange-200 hover:border-orange-400' },
+                    ];
+
+                    const PISTACHIO_KULFA_FLAVORS = [
+                      { name: 'Pistachio', emoji: '🥜', color: 'bg-emerald-50 text-emerald-900 border-emerald-300 hover:border-emerald-500' },
+                      { name: 'Kulfa', emoji: '🍦', color: 'bg-rose-50 text-rose-900 border-rose-300 hover:border-rose-500' },
+                      { name: 'Pistachio & Kulfa (Mix)', emoji: '👑', color: 'bg-amber-100 text-amber-950 border-amber-300 hover:border-amber-500' },
                     ];
 
                     return (
                       <div className="space-y-8">
-                        {/* 1. Ice Cream Cups & All Flavors In One Place */}
-                        {cupItems.length > 0 && (
+                        {/* 1. Standard Ice Cream Scoops & Cones (All 8 Flavors in One Block) */}
+                        {standardScoopItem && (
                           <div className="space-y-4">
-                            {/* Unified Cup & All Flavors Showcase Card */}
-                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50/90 via-sky-50/70 to-indigo-50/80 border border-blue-200/90 shadow-2xs space-y-3">
+                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50/90 via-sky-50/70 to-indigo-50/80 border border-blue-200/90 shadow-2xs space-y-3.5">
                               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div className="flex items-center gap-3">
                                   <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg shadow-xs shrink-0">
-                                    <i className="fa-solid fa-bowl-rice"></i>
+                                    <i className="fa-solid fa-ice-cream"></i>
                                   </div>
                                   <div>
                                     <div className="flex items-center gap-2 flex-wrap">
                                       <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
-                                        Ice Cream Cups (All Flavors)
+                                        Ice Cream Scoops & Cones
                                       </h4>
                                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-300 uppercase tracking-wider">
-                                        10+ Artisanal Flavors
+                                        8 Artisanal Flavours
+                                      </span>
+                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 uppercase tracking-wider">
+                                        Two Toppings Included
                                       </span>
                                     </div>
                                     <p className="text-xs text-stone-600 mt-0.5">
-                                      Pure dairy cream scoops served in branded cups. Single (Rs. 150) • Double (Rs. 250) • Triple (Rs. 350) + <strong>2 Free Syrups & Toppings included</strong>!
+                                      Single (<strong>Rs. 150</strong>) • Double (<strong>Rs. 250</strong>) • Triple (<strong>Rs. 350</strong>) • Served in Crispy Waffle Cone or Classic Cup.
                                     </p>
                                   </div>
                                 </div>
 
                                 <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-                                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white text-blue-800 border border-blue-200 shadow-2xs">
-                                    {cupItems.length} Cup Items & Sundaes
-                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => onSelectItem(standardScoopItem)}
+                                    className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                                  >
+                                    <i className="fa-solid fa-cart-plus text-xs"></i>
+                                    <span>Select Scoops</span>
+                                  </button>
                                 </div>
                               </div>
 
                               {/* Interactive Flavor Badges Showcase */}
-                              <div className="pt-1 flex flex-wrap gap-1.5 sm:gap-2">
-                                {ICE_CREAM_FLAVORS.map((flv) => (
-                                  <button
-                                    key={flv.name}
-                                    type="button"
-                                    onClick={() => {
-                                      const matchedCup = cupItems.find(
-                                        (c) => c.name.toLowerCase().includes(flv.name.toLowerCase()) || c.id === 'ice-cream-cup-all-flavors'
-                                      ) || cupItems[0];
-                                      onSelectItem(matchedCup);
-                                    }}
-                                    className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-2xs flex items-center gap-1.5 ${flv.color}`}
-                                    title={`Click to order ${flv.name} Cup`}
-                                  >
-                                    <span>{flv.emoji}</span>
-                                    <span>{flv.name}</span>
-                                  </button>
-                                ))}
+                              <div className="pt-1">
+                                <div className="text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                  <span>Choose from these 8 flavours:</span>
+                                </div>
+                                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                                  {STANDARD_ICE_CREAM_FLAVORS.map((flv) => (
+                                    <button
+                                      key={flv.name}
+                                      type="button"
+                                      onClick={() => {
+                                        onSelectItem({
+                                          ...standardScoopItem,
+                                          defaultFlavor: flv.name,
+                                        });
+                                      }}
+                                      className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-2xs flex items-center gap-1.5 ${flv.color}`}
+                                      title={`Click to order ${flv.name} in Cone or Cup`}
+                                    >
+                                      <span>{flv.emoji}</span>
+                                      <span>{flv.name}</span>
+                                    </button>
+                                  ))}
+                                </div>
                               </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
-                              {cupItems.map((item, idx) => renderItemCard(item, idx))}
+                              {renderItemCard(standardScoopItem, 0)}
                             </div>
                           </div>
                         )}
 
-                        {/* 2. Distinct Heading for Cones Followed by Cone Items */}
-                        {coneItems.length > 0 && (
+                        {/* 2. Pistachio & Kulfa (Pista & Kulfa - Separate Block with Dedicated Pricing) */}
+                        {pistaKulfaItem && (
+                          <div className="space-y-4 pt-2">
+                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50/90 via-teal-50/70 to-amber-50/80 border border-emerald-200/90 shadow-2xs space-y-3.5">
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shadow-xs shrink-0">
+                                    <i className="fa-solid fa-crown"></i>
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <h4 className="font-heading font-black text-base sm:text-lg text-emerald-950 tracking-tight">
+                                        Pistachio & Kulfa (Pista & Kulfa)
+                                      </h4>
+                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 uppercase tracking-wider">
+                                        Royal Special Pricing
+                                      </span>
+                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider">
+                                        Two Toppings Included
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-stone-600 mt-0.5">
+                                      Single (<strong>Rs. 250</strong>) • Double (<strong>Rs. 400</strong>) • Triple (<strong>Rs. 550</strong>) • Served in Crispy Cone or Branded Cup.
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => onSelectItem(pistaKulfaItem)}
+                                    className="px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                                  >
+                                    <i className="fa-solid fa-cart-plus text-xs"></i>
+                                    <span>Select Pistachio & Kulfa</span>
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* Interactive Royal Pistachio & Kulfa Badges */}
+                              <div className="pt-1">
+                                <div className="text-[11px] font-bold text-emerald-950 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                  <span>Choose flavour:</span>
+                                </div>
+                                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                                  {PISTACHIO_KULFA_FLAVORS.map((flv) => (
+                                    <button
+                                      key={flv.name}
+                                      type="button"
+                                      onClick={() => {
+                                        onSelectItem({
+                                          ...pistaKulfaItem,
+                                          defaultFlavor: flv.name,
+                                        });
+                                      }}
+                                      className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-2xs flex items-center gap-1.5 ${flv.color}`}
+                                    >
+                                      <span>{flv.emoji}</span>
+                                      <span>{flv.name}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
+                              {renderItemCard(pistaKulfaItem, 1)}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Other Ice Cream Items (Sundaes & Specialty Cups) */}
+                        {otherDessertItems.length > 0 && (
+                          <div className="pt-2 space-y-4">
+                            <div className="p-4 rounded-2xl bg-[#FAF8F5] border border-stone-200/80 flex items-center justify-between gap-4">
+                              <h4 className="font-heading font-black text-base text-stone-900">
+                                Sundaes & Dessert Specialties
+                              </h4>
+                              <span className="text-xs text-stone-500 font-bold">
+                                {otherDessertItems.length} items
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
+                              {otherDessertItems.map((item, idx) => renderItemCard(item, idx + 2))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 2. Distinct Heading for Soft Serve Only */}
+                        {softServeItems.length > 0 && (
                           <div className="pt-4 space-y-4">
                             <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 shadow-2xs flex items-center justify-between gap-4">
                               <div className="flex items-center gap-3">
@@ -1003,24 +1202,213 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                                 <div>
                                   <div className="flex items-center gap-2 flex-wrap">
                                     <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
-                                      Cones
+                                      Soft Serve Waffle Cones
                                     </h4>
                                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider">
-                                      Fresh Waffle & Crunchy Cones
+                                      Machine Soft Serve
                                     </span>
                                   </div>
                                   <p className="text-xs text-stone-600 mt-0.5">
-                                    Freshly rolled crispy waffle cones and crunchy soft-serve cones (Takeaway & Dine-In Only).
+                                    Freshly rolled crispy waffle cones with creamy vanilla soft serve swirl & chocolate drizzle (Takeaway & Dine-In Only).
                                   </p>
                                 </div>
                               </div>
                               <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
-                                {coneItems.length} {coneItems.length === 1 ? 'cone' : 'cones'}
+                                {softServeItems.length} {softServeItems.length === 1 ? 'item' : 'items'}
                               </span>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
-                              {coneItems.map((item, idx) => renderItemCard(item, idx))}
+                              {softServeItems.map((item, idx) => renderItemCard(item, idx))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  if (group.id === 'drinks') {
+                    const isCoffee = (it: MenuItem) => {
+                      const n = it.name.toLowerCase();
+                      const c = (it.category || '').toLowerCase();
+                      const tags = (it.tags || []).map((t) => t.toLowerCase());
+                      return (
+                        c === 'coffees' ||
+                        n.includes('coffee') ||
+                        n.includes('latte') ||
+                        n.includes('frappe') ||
+                        n.includes('espresso') ||
+                        n.includes('cappuccino') ||
+                        tags.some((t) =>
+                          t.includes('coffee') ||
+                          t.includes('latte') ||
+                          t.includes('frappe') ||
+                          t.includes('cold brew')
+                        )
+                      );
+                    };
+
+                    const isShake = (it: MenuItem) => {
+                      if (isCoffee(it)) return false;
+                      const n = it.name.toLowerCase();
+                      const c = (it.category || '').toLowerCase();
+                      const tags = (it.tags || []).map((t) => t.toLowerCase());
+                      return (
+                        c === 'shakes' ||
+                        n.includes('shake') ||
+                        tags.some((t) => t.includes('shake') || t.includes('milkshake'))
+                      );
+                    };
+
+                    const isTea = (it: MenuItem) => {
+                      if (isCoffee(it) || isShake(it)) return false;
+                      const n = it.name.toLowerCase();
+                      const c = (it.category || '').toLowerCase();
+                      const tags = (it.tags || []).map((t) => t.toLowerCase());
+                      return (
+                        c === 'chai' ||
+                        it.id.includes('chai') ||
+                        n.includes('chai') ||
+                        n.includes('tea') ||
+                        tags.some((t) => t.includes('chai') || t.includes('tea'))
+                      );
+                    };
+
+                    const coffeeItems = groupItems.filter(isCoffee);
+                    const shakeItems = groupItems.filter(isShake);
+                    const teaItems = groupItems.filter(isTea);
+                    const otherItems = groupItems.filter((it) => !isCoffee(it) && !isShake(it) && !isTea(it));
+
+                    return (
+                      <div className="space-y-8">
+                        {/* 1. Coffee (Shown First) */}
+                        {coffeeItems.length > 0 && (
+                          <div className="space-y-4">
+                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-900/10 via-amber-800/5 to-amber-950/10 border border-amber-800/20 shadow-2xs flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-[#4A2C18] text-amber-100 flex items-center justify-center text-base shadow-xs shrink-0">
+                                  <i className="fa-solid fa-mug-hot"></i>
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
+                                      Coffee
+                                    </h4>
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider">
+                                      Cold Brew, Latte & Frappes
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-stone-600 mt-0.5">
+                                    Frosty's signature iced cold brews, Spanish latte, and blended mocha frappes.
+                                  </p>
+                                </div>
+                              </div>
+                              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
+                                {coffeeItems.length} {coffeeItems.length === 1 ? 'item' : 'items'}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
+                              {coffeeItems.map((item, idx) => renderItemCard(item, idx))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 2. Shakes (Shown Second) */}
+                        {shakeItems.length > 0 && (
+                          <div className="space-y-4">
+                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/90 shadow-2xs flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-base shadow-xs shrink-0">
+                                  <i className="fa-solid fa-whiskey-glass"></i>
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
+                                      Shakes
+                                    </h4>
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-300 uppercase tracking-wider">
+                                      Thick & Creamy Milkshakes
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-stone-600 mt-0.5">
+                                    Rich and decadent milkshakes blended with real vanilla ice cream, Oreo cookies, and fresh fruits.
+                                  </p>
+                                </div>
+                              </div>
+                              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-200 shrink-0">
+                                {shakeItems.length} {shakeItems.length === 1 ? 'shake' : 'shakes'}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
+                              {shakeItems.map((item, idx) => renderItemCard(item, idx))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 3. Teas (Shown Third) */}
+                        {teaItems.length > 0 && (
+                          <div className="space-y-4">
+                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-rose-50/90 via-amber-50/80 to-orange-50/90 border border-amber-200/90 shadow-2xs flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-[#C25E34] text-white flex items-center justify-center text-base shadow-xs shrink-0">
+                                  <i className="fa-solid fa-mug-saucer"></i>
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
+                                      Teas
+                                    </h4>
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider">
+                                      Karak Chai & Kashmiri Pink Tea
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-stone-600 mt-0.5">
+                                    Steaming hot Karak Chai in Frosty's cups and royal Kashmiri Pink Chai with roasted pistachios & almonds.
+                                  </p>
+                                </div>
+                              </div>
+                              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
+                                {teaItems.length} {teaItems.length === 1 ? 'tea' : 'teas'}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
+                              {teaItems.map((item, idx) => renderItemCard(item, idx))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 4. Chillers & Sodas (if any) */}
+                        {otherItems.length > 0 && (
+                          <div className="space-y-4">
+                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200/90 shadow-2xs flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center text-base shadow-xs shrink-0">
+                                  <i className="fa-solid fa-bottle-water"></i>
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
+                                      Chillers & Sodas
+                                    </h4>
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-900 border border-teal-300 uppercase tracking-wider">
+                                      Icy Refreshers
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-stone-600 mt-0.5">
+                                    Fizzy soda chillers and sparkling ice blends in over 20 fruity syrup flavors.
+                                  </p>
+                                </div>
+                              </div>
+                              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-teal-100 text-teal-900 border border-teal-200 shrink-0">
+                                {otherItems.length} {otherItems.length === 1 ? 'item' : 'items'}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
+                              {otherItems.map((item, idx) => renderItemCard(item, idx))}
                             </div>
                           </div>
                         )}

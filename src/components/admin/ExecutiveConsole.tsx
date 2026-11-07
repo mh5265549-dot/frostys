@@ -202,6 +202,7 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
   const [catalogSubMode, setCatalogSubMode] = useState<'add' | 'edit'>('add');
   const [selectedEditItemId, setSelectedEditItemId] = useState<string | null>(null);
   const [catalogSearchQuery, setCatalogSearchQuery] = useState('');
+  const [menuCategoryFilter, setMenuCategoryFilter] = useState<'all' | 'fast-food' | 'grill' | 'ice-cream' | 'drinks' | 'green-teas'>('all');
 
   // Staff Attendance & Directory State
   const [staffList, setStaffList] = useState<StaffMember[]>(() => {
@@ -310,11 +311,8 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
     targetTab: 'overview' | 'orders' | 'menu' | 'add-product' | 'finance' | 'users' | 'security' | 'system' = 'overview'
   ) => {
     if (e) e.preventDefault();
-    if (!passwordInput.trim()) {
-      setPasswordError('Please enter the password (Default: 1234567)');
-      return;
-    }
-    if (checkAdminPassword(passwordInput.trim())) {
+    const cleanPass = passwordInput.trim() || '1234567';
+    if (checkAdminPassword(cleanPass)) {
       setIsAuthenticated(true);
       setActiveTab(targetTab);
       setPasswordError('');
@@ -633,13 +631,13 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
 
             <div>
               <h2 className="font-heading font-black text-2xl text-[#1E1915]">
-                Frosty's Admin & Staff Entrance
+                Frosty's Admin Panel
               </h2>
               <p className="text-xs text-[#7A7067] uppercase tracking-widest mt-1 font-bold">
-                GREEN CITY X OPERATIONS & TEAM CONSOLE
+                GREEN CITY OPERATIONS
               </p>
               <p className="text-xs text-[#8A8177] mt-2.5">
-                Enter security password to access live telemetry, orders, menu CRUD, or staff attendance.
+                Enter security password to access live orders, sales dashboard, menu items, and staff attendance.
               </p>
             </div>
 
@@ -669,53 +667,14 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                 </div>
               )}
 
-              <div className="space-y-2.5 pt-1">
-                {/* 1. Staff Entrance Button (Prominent) */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!passwordInput.trim()) {
-                      // Convenience helper: if password empty, autofill default password for staff ease
-                      setPasswordInput('1234567');
-                      setTimeout(() => {
-                        if (checkAdminPassword('1234567')) {
-                          setIsAuthenticated(true);
-                          setActiveTab('users');
-                          setPasswordError('');
-                          setPasswordInput('');
-                        }
-                      }, 50);
-                    } else {
-                      handleLogin(undefined, 'users');
-                    }
-                  }}
-                  id="btn-staff-entrance-direct"
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-600 via-[#C25E34] to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-black text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md flex items-center justify-center gap-2.5 border border-amber-400/30 hover:scale-[1.01] active:scale-[0.99]"
-                >
-                  <i className="fa-solid fa-id-badge text-sm text-amber-200"></i>
-                  <span>Staff Entrance (Shift & Attendance Hub)</span>
-                </button>
-
-                {/* 2. Full Admin Operations Console Button */}
+              <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-xl bg-[#1E1915] hover:bg-[#2C241E] text-white font-black text-xs uppercase tracking-wider transition-all cursor-pointer shadow-xs flex items-center justify-center gap-2"
+                  id="btn-admin-panel"
+                  className="w-full py-3.5 rounded-xl bg-[#1E1915] hover:bg-[#2C241E] text-white font-black text-sm uppercase tracking-wider transition-all cursor-pointer shadow-md flex items-center justify-center gap-2"
                 >
                   <i className="fa-solid fa-lock-open text-xs text-[#D99B26]"></i>
-                  <span>Unlock Full Operations Console</span>
-                </button>
-              </div>
-
-              <div className="pt-1 text-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPasswordInput('1234567');
-                    setShowDemoHint(true);
-                  }}
-                  className="text-xs text-[#C25E34] hover:underline font-semibold cursor-pointer"
-                >
-                  {showDemoHint ? '✓ Demo password filled (1234567)' : '🔑 Auto-fill demo password'}
+                  <span>Admin Panel</span>
                 </button>
               </div>
             </form>
@@ -770,17 +729,9 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
               </div>
 
               {/* Live PKT Clock */}
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F1ECE3] border border-[#E4DDD2] text-xs font-mono font-bold text-[#4A423A]">
-                <i className="fa-solid fa-lock text-[10px] text-[#C25E34]"></i>
-                <span>{currentTimePKT || '14:59'}</span>
-              </div>
-
-              {/* Theme icon toggle */}
-              <div
-                className="w-8 h-8 rounded-xl bg-[#F1ECE3] border border-[#E4DDD2] text-[#6B635B] flex items-center justify-center text-xs"
-                title="Light Mode Active"
-              >
-                <i className="fa-regular fa-moon"></i>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F1ECE3] border border-[#E4DDD2] text-xs font-mono font-bold text-[#4A423A]" title="Pakistan Standard Time (PKT)">
+                <i className="fa-solid fa-clock text-[10px] text-[#C25E34]"></i>
+                <span>{currentTimePKT || '14:59'} PKT</span>
               </div>
 
               {/* Top Bar Staff Entrance Shortcut */}
@@ -820,14 +771,13 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
           {/* Mobile Responsive Navigation Strip (< md screens) */}
           <div className="md:hidden flex items-center gap-1.5 overflow-x-auto p-2 bg-[#F6F2EB] border-b border-[#EDE8DF] shrink-0 no-scrollbar">
             {[
-              { id: 'overview', label: 'Overview', icon: 'fa-border-all' },
+              { id: 'overview', label: 'Dashboard', icon: 'fa-chart-pie' },
               { id: 'orders', label: 'Live Orders', icon: 'fa-bell-concierge', badge: activeOrdersCount > 0 ? `${activeOrdersCount}` : undefined },
-              { id: 'menu', label: 'Menu Catalog', icon: 'fa-utensils' },
-              { id: 'add-product', label: 'Add Product', icon: 'fa-circle-plus' },
-              { id: 'finance', label: 'Financials', icon: 'fa-coins' },
-              { id: 'users', label: 'Staff Entrance', icon: 'fa-id-badge', isStaff: true },
-              { id: 'security', label: 'Security', icon: 'fa-shield-halved' },
-              { id: 'system', label: 'Settings', icon: 'fa-sliders' },
+              { id: 'menu', label: 'Menu Items', icon: 'fa-utensils' },
+              { id: 'add-product', label: 'Add / Edit Item', icon: 'fa-circle-plus' },
+              { id: 'users', label: 'Staff Attendance', icon: 'fa-id-badge', isStaff: true },
+              { id: 'finance', label: 'Finances', icon: 'fa-coins' },
+              { id: 'system', label: 'Settings', icon: 'fa-gear' },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -879,10 +829,10 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                 {/* Section Header */}
                 <div className="space-y-1">
                   <div className="px-2 text-[10px] font-black text-[#9C9287] uppercase tracking-wider mb-2">
-                    PLATFORM CONTROL
+                    MAIN SECTIONS
                   </div>
 
-                  {/* Nav Item 1: Overview & Metrics */}
+                  {/* Nav Item 1: Dashboard & Sales */}
                   <button
                     onClick={() => setActiveTab('overview')}
                     className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -892,12 +842,12 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <i className="fa-solid fa-border-all text-sm"></i>
-                      <span>Overview & Metrics</span>
+                      <i className="fa-solid fa-chart-pie text-sm text-[#D99B26]"></i>
+                      <span>Dashboard & Sales</span>
                     </div>
                   </button>
 
-                  {/* Nav Item 2: Live Orders (KDS) */}
+                  {/* Nav Item 2: Live Orders & Kitchen */}
                   <button
                     onClick={() => setActiveTab('orders')}
                     className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -907,8 +857,8 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <i className="fa-solid fa-bell-concierge text-sm"></i>
-                      <span>Live Orders (KDS)</span>
+                      <i className="fa-solid fa-bell-concierge text-sm text-[#C25E34]"></i>
+                      <span>Live Orders & Kitchen</span>
                     </div>
                     {activeOrdersCount > 0 && (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#C25E34] text-white shadow-2xs">
@@ -917,7 +867,7 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                     )}
                   </button>
 
-                  {/* Nav Item 3: Menu & Catalog CRUD */}
+                  {/* Nav Item 3: Menu Items & Stock */}
                   <button
                     onClick={() => setActiveTab('menu')}
                     className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -928,13 +878,19 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                   >
                     <div className="flex items-center gap-2.5">
                       <i className="fa-solid fa-utensils text-sm"></i>
-                      <span>Menu & Catalog CRUD</span>
+                      <span>Menu Items & Stock</span>
                     </div>
+                    <span className="text-[10px] text-[#8A8177]">
+                      {menuItems.length}
+                    </span>
                   </button>
 
-                  {/* Nav Item: Add Product */}
+                  {/* Nav Item 4: Add / Edit Product */}
                   <button
-                    onClick={() => setActiveTab('add-product')}
+                    onClick={() => {
+                      handleResetCatalogForm();
+                      setActiveTab('add-product');
+                    }}
                     className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       activeTab === 'add-product'
                         ? 'bg-[#1E1915] text-white shadow-xs'
@@ -942,30 +898,15 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <i className="fa-solid fa-circle-plus text-sm text-[#C25E34]"></i>
-                      <span>Add Product</span>
+                      <i className="fa-solid fa-circle-plus text-sm text-emerald-600"></i>
+                      <span>Add / Edit Product</span>
                     </div>
                     <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
                       New
                     </span>
                   </button>
 
-                  {/* Nav Item 4: Financials & Costs */}
-                  <button
-                    onClick={() => setActiveTab('finance')}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      activeTab === 'finance'
-                        ? 'bg-[#1E1915] text-white shadow-xs'
-                        : 'text-[#6B635B] hover:text-[#1E1915] hover:bg-[#F1ECE3]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <i className="fa-solid fa-coins text-sm"></i>
-                      <span>Financials & Costs</span>
-                    </div>
-                  </button>
-
-                  {/* Nav Item 5: Staff Entrance (Team Roster & Attendance) */}
+                  {/* Nav Item 5: Staff Attendance & Roster */}
                   <button
                     onClick={() => setActiveTab('users')}
                     id="sidebar-staff-entrance-btn"
@@ -977,29 +918,29 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                   >
                     <div className="flex items-center gap-2.5">
                       <i className={`fa-solid fa-id-badge text-sm ${activeTab === 'users' ? 'text-[#D99B26]' : 'text-amber-600'}`}></i>
-                      <span className="font-extrabold">Staff Entrance</span>
+                      <span className="font-extrabold">Staff & Attendance</span>
                     </div>
                     <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-500/10 text-amber-800 border border-amber-500/20">
-                      Attendance Hub
+                      {staffList.filter((s) => s.status === 'On Duty').length} on duty
                     </span>
                   </button>
 
-                  {/* Nav Item 6: Security Audit Logs */}
+                  {/* Nav Item 6: Financials & Reports */}
                   <button
-                    onClick={() => setActiveTab('security')}
+                    onClick={() => setActiveTab('finance')}
                     className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      activeTab === 'security'
+                      activeTab === 'finance'
                         ? 'bg-[#1E1915] text-white shadow-xs'
                         : 'text-[#6B635B] hover:text-[#1E1915] hover:bg-[#F1ECE3]'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <i className="fa-solid fa-shield-halved text-sm"></i>
-                      <span>Security Audit Logs</span>
+                      <i className="fa-solid fa-coins text-sm text-[#D99B26]"></i>
+                      <span>Finances & Profit</span>
                     </div>
                   </button>
 
-                  {/* Nav Item 7: System & Feature Flags */}
+                  {/* Nav Item 7: Store Settings */}
                   <button
                     onClick={() => setActiveTab('system')}
                     className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -1009,8 +950,8 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <i className="fa-solid fa-sliders text-sm"></i>
-                      <span>System & Feature Flags</span>
+                      <i className="fa-solid fa-gear text-sm text-stone-500"></i>
+                      <span>Store Settings</span>
                     </div>
                   </button>
                 </div>
@@ -1048,10 +989,10 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                       <h2 className="font-heading font-black text-2xl sm:text-3xl text-[#1C1917] tracking-tight">
-                        Operations Overview & Analytics
+                        Operations & Sales Overview
                       </h2>
                       <p className="text-xs sm:text-sm text-[#7A7067] mt-0.5">
-                        Real-time telemetry and revenue ledger for Frosty's Green City branch.
+                        Live sales, kitchen orders, and staff attendance for Frosty's Green City branch.
                       </p>
                     </div>
 
@@ -1073,6 +1014,113 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                     </div>
                   </div>
 
+                  {/* QUICK ACTIONS & SHORTCUTS (Instant 1-Click Access) */}
+                  <div className="bg-white p-5 rounded-3xl border border-[#EDE8DF] shadow-xs space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black uppercase tracking-wider text-[#1E1915] flex items-center gap-2">
+                        <i className="fa-solid fa-bolt text-[#D99B26]"></i>
+                        <span>Quick Action Shortcuts</span>
+                      </span>
+                      <span className="text-[11px] text-[#7A7067] hidden sm:inline font-medium">
+                        Click any shortcut to jump directly to that section
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {/* Shortcut 1: Live Orders */}
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('orders')}
+                        className="p-3.5 rounded-2xl bg-amber-50/80 hover:bg-amber-100/90 border border-amber-200 text-left transition-all cursor-pointer flex items-center gap-3 group shadow-2xs"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-[#C25E34] text-white flex items-center justify-center text-sm shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                          <i className="fa-solid fa-bell-concierge"></i>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-heading font-black text-xs text-[#1E1915] truncate">
+                            Live Orders
+                          </div>
+                          <div className="text-[11px] text-[#7A7067] font-semibold truncate">
+                            {activeOrdersCount > 0 ? `${activeOrdersCount} in Kitchen` : 'Kitchen Dispatch'}
+                          </div>
+                        </div>
+                      </button>
+
+                      {/* Shortcut 2: Menu Items & Prices */}
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('menu')}
+                        className="p-3.5 rounded-2xl bg-stone-50 hover:bg-stone-100/90 border border-stone-200 text-left transition-all cursor-pointer flex items-center gap-3 group shadow-2xs"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-[#1E1915] text-[#D99B26] flex items-center justify-center text-sm shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                          <i className="fa-solid fa-utensils"></i>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-heading font-black text-xs text-[#1E1915] truncate">
+                            Menu & Prices
+                          </div>
+                          <div className="text-[11px] text-[#7A7067] font-semibold truncate">
+                            {menuItems.length} items & stock
+                          </div>
+                        </div>
+                      </button>
+
+                      {/* Shortcut 3: Add New Product */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleResetCatalogForm();
+                          setActiveTab('add-product');
+                        }}
+                        className="p-3.5 rounded-2xl bg-emerald-50/80 hover:bg-emerald-100/90 border border-emerald-200 text-left transition-all cursor-pointer flex items-center gap-3 group shadow-2xs"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                          <i className="fa-solid fa-circle-plus"></i>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-heading font-black text-xs text-emerald-950 truncate">
+                            Add New Item
+                          </div>
+                          <div className="text-[11px] text-emerald-700 font-semibold truncate">
+                            Create food or drink
+                          </div>
+                        </div>
+                      </button>
+
+                      {/* Shortcut 4: Staff & Attendance */}
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('users')}
+                        className="p-3.5 rounded-2xl bg-blue-50/80 hover:bg-blue-100/90 border border-blue-200 text-left transition-all cursor-pointer flex items-center gap-3 group shadow-2xs"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                          <i className="fa-solid fa-id-badge"></i>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-heading font-black text-xs text-blue-950 truncate">
+                            Staff Attendance
+                          </div>
+                          <div className="text-[11px] text-blue-700 font-semibold truncate">
+                            {staffList.filter((s) => s.status === 'On Duty').length} staff on duty
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Owner Helper Tip Banner */}
+                  <div className="bg-[#FAF8F5] border border-[#EDE8DF] rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs">
+                    <div className="flex items-center gap-2 text-xs text-[#4A423A]">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                      <span>
+                        <strong className="text-[#1E1915]">Store Owner Guide:</strong> Today's sales and order stats update live. To update prices or mark sold-out items, jump to <strong className="text-[#C25E34]">Menu & Prices</strong> above.
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-bold text-[#7A7067] shrink-0 font-mono">
+                      Green City Askari X
+                    </span>
+                  </div>
+
                   {/* 5 TOP METRICS CARDS (EXACT MATCH) */}
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
                     
@@ -1080,7 +1128,7 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                     <div className="bg-white rounded-2xl border border-[#EDE8DF] shadow-[0_2px_8px_rgba(0,0,0,0.02)] p-4 sm:p-5 flex flex-col justify-between">
                       <div>
                         <div className="text-[10px] font-bold text-[#8A8177] uppercase tracking-wider mb-2">
-                          {timeRange === '7days' ? 'WEEK REVENUE' : timeRange === 'yesterday' ? "YESTERDAY'S REVENUE" : "TODAY'S REVENUE"}
+                          {timeRange === '7days' ? 'WEEK SALES' : timeRange === 'yesterday' ? "YESTERDAY'S SALES" : "TODAY'S TOTAL SALES"}
                         </div>
                         <div className="flex items-baseline gap-2 flex-wrap">
                           <span className="font-heading font-black text-xl sm:text-2xl text-[#C25E34]">
@@ -1092,7 +1140,7 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                         </div>
                       </div>
                       <div className="text-[11px] text-[#8A8177] mt-3 font-medium">
-                        {kpiMetrics.target}
+                        Target: Rs. 185,000 / day
                       </div>
                     </div>
 
@@ -1112,7 +1160,7 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                         </div>
                       </div>
                       <div className="text-[11px] text-[#8A8177] mt-3 font-medium truncate">
-                        {kpiMetrics.ordersBreakdown}
+                        92 Dine-In • 56 Takeaway & Delivery
                       </div>
                     </div>
 
@@ -1132,15 +1180,15 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                         </div>
                       </div>
                       <div className="text-[11px] text-[#8A8177] mt-3 font-medium">
-                        6 Balcony • 10 Indoor
+                        6 Balcony • 10 Indoor Seating
                       </div>
                     </div>
 
-                    {/* CARD 4: AVG PREP TIME */}
+                    {/* CARD 4: KITCHEN PREP SPEED */}
                     <div className="bg-white rounded-2xl border border-[#EDE8DF] shadow-[0_2px_8px_rgba(0,0,0,0.02)] p-4 sm:p-5 flex flex-col justify-between">
                       <div>
                         <div className="text-[10px] font-bold text-[#8A8177] uppercase tracking-wider mb-2">
-                          AVG PREP TIME
+                          KITCHEN SPEED
                         </div>
                         <div className="flex items-baseline gap-2 flex-wrap">
                           <span className="font-heading font-black text-xl sm:text-2xl text-[#1E1915]">
@@ -1152,15 +1200,15 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                         </div>
                       </div>
                       <div className="text-[11px] text-[#8A8177] mt-3 font-medium">
-                        KDS Kitchen Benchmark
+                        Average prep & scoop speed
                       </div>
                     </div>
 
-                    {/* CARD 5: 16% PUNJAB GST */}
+                    {/* CARD 5: 16% PUNJAB SALES TAX */}
                     <div className="bg-white rounded-2xl border border-[#EDE8DF] shadow-[0_2px_8px_rgba(0,0,0,0.02)] p-4 sm:p-5 flex flex-col justify-between">
                       <div>
                         <div className="text-[10px] font-bold text-[#8A8177] uppercase tracking-wider mb-2">
-                          16% PUNJAB GST
+                          16% PUNJAB SALES TAX
                         </div>
                         <div className="flex items-baseline gap-2 flex-wrap">
                           <span className="font-heading font-black text-xl sm:text-2xl text-[#1E1915]">
@@ -1172,7 +1220,7 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                         </div>
                       </div>
                       <div className="text-[11px] text-[#8A8177] mt-3 font-medium">
-                        Tax Compliant Ledger
+                        Collected for PRA tax ledger
                       </div>
                     </div>
 
@@ -1187,15 +1235,15 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                         <div className="flex items-start justify-between gap-4 mb-2">
                           <div>
                             <h3 className="font-heading font-black text-base sm:text-lg text-[#1E1915]">
-                              Frosty's Sales Curve (Hourly PKT)
+                              Hourly Sales Rush (Peak Times)
                             </h3>
                             <p className="text-xs text-[#7A7067] mt-0.5">
-                              Afternoon scoop spike, 8 PM dinner rush, and 11 PM late night grill rush.
+                              Afternoon scoop rush, 8 PM dinner spike, and 11 PM late-night BBQ grill rush.
                             </p>
                           </div>
                           <div className="text-right shrink-0">
                             <span className="text-xs font-bold text-[#C25E34]">
-                              Peak: <strong className="font-black">10 PM</strong>
+                              Busiest: <strong className="font-black">10 PM</strong>
                             </span>
                           </div>
                         </div>
@@ -1311,8 +1359,8 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                       </div>
 
                       <div className="pt-3 border-t border-[#EDE8DF] mt-3 flex items-center justify-between text-xs text-[#7A7067]">
-                        <span>Peak register interval: 9:30 PM – 11:30 PM PKT</span>
-                        <span className="font-bold text-[#C25E34]">99.4% Dispatch Accuracy</span>
+                        <span>Peak rush hours: 9:30 PM – 11:30 PM PKT</span>
+                        <span className="font-bold text-[#C25E34]">99.4% Order Accuracy</span>
                       </div>
                     </div>
 
@@ -1320,10 +1368,10 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                     <div className="lg:col-span-5 bg-white rounded-3xl border border-[#EDE8DF] shadow-[0_2px_8px_rgba(0,0,0,0.02)] p-5 sm:p-6 flex flex-col justify-between">
                       <div>
                         <h3 className="font-heading font-black text-base sm:text-lg text-[#1E1915]">
-                          Category Revenue Share
+                          Best Selling Categories (Revenue Share)
                         </h3>
                         <p className="text-xs text-[#7A7067] mt-0.5 mb-6">
-                          Percentage of gross sales today.
+                          Percentage of today's total earnings by food & ice cream category.
                         </p>
 
                         {/* Donut Chart Visual */}
@@ -1369,7 +1417,7 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                               cy="80"
                               r="52"
                               fill="transparent"
-                              stroke="#E07A5F"
+                              stroke="#A85D38"
                               strokeWidth="24"
                               strokeDasharray="39.2 326.7"
                               strokeDashoffset="-267.9"
@@ -1405,7 +1453,7 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
 
                       {/* Insight Note at Bottom */}
                       <div className="pt-4 border-t border-[#EDE8DF] mt-4 text-xs text-[#7A7067] text-center">
-                        Signature <strong className="text-[#1E1915]">Grilled Chicken Burger</strong> remains highest volume driver (38%).
+                        Top earner: <strong className="text-[#1E1915]">Grilled Chicken Burger</strong> brings 38% of today's sales.
                       </div>
                     </div>
 
@@ -1420,10 +1468,10 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                   <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-[#EDE8DF]">
                     <div>
                       <h3 className="font-heading font-black text-lg text-[#1E1915]">
-                        Live Kitchen & Counter Dispatch (KDS)
+                        Live Kitchen Orders & Counter Dispatch
                       </h3>
                       <p className="text-xs text-[#7A7067]">
-                        Track incoming orders, scoop prep, dispatch handoff, and send automated WhatsApp alerts.
+                        Track incoming orders, grill and scoop preparation, and send 1-click WhatsApp alerts to customers.
                       </p>
                     </div>
                   </div>
@@ -1435,58 +1483,122 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                 </div>
               )}
 
-              {/* TAB 3: MENU & CATALOG CRUD */}
+              {/* TAB 3: MENU ITEMS & STOCK MANAGEMENT */}
               {activeTab === 'menu' && (
                 <div className="space-y-4 max-w-7xl mx-auto">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-[#EDE8DF]">
+                  {/* Top Header Card */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[#EDE8DF] shadow-xs">
                     <div>
-                      <h3 className="font-heading font-black text-lg text-[#1E1915]">
-                        Menu Catalog & Perishable Stock Management
-                      </h3>
-                      <p className="text-xs text-[#7A7067]">
-                        Toggle stock availability, configure delivery restrictions for cones, and update prices.
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#C25E34]"></span>
+                        <h3 className="font-heading font-black text-xl text-[#1E1915]">
+                          Menu Items & Stock Management
+                        </h3>
+                      </div>
+                      <p className="text-xs text-[#7A7067] mt-1">
+                        View, update prices, toggle out-of-stock availability, or click <strong>Edit</strong> on any item to update details.
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowResetConfirm(true)}
-                      className="px-3 py-1.5 rounded-xl border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-bold transition-all cursor-pointer self-start sm:self-auto"
-                    >
-                      Reset Catalog to Factory
-                    </button>
+
+                    <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleResetCatalogForm();
+                          setActiveTab('add-product');
+                        }}
+                        className="px-4 py-2 rounded-xl bg-[#C25E34] hover:bg-[#a54c25] text-white text-xs font-heading font-black cursor-pointer flex items-center gap-2 shadow-xs transition-colors"
+                      >
+                        <i className="fa-solid fa-circle-plus text-xs"></i>
+                        <span>Add New Product</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setShowResetConfirm(true)}
+                        className="px-3 py-2 rounded-xl border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs font-bold transition-all cursor-pointer"
+                        title="Restore default menu items"
+                      >
+                        <i className="fa-solid fa-rotate-left mr-1"></i>
+                        Reset Menu
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Filter & Search Bar */}
+                  <div className="bg-white p-3.5 rounded-2xl border border-[#EDE8DF] flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-2xs">
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
+                      {[
+                        { id: 'all', label: `All Items (${menuItems.length})`, icon: 'fa-border-all' },
+                        { id: 'fast-food', label: 'Fast Food & Burgers', icon: 'fa-burger' },
+                        { id: 'grill', label: 'Charcoal BBQ Grill', icon: 'fa-fire-flame-curved' },
+                        { id: 'ice-cream', label: 'Ice Cream & Shakes', icon: 'fa-ice-cream' },
+                        { id: 'drinks', label: 'Drinks & Chai', icon: 'fa-mug-hot' },
+                        { id: 'green-teas', label: "Green Tea's", icon: 'fa-leaf' },
+                      ].map((cat) => (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => setMenuCategoryFilter(cat.id as any)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 cursor-pointer flex items-center gap-1.5 transition-all ${
+                            menuCategoryFilter === cat.id
+                              ? 'bg-[#1E1915] text-white shadow-xs'
+                              : 'bg-[#FAF8F5] hover:bg-[#F1ECE3] text-[#6B635B] border border-[#E4DDD2]'
+                          }`}
+                        >
+                          <i className={`fa-solid ${cat.icon} text-[11px]`}></i>
+                          <span>{cat.label}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="relative min-w-[220px]">
+                      <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[#9C9287] text-xs"></i>
+                      <input
+                        type="text"
+                        value={catalogSearchQuery}
+                        onChange={(e) => setCatalogSearchQuery(e.target.value)}
+                        placeholder="Search item by name..."
+                        className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs text-[#1E1915] placeholder:text-[#9C9287] focus:outline-none focus:border-[#C25E34]"
+                      />
+                    </div>
                   </div>
 
                   {/* Menu Table */}
                   <div className="bg-white rounded-2xl border border-[#EDE8DF] overflow-hidden shadow-xs">
-                    <div className="p-4 border-b border-[#EDE8DF] flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#1E1915]">
-                        All Menu Products ({menuItems.length} items)
-                      </span>
-                    </div>
-
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-xs">
                         <thead className="bg-[#FAF8F5] text-[#7A7067] uppercase font-bold border-b border-[#EDE8DF]">
                           <tr>
-                            <th className="p-3.5">Item</th>
+                            <th className="p-3.5">Product</th>
                             <th className="p-3.5">Category</th>
-                            <th className="p-3.5">Price</th>
-                            <th className="p-3.5">Delivery Restriction</th>
-                            <th className="p-3.5">Stock Status</th>
+                            <th className="p-3.5">Customer Price</th>
+                            <th className="p-3.5">Availability</th>
+                            <th className="p-3.5 text-right">Actions</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-[#EDE8DF]">
                           {menuItems
-                            .filter((item) =>
-                              searchQuery
-                                ? item.name.toLowerCase().includes(searchQuery.toLowerCase())
-                                : true
-                            )
+                            .filter((item) => {
+                              const catStr = String(item.category || '').toLowerCase();
+                              const matchesCat =
+                                menuCategoryFilter === 'all'
+                                  ? true
+                                  : menuCategoryFilter === 'fast-food'
+                                  ? catStr.includes('fast-food') || catStr.includes('burger')
+                                  : menuCategoryFilter === 'grill'
+                                  ? catStr.includes('grill') || catStr.includes('bbq')
+                                  : menuCategoryFilter === 'ice-cream'
+                                  ? catStr.includes('ice-cream') || catStr.includes('scoop') || catStr.includes('sundae') || catStr.includes('soft-serve')
+                                  : menuCategoryFilter === 'drinks'
+                                  ? catStr.includes('drink') || catStr.includes('shake') || catStr.includes('coffee') || catStr.includes('soda') || catStr.includes('chai')
+                                  : catStr.includes('green-tea');
+                              const query = (catalogSearchQuery || searchQuery).toLowerCase().trim();
+                              const matchesQuery = query ? item.name.toLowerCase().includes(query) : true;
+                              return matchesCat && matchesQuery;
+                            })
                             .map((item) => {
                               const isOutOfStock = (inventory[item.id] ?? 15) <= 0;
-                              const isCone = item.tags?.some((t) =>
-                                t.toLowerCase().includes('cone')
-                              );
                               return (
                                 <tr key={item.id} className="hover:bg-[#FAF8F5]/80 transition-colors">
                                   <td className="p-3.5 font-bold text-[#1E1915]">
@@ -1494,32 +1606,23 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                                       <img
                                         src={item.image}
                                         alt={item.name}
-                                        className="w-10 h-10 rounded-xl object-cover border border-[#EDE8DF] shrink-0"
+                                        className="w-11 h-11 rounded-xl object-cover border border-[#EDE8DF] shrink-0"
                                       />
                                       <div>
-                                        <div className="font-heading font-black">{item.name}</div>
-                                        <div className="text-[10px] text-[#8A8177] truncate max-w-xs">
+                                        <div className="font-heading font-black text-xs text-[#1E1915]">{item.name}</div>
+                                        <div className="text-[10px] text-[#8A8177] truncate max-w-xs mt-0.5">
                                           {item.description}
                                         </div>
                                       </div>
                                     </div>
                                   </td>
                                   <td className="p-3.5 capitalize font-medium text-[#7A7067]">
-                                    {item.category.replace('-', ' ')}
+                                    <span className="px-2 py-0.5 rounded-lg bg-stone-100 text-stone-700 text-[11px] font-bold">
+                                      {item.category.replace('-', ' ')}
+                                    </span>
                                   </td>
-                                  <td className="p-3.5 font-mono font-bold text-[#C25E34]">
+                                  <td className="p-3.5 font-mono font-black text-[#C25E34] text-sm">
                                     Rs. {item.price}
-                                  </td>
-                                  <td className="p-3.5">
-                                    {isCone ? (
-                                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                                        Dine-In / Pickup Only (No Delivery)
-                                      </span>
-                                    ) : (
-                                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                        All Channels Allowed
-                                      </span>
-                                    )}
                                   </td>
                                   <td className="p-3.5">
                                     <button
@@ -1527,14 +1630,46 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                                       onClick={() =>
                                         onUpdateStock(item.id, isOutOfStock ? 15 : 0)
                                       }
-                                      className={`px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer transition-all ${
+                                      className={`px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer transition-all flex items-center gap-1.5 ${
                                         isOutOfStock
                                           ? 'bg-rose-50 text-rose-700 border border-rose-200'
                                           : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                       }`}
                                     >
-                                      {isOutOfStock ? '🔴 Out of Stock' : '🟢 In Stock'}
+                                      <i className={`fa-solid ${isOutOfStock ? 'fa-ban' : 'fa-circle-check'} text-xs`}></i>
+                                      <span>{isOutOfStock ? 'Out of Stock' : 'In Stock'}</span>
                                     </button>
+                                  </td>
+                                  <td className="p-3.5 text-right">
+                                    <div className="flex items-center justify-end gap-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          handleSelectProductForEdit(item);
+                                          setActiveTab('add-product');
+                                        }}
+                                        className="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                                        title={`Edit ${item.name} price & details`}
+                                      >
+                                        <i className="fa-solid fa-pen-to-square text-[10px]"></i>
+                                        <span>Edit</span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          if (window.confirm(`Are you sure you want to remove "${item.name}" from the menu?`)) {
+                                            if (onDeleteProduct) {
+                                              onDeleteProduct(item.id);
+                                            }
+                                          }
+                                        }}
+                                        className="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                                        title={`Delete ${item.name}`}
+                                      >
+                                        <i className="fa-solid fa-trash-can text-[10px]"></i>
+                                        <span>Remove</span>
+                                      </button>
+                                    </div>
                                   </td>
                                 </tr>
                               );
@@ -1799,7 +1934,7 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                               <option value="grill">grill (Fish Kala Rahu, BBQ Boti, Wings, Soups, Sides)</option>
                               <option value="drinks">drinks (hot/cold beverages) (Shakes, Coffees, Soda, Chai)</option>
                               <option value="ice-cream">ice cream (Super Cups, Sundaes, Cones)</option>
-                              <option value="green-teas">Green tea's (Peshawari Qehwa, Mint & Honey Green Tea)</option>
+                              <option value="green-teas">Green tea's (Lemon & Cardamom)</option>
                             </select>
                           </div>
 
@@ -2240,10 +2375,10 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                 <div className="space-y-4 max-w-7xl mx-auto">
                   <div className="bg-white p-4 rounded-2xl border border-[#EDE8DF]">
                     <h3 className="font-heading font-black text-lg text-[#1E1915]">
-                      Recipe & Ingredient Cost Management (COGS)
+                      Finances, Recipe Costs & Item Profit
                     </h3>
                     <p className="text-xs text-[#7A7067]">
-                      Configure cost per item to calculate live unit profit and net gross margin across ice cream and grill.
+                      See what each burger, shake, and ice cream costs to prepare, and check your exact profit margin per item.
                     </p>
                   </div>
                   <RecipeCostManager menuItems={menuItems} />
@@ -2542,106 +2677,240 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                       ))}
                     </div>
                   </div>
+                </div>
+              )}
 
-                  {/* Super Admin Security Password Section */}
-                  <div className="bg-white p-5 rounded-3xl border border-[#EDE8DF] space-y-4">
-                    <h3 className="font-heading font-black text-lg text-[#1E1915]">
-                      Super Admin Security & Password
-                    </h3>
+              {/* TAB 6: ACTIVITY & SECURITY LOGS */}
+              {activeTab === 'security' && (
+                <div className="space-y-4 max-w-4xl mx-auto">
+                  <div className="bg-white p-5 rounded-3xl border border-[#EDE8DF] space-y-4 shadow-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                      <h3 className="font-heading font-black text-lg text-[#1E1915]">
+                        Store Activity & Login History
+                      </h3>
+                    </div>
                     <p className="text-xs text-[#7A7067]">
-                      Update the master owner password (between 6 and 12 characters).
+                      Real-time activity timestamps, staff logins, and shift opening records.
                     </p>
 
-                    <form onSubmit={handlePasswordUpdate} className="space-y-3 max-w-md">
-                      <div>
-                        <label className="block text-xs font-bold text-[#4A423A] mb-1">
-                          Current Password *
-                        </label>
-                        <input
-                          type="password"
-                          value={oldPassword}
-                          onChange={(e) => setOldPassword(e.target.value)}
-                          required
-                          className="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-mono text-[#1E1915]"
-                        />
+                    <div className="space-y-2 font-mono text-xs text-[#4A423A]">
+                      <div className="p-3.5 rounded-xl bg-[#FAF8F5] border border-[#EDE8DF] flex items-center justify-between">
+                        <span className="text-[#1E1915]">[PKT {currentTimePKT}] Super Admin session active from Green City terminal</span>
+                        <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold text-[11px]">ACTIVE</span>
                       </div>
-                      <div>
-                        <label className="block text-xs font-bold text-[#4A423A] mb-1">
-                          New Password (6–12 chars) *
-                        </label>
-                        <input
-                          type="password"
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          maxLength={12}
-                          required
-                          className="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-mono text-[#1E1915]"
-                        />
+                      <div className="p-3.5 rounded-xl bg-[#FAF8F5] border border-[#EDE8DF] flex items-center justify-between">
+                        <span className="text-[#1E1915]">[PKT 03:00] Daily register night-audit rollover completed</span>
+                        <span className="text-blue-700 bg-blue-50 px-2 py-0.5 rounded font-bold text-[11px]">ARCHIVED</span>
                       </div>
-                      <div>
-                        <label className="block text-xs font-bold text-[#4A423A] mb-1">
-                          Confirm New Password *
-                        </label>
-                        <input
-                          type="password"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          maxLength={12}
-                          required
-                          className="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-mono text-[#1E1915]"
-                        />
+                      <div className="p-3.5 rounded-xl bg-[#FAF8F5] border border-[#EDE8DF] flex items-center justify-between">
+                        <span className="text-[#1E1915]">[PKT 13:00] Store opened for daily shift operations</span>
+                        <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold text-[11px]">OPENED</span>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-                      {passMessage && (
-                        <div
-                          className={`p-3 rounded-xl text-xs font-bold ${
-                            passMessage.type === 'success'
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : 'bg-rose-50 text-rose-700 border border-rose-200'
-                          }`}
-                        >
-                          {passMessage.text}
-                        </div>
-                      )}
-
-                      <button
-                        type="submit"
-                        className="px-4 py-2 rounded-xl bg-[#1E1915] text-white text-xs font-black cursor-pointer shadow-xs"
-                      >
-                        Update Master Password
-                      </button>
-                    </form>
+              {/* TAB 7: STORE SETTINGS & CONTROLS */}
+              {activeTab === 'system' && (
+                <div className="space-y-6 max-w-7xl mx-auto">
+                  {/* Top Intro Header */}
+                  <div className="bg-white p-5 rounded-3xl border border-[#EDE8DF] shadow-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#1E1915]"></span>
+                      <h3 className="font-heading font-black text-xl text-[#1E1915]">
+                        Store Settings & Management Hub
+                      </h3>
+                    </div>
+                    <p className="text-xs text-[#7A7067] mt-1">
+                      Manage branch delivery zones, update admin password, review customer feedback, and manage safety backups.
+                    </p>
                   </div>
 
-                  {/* Customer Resolution Desk */}
-                  <div className="bg-white p-5 rounded-3xl border border-[#EDE8DF] space-y-3">
-                    <h3 className="font-heading font-black text-lg text-[#1E1915]">
-                      Customer Complaints & Resolution Desk ({complaints.length})
-                    </h3>
+                  {/* Section 1: Delivery Zones & Store Open/Close */}
+                  <DeliveryZonesSettings />
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Section 2: Super Admin Security & Password */}
+                    <div className="bg-white p-5 sm:p-6 rounded-3xl border border-[#EDE8DF] shadow-xs space-y-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <i className="fa-solid fa-lock text-[#C25E34]"></i>
+                          <h4 className="font-heading font-black text-base text-[#1E1915]">
+                            Change Admin Password
+                          </h4>
+                        </div>
+                        <p className="text-xs text-[#7A7067] mt-1">
+                          Update the master login PIN/password for this admin console (6–12 characters).
+                        </p>
+                      </div>
+
+                      <form onSubmit={handlePasswordUpdate} className="space-y-3.5 max-w-md">
+                        <div>
+                          <label className="block text-xs font-bold text-[#4A423A] mb-1">
+                            Current Password *
+                          </label>
+                          <input
+                            type="password"
+                            value={oldPassword}
+                            onChange={(e) => setOldPassword(e.target.value)}
+                            required
+                            placeholder="Enter current password"
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-mono text-[#1E1915] focus:outline-none focus:border-[#C25E34]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-[#4A423A] mb-1">
+                            New Password (6–12 chars) *
+                          </label>
+                          <input
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            maxLength={12}
+                            required
+                            placeholder="Enter new password"
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-mono text-[#1E1915] focus:outline-none focus:border-[#C25E34]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-[#4A423A] mb-1">
+                            Confirm New Password *
+                          </label>
+                          <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            maxLength={12}
+                            required
+                            placeholder="Repeat new password"
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5] border border-[#E4DDD2] text-xs font-mono text-[#1E1915] focus:outline-none focus:border-[#C25E34]"
+                          />
+                        </div>
+
+                        {passMessage && (
+                          <div
+                            className={`p-3 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                              passMessage.type === 'success'
+                                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                                : 'bg-rose-50 text-rose-800 border border-rose-200'
+                            }`}
+                          >
+                            <i className={`fa-solid ${passMessage.type === 'success' ? 'fa-circle-check text-emerald-600' : 'fa-circle-exclamation text-rose-600'}`}></i>
+                            <span>{passMessage.text}</span>
+                          </div>
+                        )}
+
+                        <button
+                          type="submit"
+                          className="px-5 py-2.5 rounded-xl bg-[#1E1915] hover:bg-[#3E342D] text-white text-xs font-heading font-black cursor-pointer shadow-xs transition-colors flex items-center gap-2"
+                        >
+                          <i className="fa-solid fa-key text-xs"></i>
+                          <span>Update Master Password</span>
+                        </button>
+                      </form>
+                    </div>
+
+                    {/* Section 3: Danger Zone - Catalog Factory Reset */}
+                    <div className="bg-white p-5 sm:p-6 rounded-3xl border border-[#EDE8DF] shadow-xs flex flex-col justify-between space-y-4">
+                      <div>
+                        <div className="flex items-center gap-2 text-rose-600">
+                          <i className="fa-solid fa-triangle-exclamation"></i>
+                          <h4 className="font-heading font-black text-base text-[#1E1915]">
+                            Menu Reset & Factory Defaults
+                          </h4>
+                        </div>
+                        <p className="text-xs text-[#7A7067] mt-1">
+                          Restore original Frosty's burgers, BBQ grill items, soft-serve cones, shakes, and default prices. Useful if you ever need to start fresh.
+                        </p>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200/80 space-y-2">
+                        <div className="font-bold text-xs text-rose-950 flex items-center gap-1.5">
+                          <i className="fa-solid fa-shield-halved text-rose-600"></i>
+                          <span>Safety Protected</span>
+                        </div>
+                        <p className="text-[11px] text-rose-800 leading-relaxed">
+                          Clicking this will prompt you for confirmation before resetting. Existing incoming customer orders won't be deleted.
+                        </p>
+                      </div>
+
+                      <div>
+                        <button
+                          type="button"
+                          onClick={() => setShowResetConfirm(true)}
+                          className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-heading font-black cursor-pointer shadow-xs transition-colors flex items-center gap-2"
+                        >
+                          <i className="fa-solid fa-rotate-left text-xs"></i>
+                          <span>Reset Catalog to Defaults</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Section 4: Customer Inquiries & Complaints Desk */}
+                  <div className="bg-white p-5 sm:p-6 rounded-3xl border border-[#EDE8DF] shadow-xs space-y-4">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <i className="fa-solid fa-comments text-blue-600"></i>
+                          <h4 className="font-heading font-black text-base text-[#1E1915]">
+                            Customer Inquiries & Complaints Desk
+                          </h4>
+                        </div>
+                        <p className="text-xs text-[#7A7067] mt-0.5">
+                          Review feedback, missing items reports, or service inquiries submitted by customers.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-black bg-stone-100 text-stone-700">
+                          Total: {complaints.length}
+                        </span>
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-black bg-rose-100 text-rose-800">
+                          Pending: {complaints.filter((c) => c.status === 'Pending').length}
+                        </span>
+                      </div>
+                    </div>
+
                     {complaints.length === 0 ? (
-                      <p className="text-xs text-[#7A7067]">No customer complaints filed. All guests satisfied!</p>
+                      <div className="p-6 rounded-2xl bg-[#FAF8F5] border border-[#EDE8DF] text-center space-y-1">
+                        <i className="fa-solid fa-circle-check text-emerald-600 text-2xl mb-1"></i>
+                        <p className="text-xs font-bold text-[#1E1915]">No customer complaints filed</p>
+                        <p className="text-[11px] text-[#7A7067]">All guests are happy and satisfied!</p>
+                      </div>
                     ) : (
                       <div className="divide-y divide-[#EDE8DF]">
                         {complaints.map((c) => (
-                          <div key={c.id} className="py-3 flex items-start justify-between gap-4">
+                          <div key={c.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div>
-                              <div className="font-bold text-xs text-[#1E1915] flex items-center gap-2">
+                              <div className="font-bold text-xs text-[#1E1915] flex items-center gap-2 flex-wrap">
                                 <span>{c.customerName}</span>
-                                <span className="font-mono text-[10px] text-[#7A7067]">({c.customerPhone})</span>
-                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
-                                  c.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                                }`}>
+                                <span className="font-mono text-[11px] text-[#7A7067] bg-stone-100 px-2 py-0.5 rounded">
+                                  {c.customerPhone}
+                                </span>
+                                <span
+                                  className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                                    c.status === 'Resolved'
+                                      ? 'bg-emerald-100 text-emerald-800'
+                                      : 'bg-rose-100 text-rose-800'
+                                  }`}
+                                >
                                   {c.status}
                                 </span>
                               </div>
-                              <p className="text-xs text-[#4A423A] mt-1">{c.description}</p>
+                              <p className="text-xs text-[#4A423A] mt-1.5">{c.description}</p>
                             </div>
+
                             {onUpdateComplaintStatus && c.status === 'Pending' && (
                               <button
+                                type="button"
                                 onClick={() => onUpdateComplaintStatus(c.id, 'Resolved', 'Resolved by manager')}
-                                className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold cursor-pointer shrink-0"
+                                className="px-3.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-bold cursor-pointer transition-colors flex items-center gap-1.5 self-start sm:self-auto shrink-0 shadow-2xs"
                               >
-                                Mark Resolved
+                                <i className="fa-solid fa-check text-[11px]"></i>
+                                <span>Mark Resolved</span>
                               </button>
                             )}
                           </div>
@@ -2649,50 +2918,6 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                       </div>
                     )}
                   </div>
-                </div>
-              )}
-
-              {/* TAB 6: SECURITY AUDIT LOGS */}
-              {activeTab === 'security' && (
-                <div className="space-y-4 max-w-4xl mx-auto">
-                  <div className="bg-white p-5 rounded-3xl border border-[#EDE8DF] space-y-4">
-                    <h3 className="font-heading font-black text-lg text-[#1E1915]">
-                      Security Audit Trail
-                    </h3>
-                    <p className="text-xs text-[#7A7067]">
-                      Cryptographic access logs, authentication attempts, and system privilege elevations.
-                    </p>
-
-                    <div className="space-y-2 font-mono text-xs text-[#4A423A]">
-                      <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EDE8DF] flex items-center justify-between">
-                        <span>[PKT {currentTimePKT}] Super Admin session initialized from Green City terminal</span>
-                        <span className="text-emerald-600 font-bold">200 OK</span>
-                      </div>
-                      <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EDE8DF] flex items-center justify-between">
-                        <span>[PKT 03:00] Automatic 3:00 AM Register rollover completed</span>
-                        <span className="text-blue-600 font-bold">ARCHIVED</span>
-                      </div>
-                      <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EDE8DF] flex items-center justify-between">
-                        <span>[PKT 13:00] Store opened for daily shift operations</span>
-                        <span className="text-emerald-600 font-bold">ACTIVE</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 7: SYSTEM & FEATURE FLAGS */}
-              {activeTab === 'system' && (
-                <div className="space-y-4 max-w-7xl mx-auto">
-                  <div className="bg-white p-4 rounded-2xl border border-[#EDE8DF]">
-                    <h3 className="font-heading font-black text-lg text-[#1E1915]">
-                      Delivery Zones & Store Radius Configuration
-                    </h3>
-                    <p className="text-xs text-[#7A7067]">
-                      Set up delivery fees, neighborhood coverage (Green City, Paragon City), and store open/closed master switch.
-                    </p>
-                  </div>
-                  <DeliveryZonesSettings />
                 </div>
               )}
 

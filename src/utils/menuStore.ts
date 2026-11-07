@@ -1,7 +1,7 @@
 import { MenuItem } from '../types';
 import { MENU_ITEMS } from '../data/menuData';
 
-const MENU_STORAGE_KEY = 'frostys_custom_menu_catalog_v13';
+const MENU_STORAGE_KEY = 'frostys_custom_menu_catalog_v16';
 const PASSWORD_STORAGE_KEY = 'frostys_admin_password_v2';
 const DEFAULT_PASSWORD = '1234567';
 
@@ -21,10 +21,19 @@ export function getStoredMenuItems(): MenuItem[] {
       const missingDefaults = MENU_ITEMS.filter((item) => !existingIds.has(item.id));
       let merged = missingDefaults.length > 0 ? [...parsed, ...missingDefaults] : parsed;
 
-      // Always synchronize official updates for shami burger, soft serve, and chai
+      // Filter out removed items: Qehwa
+      merged = merged.filter((it: MenuItem) => it.id !== 'gt-peshawari-qehwa' && !it.name.toLowerCase().includes('qehwa'));
+
+      // Always synchronize official updates for shami burger, soft serve, chai, and green teas
       const defaultMap = new Map(MENU_ITEMS.map((m) => [m.id, m]));
       merged = merged.map((it: MenuItem) => {
         const def = defaultMap.get(it.id);
+        if (it.id === 'gt-lemon-honey') {
+          return { ...it, name: 'Lemon', badge: '🍋 Lemon' };
+        }
+        if (it.id === 'gt-cardamom-mint') {
+          return { ...it, name: 'Cardamom', badge: '🌱 Cardamom' };
+        }
         if (it.id === 'waffle-cone-classic' && def) {
           return { ...it, ...def };
         }

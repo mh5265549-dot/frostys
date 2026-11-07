@@ -117,10 +117,10 @@ export const DeliveryZonesSettings: React.FC<DeliveryZonesSettingsProps> = ({
         <div>
           <h3 className="font-heading font-black text-lg sm:text-xl text-amber-100 flex items-center gap-2">
             <i className="fa-solid fa-map-location-dot text-amber-400"></i>
-            <span>Delivery Zones & Live Operational Settings</span>
+            <span>Delivery Zones & Branch Settings</span>
           </h3>
           <p className="text-xs text-stone-400 mt-1 max-w-2xl">
-            Control live online store availability, manage local delivery neighborhood boundaries, and enforce tiered minimum order thresholds.
+            Turn your store open or closed, set neighborhood delivery fees (e.g. Green City, Paragon City), and set free delivery rules.
           </p>
         </div>
 
@@ -131,7 +131,7 @@ export const DeliveryZonesSettings: React.FC<DeliveryZonesSettingsProps> = ({
             className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:brightness-110 text-stone-950 text-xs font-black flex items-center gap-1.5 cursor-pointer shadow"
           >
             <i className="fa-solid fa-plus-circle"></i>
-            <span>Add Delivery Neighborhood</span>
+            <span>Add Delivery Area</span>
           </button>
         </div>
       </div>

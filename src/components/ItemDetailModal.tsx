@@ -32,15 +32,28 @@ interface ItemDetailModalProps {
 
 const PREMIUM_CHUNKS = ['Mango Chunks', 'Banana Slices'];
 
-const ICE_CREAM_FLAVORS = [
+// 8 standard flavors from uploaded menu image (excluding Pistachio and Kulfa)
+const STANDARD_ICE_CREAM_FLAVORS = [
   'Vanilla',
   'Chocolate',
   'Chocolate Chip',
   'Strawberry',
   'Mango',
   'Praline',
-  'Kulfa',
+  'Coconut',
   'Coffee',
+];
+
+// Dedicated Royal Pistachio & Kulfa tier
+const PISTACHIO_KULFA_FLAVORS = [
+  'Pistachio',
+  'Kulfa',
+  'Pistachio & Kulfa (Mix)',
+];
+
+const ICE_CREAM_FLAVORS = [
+  ...STANDARD_ICE_CREAM_FLAVORS,
+  ...PISTACHIO_KULFA_FLAVORS,
 ];
 
 const SODA_FLAVORS = [
@@ -66,27 +79,22 @@ const SODA_FLAVORS = [
   'Cherry Cola',
 ];
 
+// Syrups from uploaded image: Chocolate, Strawberry, Caramel, Mango, Peach, Coffee
 const SYRUP_OPTIONS = [
   { id: 'chocolate_syrup', name: 'Chocolate Syrup', icon: '🍫' },
   { id: 'strawberry_syrup', name: 'Strawberry Syrup', icon: '🍓' },
   { id: 'caramel_syrup', name: 'Caramel Syrup', icon: '🍮' },
-  { id: 'blueberry_syrup', name: 'Blueberry Syrup', icon: '🫐' },
-  { id: 'pineapple_syrup', name: 'Pineapple Syrup', icon: '🍍' },
   { id: 'mango_syrup', name: 'Mango Syrup', icon: '🥭' },
   { id: 'peach_syrup', name: 'Peach Syrup', icon: '🍑' },
   { id: 'coffee_syrup', name: 'Coffee Syrup', icon: '☕' },
 ];
 
+// Toppings from uploaded image: Sprinkles, Chocolate Chips, Oreo Crumbs, Coconut Flakes
 const TOPPING_OPTIONS = [
-  // Standard Toppings (eligible for 2 free choices)
   { id: 'sprinkles', name: 'Sprinkles', isPremium: false, icon: '🌈' },
   { id: 'choco_chips', name: 'Chocolate Chips', isPremium: false, icon: '🍫' },
   { id: 'oreo_crumbs', name: 'Oreo Crumbs', isPremium: false, icon: '🍪' },
-  { id: 'cookie_crumbs', name: 'Cookie Crumbs', isPremium: false, icon: '🍪' },
-  { id: 'waffle_crumbs', name: 'Waffle Crumbs', isPremium: false, icon: '🧇' },
-  // Premium Fruit Chunks (Always +50 PKR)
-  { id: 'mango_chunks', name: 'Mango Chunks', isPremium: true, icon: '🥭' },
-  { id: 'banana_slices', name: 'Banana Slices', isPremium: true, icon: '🍌' },
+  { id: 'coconut_flakes', name: 'Coconut Flakes', isPremium: false, icon: '🥥' },
 ];
 
 export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
@@ -163,9 +171,22 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
       const defVar = item.variants && item.variants.length > 0
         ? (item.variants.find((v) => v.price === item.price) || item.variants[0])
         : undefined;
-      setSelectedVariant(defVar);
+      const isPistachioKulfa =
+        item.id === 'scoop-pistachio-kulfa-special' ||
+        item.name.toLowerCase().includes('pistachio') ||
+        item.name.toLowerCase().includes('kulfa');
+      const flavorsList = isPistachioKulfa ? PISTACHIO_KULFA_FLAVORS : STANDARD_ICE_CREAM_FLAVORS;
+
       if (item.defaultFlavor) {
-        setSelectedFlavors([item.defaultFlavor]);
+        const matched = flavorsList.find((f) =>
+          f.toLowerCase().includes(item.defaultFlavor!.toLowerCase()) ||
+          item.defaultFlavor!.toLowerCase().includes(f.toLowerCase())
+        );
+        setSelectedFlavors([matched || item.defaultFlavor]);
+      } else if (isPistachioKulfa) {
+        setSelectedFlavors(['Pistachio']);
+      } else if (isConeCupApplicable(item) || item.allowFlavors) {
+        setSelectedFlavors(['Vanilla']);
       } else {
         setSelectedFlavors([]);
       }
@@ -185,19 +206,36 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const availableStock = stock ?? 15;
   const isSoldOut = availableStock <= 0;
 
+  const isPistachioKulfaItem =
+    item.id === 'scoop-pistachio-kulfa-special' ||
+    item.name.toLowerCase().includes('pistachio') ||
+    item.name.toLowerCase().includes('kulfa');
+
+  const availableFlavors = isPistachioKulfaItem
+    ? PISTACHIO_KULFA_FLAVORS
+    : STANDARD_ICE_CREAM_FLAVORS;
+
   // Toggle flavor selection up to allowed max
   const maxAllowedFlavors =
     item.maxFlavors || (selectedVariant?.scoopsCount ? selectedVariant.scoopsCount : 3);
 
   const toggleFlavor = (flavor: string) => {
-    if (selectedFlavors.includes(flavor)) {
-      const next = selectedFlavors.filter((f) => f !== flavor);
-      setSelectedFlavors(next);
+    const isAlreadySelected = selectedFlavors.some(
+      (f) => f.toLowerCase() === flavor.toLowerCase() || flavor.toLowerCase().includes(f.toLowerCase())
+    );
+    if (isAlreadySelected) {
+      if (selectedFlavors.length > 1) {
+        setSelectedFlavors(
+          selectedFlavors.filter(
+            (f) => f.toLowerCase() !== flavor.toLowerCase() && !flavor.toLowerCase().includes(f.toLowerCase())
+          )
+        );
+      }
     } else {
       if (selectedFlavors.length < maxAllowedFlavors) {
         setSelectedFlavors([...selectedFlavors, flavor]);
       } else {
-        // Replace last or alert
+        // If max reached (e.g. 1 scoop = 1 flavor), replace with new flavor
         setSelectedFlavors([...selectedFlavors.slice(1), flavor]);
       }
     }
@@ -251,7 +289,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     : 0;
   const standardFreeUsed = Math.min(2, standardCount);
   const standardExtraCount = Math.max(0, standardCount - 2);
-  const standardExtraCharges = standardExtraCount * 50;
+  const standardExtraCharges = standardExtraCount * 30; // Rs 30 per extra topping from uploaded image
 
   const premiumCount = hasSyrupAndToppings ? selectedPremiumChunks.length : 0;
   const premiumExtraCharges = premiumCount * 50;
@@ -636,8 +674,11 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                       type="button"
                       onClick={() => {
                         setSelectedVariant(v);
-                        if (!item.defaultFlavor) {
-                          setSelectedFlavors([]);
+                        const scoops = v.scoopsCount || (v.name.toLowerCase().includes('triple') ? 3 : v.name.toLowerCase().includes('double') ? 2 : 1);
+                        if (selectedFlavors.length > scoops) {
+                          setSelectedFlavors(selectedFlavors.slice(0, scoops));
+                        } else if (selectedFlavors.length === 0) {
+                          setSelectedFlavors(['Vanilla Bean']);
                         }
                       }}
                       className={`p-3 rounded-xl border text-left text-xs font-bold transition-all flex flex-col justify-between relative cursor-pointer ${
@@ -662,46 +703,47 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             </div>
           )}
 
-          {/* DIRECT FLAVOR INDICATOR (When selected from dedicated flavor product block) */}
-          {item.defaultFlavor && (
-            <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-300/80 flex items-center justify-between text-xs font-bold text-amber-950">
-              <span className="flex items-center gap-2">
-                <i className="fa-solid fa-circle-check text-blue-600 text-sm"></i>
-                <span>Selected Flavor: <strong className="text-[#2D1B18]">{item.defaultFlavor}</strong></span>
-              </span>
-              <span className="text-[10px] text-amber-900 bg-amber-200/90 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold">
-                Direct Selection
-              </span>
-            </div>
-          )}
-
-          {/* MULTI-FLAVOR SELECTION (Only for custom mix / multi-flavor items without a default single flavor) */}
-          {item.allowFlavors && !item.defaultFlavor && (
-            <div className="space-y-2">
+          {/* ICE CREAM FLAVORS SELECTION (For all scoops, cones, and multi-flavor desserts except machine soft serve) */}
+          {((item.allowFlavors || isConeCupApplicable(item) || item.category === 'scoops') &&
+            !item.name.toLowerCase().includes('soft serve') &&
+            item.id !== 'waffle-cone-classic') && (
+            <div className="space-y-2.5 bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200/80 shadow-2xs">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
+                <label className="text-xs font-extrabold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
                   <i className="fa-solid fa-ice-cream text-amber-600"></i>
-                  <span>Select Ice Cream Flavors</span>
+                  <span>Choose Ice Cream Flavor{maxAllowedFlavors > 1 ? '(s)' : ''}</span>
                 </label>
-                <span className="text-[11px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full">
-                  {selectedFlavors.length} / {maxAllowedFlavors} Chosen
+                <span className="text-[11px] font-bold text-amber-950 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300">
+                  {selectedFlavors.length} / {maxAllowedFlavors} Selected
                 </span>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {ICE_CREAM_FLAVORS.map((flavor) => {
-                  const isSelected = selectedFlavors.includes(flavor);
+              <p className="text-[11px] text-stone-600">
+                {maxAllowedFlavors > 1
+                  ? `Select up to ${maxAllowedFlavors} flavors for your ${selectedVariant?.name || 'serving'}. Click any flavor to toggle.`
+                  : 'Select your preferred flavor. Click any flavor below to change.'}
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+                {availableFlavors.map((flavor) => {
+                  const isSelected = selectedFlavors.some(
+                    (f) => f.toLowerCase() === flavor.toLowerCase() || flavor.toLowerCase().includes(f.toLowerCase())
+                  );
                   return (
                     <button
                       key={flavor}
                       type="button"
                       onClick={() => toggleFlavor(flavor)}
-                      className={`p-2 rounded-xl border text-center text-xs font-bold transition-all ${
+                      className={`p-2.5 rounded-xl border text-left text-xs font-bold transition-all cursor-pointer flex items-center justify-between gap-1.5 ${
                         isSelected
-                          ? 'bg-red-600 text-white border-red-600 shadow-sm'
-                          : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-400'
+                          ? 'bg-[#2D1B18] text-amber-300 border-[#2D1B18] shadow-sm ring-2 ring-amber-400/50'
+                          : 'bg-white text-stone-700 border-stone-200 hover:border-amber-400 hover:bg-amber-50/50'
                       }`}
                     >
-                      {flavor}
+                      <span className="truncate">{flavor}</span>
+                      {isSelected ? (
+                        <i className="fa-solid fa-circle-check text-xs text-amber-300 shrink-0"></i>
+                      ) : (
+                        <i className="fa-regular fa-circle text-[10px] text-stone-400 shrink-0"></i>
+                      )}
                     </button>
                   );
                 })}
@@ -801,7 +843,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
                   <i className="fa-solid fa-cookie-bite text-amber-600"></i>
-                  <span>Toppings & Extra Chunks</span>
+                  <span>Two Toppings Included (Extra Toppings +Rs. 30)</span>
                 </label>
                 <span className="text-[11px] font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded-full">
                   {selectedToppings.length} Selected
@@ -836,7 +878,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                               : 'bg-blue-100 text-blue-800'
                           }`}
                         >
-                          {topping.isPremium ? '+50 PKR' : 'Standard'}
+                          {topping.isPremium ? '+50 PKR' : '+30 PKR'}
                         </span>
                         <span
                           className={`w-4 h-4 rounded-full border flex items-center justify-center text-[9px] ${
