@@ -155,13 +155,31 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     badge: 'Charcoal & Fish',
     description: 'Grill Fish (Kala Rahu Rs 2200/KG), Charcoal Malai & Tikka Boti, Wings, 19B & Hot Sour Soups, Platters, and Tandoori Sides.',
     filter: (item) => {
-      // STRICT RULE: Ice creams must NEVER appear in grill
-      if (isIceCreamItem(item)) {
+      // STRICT RULE: Ice creams and beverages must NEVER appear in grill
+      if (isIceCreamItem(item) || item.isBeverage === true) {
         return false;
       }
       const cat = (item.category || '').toLowerCase();
       const name = item.name.toLowerCase();
       const tags = (item.tags || []).map((t) => t.toLowerCase());
+
+      // Exclude beverages (drinks, shakes, coffees, chai, teas, sodas)
+      if (
+        cat === 'drinks' ||
+        cat === 'shakes' ||
+        cat === 'coffees' ||
+        cat === 'sodas' ||
+        cat === 'chai' ||
+        cat === 'green-teas' ||
+        name.includes('chai') ||
+        name.includes('tea') ||
+        name.includes('coffee') ||
+        name.includes('shake') ||
+        name.includes('soda') ||
+        tags.some((t) => t.includes('beverage') || t.includes('chai') || t.includes('tea') || t.includes('drink'))
+      ) {
+        return false;
+      }
 
       // Exclude fast food items (rolls, burgers, tacos, fries, wraps, gyro, sandwiches)
       if (
@@ -229,26 +247,24 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     name: 'drinks (hot/cold beverages)',
     icon: 'fa-solid fa-mug-hot',
     badge: 'Hot & Cold',
-    description: 'Iced signature coffees & Spanish latte, thick creamy milkshakes, hot Karak Chai & Kashmiri Pink Tea, and fruit chillers.',
+    description: 'Iced signature coffees & Spanish latte, thick creamy milkshakes, hot Karak Chai, Kashmiri Pink Tea, green tea (Lemon & Cardamom), and fruit chillers.',
     filter: (item) => {
-      // STRICT RULE: Pure ice cream desserts must NEVER appear in drinks
+      // STRICT RULE: Pure ice cream desserts and non-beverage BBQ deals must NEVER appear in drinks
       if (isIceCreamItem(item)) {
+        return false;
+      }
+      // Never show BBQ & grill deals/platters under drinks
+      if (
+        item.id === 'deal-1' ||
+        item.id === 'deal-2' ||
+        item.id === 'deal-family-bbq-platter' ||
+        item.id === 'deal-crispy-burger-meal'
+      ) {
         return false;
       }
       const cat = (item.category || '').toLowerCase();
       const name = item.name.toLowerCase();
       const tags = (item.tags || []).map((t) => t.toLowerCase());
-
-      // Exclude green tea items
-      if (
-        cat === 'green-teas' ||
-        name.includes('green tea') ||
-        name.includes('qehwa') ||
-        tags.includes('green tea') ||
-        tags.includes('qehwa')
-      ) {
-        return false;
-      }
 
       return (
         cat === 'drinks' ||
@@ -256,6 +272,7 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
         cat === 'coffees' ||
         cat === 'sodas' ||
         cat === 'chai' ||
+        cat === 'green-teas' ||
         item.isBeverage === true ||
         tags.some((t) =>
           t.includes('shake') ||
@@ -263,14 +280,21 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
           t.includes('frappe') ||
           t.includes('soda') ||
           t.includes('chiller') ||
-          t.includes('chai')
+          t.includes('chai') ||
+          t.includes('green tea') ||
+          t.includes('qehwa') ||
+          t.includes('beverage')
         ) ||
         name.includes('shake') ||
         name.includes('coffee') ||
         name.includes('frappe') ||
         name.includes('chiller') ||
         name.includes('chai') ||
-        name.includes('latte')
+        name.includes('latte') ||
+        name.includes('green tea') ||
+        name.includes('qehwa') ||
+        item.id === 'gt-lemon-honey' ||
+        item.id === 'gt-cardamom-mint'
       );
     },
     type: 'dessert',
@@ -286,28 +310,6 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
       return isIceCreamItem(item);
     },
     type: 'dessert',
-  },
-  {
-    id: 'green-teas',
-    name: "Green tea's",
-    icon: 'fa-solid fa-leaf',
-    badge: 'Lemon & Cardamom',
-    description: 'Hot steaming Lemon and Cardamom green tea brewed fresh with natural herbs.',
-    filter: (item) => {
-      if (isIceCreamItem(item)) {
-        return false;
-      }
-      const cat = (item.category || '').toLowerCase();
-      const name = item.name.toLowerCase();
-      const tags = (item.tags || []).map((t) => t.toLowerCase());
-      return (
-        cat === 'green-teas' ||
-        tags.some((t) => t.includes('green tea') || t.includes('qehwa')) ||
-        name.includes('green tea') ||
-        name.includes('qehwa')
-      );
-    },
-    type: 'deal',
   },
 ];
 
@@ -1031,10 +1033,10 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
 
                     return (
                       <div className="space-y-8">
-                        {/* 1. Standard Ice Cream Scoops & Cones (All 8 Flavors in One Block) */}
+                        {/* 1. Ice Cream Scoops & Cones (Unified Block with Standard Flavours & Pistachio/Kulfa) */}
                         {standardScoopItem && (
                           <div className="space-y-4">
-                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50/90 via-sky-50/70 to-indigo-50/80 border border-blue-200/90 shadow-2xs space-y-3.5">
+                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50/90 via-sky-50/70 to-indigo-50/80 border border-blue-200/90 shadow-2xs space-y-2">
                               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div className="flex items-center gap-3">
                                   <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg shadow-xs shrink-0">
@@ -1045,15 +1047,12 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                                       <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
                                         Ice Cream Scoops & Cones
                                       </h4>
-                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-300 uppercase tracking-wider">
-                                        8 Artisanal Flavours
-                                      </span>
                                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 uppercase tracking-wider">
                                         Two Toppings Included
                                       </span>
                                     </div>
                                     <p className="text-xs text-stone-600 mt-0.5">
-                                      Single (<strong>Rs. 150</strong>) • Double (<strong>Rs. 250</strong>) • Triple (<strong>Rs. 350</strong>) • Served in Crispy Waffle Cone or Classic Cup.
+                                      Served in Crispy Fresh Waffle Cone or Classic Branded Cup. Tap any card below to pick scoop size, flavours, and toppings.
                                     </p>
                                   </div>
                                 </div>
@@ -1069,107 +1068,12 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                                   </button>
                                 </div>
                               </div>
-
-                              {/* Interactive Flavor Badges Showcase */}
-                              <div className="pt-1">
-                                <div className="text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                                  <span>Choose from these 8 flavours:</span>
-                                </div>
-                                <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                                  {STANDARD_ICE_CREAM_FLAVORS.map((flv) => (
-                                    <button
-                                      key={flv.name}
-                                      type="button"
-                                      onClick={() => {
-                                        onSelectItem({
-                                          ...standardScoopItem,
-                                          defaultFlavor: flv.name,
-                                        });
-                                      }}
-                                      className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-2xs flex items-center gap-1.5 ${flv.color}`}
-                                      title={`Click to order ${flv.name} in Cone or Cup`}
-                                    >
-                                      <span>{flv.emoji}</span>
-                                      <span>{flv.name}</span>
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
                             </div>
 
+                            {/* Unified scoops grid: Standard Flavours & Pistachio/Kulfa together */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
                               {renderItemCard(standardScoopItem, 0)}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 2. Pistachio & Kulfa (Pista & Kulfa - Separate Block with Dedicated Pricing) */}
-                        {pistaKulfaItem && (
-                          <div className="space-y-4 pt-2">
-                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50/90 via-teal-50/70 to-amber-50/80 border border-emerald-200/90 shadow-2xs space-y-3.5">
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shadow-xs shrink-0">
-                                    <i className="fa-solid fa-crown"></i>
-                                  </div>
-                                  <div>
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <h4 className="font-heading font-black text-base sm:text-lg text-emerald-950 tracking-tight">
-                                        Pistachio & Kulfa (Pista & Kulfa)
-                                      </h4>
-                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 uppercase tracking-wider">
-                                        Royal Special Pricing
-                                      </span>
-                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider">
-                                        Two Toppings Included
-                                      </span>
-                                    </div>
-                                    <p className="text-xs text-stone-600 mt-0.5">
-                                      Single (<strong>Rs. 250</strong>) • Double (<strong>Rs. 400</strong>) • Triple (<strong>Rs. 550</strong>) • Served in Crispy Cone or Branded Cup.
-                                    </p>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-                                  <button
-                                    type="button"
-                                    onClick={() => onSelectItem(pistaKulfaItem)}
-                                    className="px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
-                                  >
-                                    <i className="fa-solid fa-cart-plus text-xs"></i>
-                                    <span>Select Pistachio & Kulfa</span>
-                                  </button>
-                                </div>
-                              </div>
-
-                              {/* Interactive Royal Pistachio & Kulfa Badges */}
-                              <div className="pt-1">
-                                <div className="text-[11px] font-bold text-emerald-950 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                                  <span>Choose flavour:</span>
-                                </div>
-                                <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                                  {PISTACHIO_KULFA_FLAVORS.map((flv) => (
-                                    <button
-                                      key={flv.name}
-                                      type="button"
-                                      onClick={() => {
-                                        onSelectItem({
-                                          ...pistaKulfaItem,
-                                          defaultFlavor: flv.name,
-                                        });
-                                      }}
-                                      className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-2xs flex items-center gap-1.5 ${flv.color}`}
-                                    >
-                                      <span>{flv.emoji}</span>
-                                      <span>{flv.name}</span>
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
-                              {renderItemCard(pistaKulfaItem, 1)}
+                              {pistaKulfaItem && renderItemCard(pistaKulfaItem, 1)}
                             </div>
                           </div>
                         )}
@@ -1228,7 +1132,38 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                   }
 
                   if (group.id === 'drinks') {
-                    const isCoffee = (it: MenuItem) => {
+                    // Temperature classifier: max 2 categories (Cold and Hot)
+                    const isHotDrink = (it: MenuItem) => {
+                      const n = it.name.toLowerCase();
+                      const c = (it.category || '').toLowerCase();
+                      const tags = (it.tags || []).map((t) => t.toLowerCase());
+
+                      // Explicit hot tags or names
+                      if (
+                        n.includes('hot') ||
+                        n.includes('karak chai') ||
+                        n.includes('kashmiri') ||
+                        n.includes('pink chai') ||
+                        n.includes('pink tea') ||
+                        n.includes('chai') ||
+                        c === 'chai' ||
+                        c === 'green-teas' ||
+                        n.includes('green tea') ||
+                        n.includes('qehwa') ||
+                        it.id === 'gt-lemon-honey' ||
+                        it.id === 'gt-cardamom-mint' ||
+                        tags.some((t) => t.includes('hot') || t.includes('chai') || t.includes('tea') || t.includes('qehwa'))
+                      ) {
+                        // Make sure iced teas/coffees are not marked as hot if any exist
+                        if (n.includes('iced') || n.includes('cold') || tags.includes('cold')) {
+                          return false;
+                        }
+                        return true;
+                      }
+                      return false;
+                    };
+
+                    const isColdCoffee = (it: MenuItem) => {
                       const n = it.name.toLowerCase();
                       const c = (it.category || '').toLowerCase();
                       const tags = (it.tags || []).map((t) => t.toLowerCase());
@@ -1237,178 +1172,110 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                         n.includes('coffee') ||
                         n.includes('latte') ||
                         n.includes('frappe') ||
-                        n.includes('espresso') ||
-                        n.includes('cappuccino') ||
-                        tags.some((t) =>
-                          t.includes('coffee') ||
-                          t.includes('latte') ||
-                          t.includes('frappe') ||
-                          t.includes('cold brew')
-                        )
+                        tags.some((t) => t.includes('coffee') || t.includes('latte') || t.includes('frappe'))
                       );
                     };
 
                     const isShake = (it: MenuItem) => {
-                      if (isCoffee(it)) return false;
+                      if (isColdCoffee(it)) return false;
                       const n = it.name.toLowerCase();
                       const c = (it.category || '').toLowerCase();
                       const tags = (it.tags || []).map((t) => t.toLowerCase());
                       return (
                         c === 'shakes' ||
                         n.includes('shake') ||
-                        tags.some((t) => t.includes('shake') || t.includes('milkshake'))
+                        tags.some((t) => t.includes('shake'))
                       );
                     };
 
-                    const isTea = (it: MenuItem) => {
-                      if (isCoffee(it) || isShake(it)) return false;
+                    const isSodaChiller = (it: MenuItem) => {
                       const n = it.name.toLowerCase();
                       const c = (it.category || '').toLowerCase();
                       const tags = (it.tags || []).map((t) => t.toLowerCase());
                       return (
-                        c === 'chai' ||
-                        it.id.includes('chai') ||
-                        n.includes('chai') ||
-                        n.includes('tea') ||
-                        tags.some((t) => t.includes('chai') || t.includes('tea'))
+                        c === 'sodas' ||
+                        n.includes('soda') ||
+                        n.includes('chiller') ||
+                        tags.some((t) => t.includes('soda') || t.includes('chiller'))
                       );
                     };
 
-                    const coffeeItems = groupItems.filter(isCoffee);
-                    const shakeItems = groupItems.filter(isShake);
-                    const teaItems = groupItems.filter(isTea);
-                    const otherItems = groupItems.filter((it) => !isCoffee(it) && !isShake(it) && !isTea(it));
+                    // Filter all cold items
+                    const coldItems = groupItems.filter((it) => !isHotDrink(it));
+                    // Filter all hot items
+                    const hotItems = groupItems.filter(isHotDrink);
+
+                    // Within Cold: arrange first Cold Coffee, then Shakes, then Soda Chillers & other cold refreshers
+                    const coldCoffees = coldItems.filter(isColdCoffee);
+                    const coldShakes = coldItems.filter(isShake);
+                    const coldSodasAndOthers = coldItems.filter((it) => !isColdCoffee(it) && !isShake(it));
+
+                    const orderedColdItems = [...coldCoffees, ...coldShakes, ...coldSodasAndOthers];
 
                     return (
                       <div className="space-y-8">
-                        {/* 1. Coffee (Shown First) */}
-                        {coffeeItems.length > 0 && (
+                        {/* 1. Cold Beverages (Maximum 2 categories: Cold and Hot. Includes Cold Coffee, Shakes, Soda Chillers) */}
+                        {orderedColdItems.length > 0 && (
                           <div className="space-y-4">
-                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-900/10 via-amber-800/5 to-amber-950/10 border border-amber-800/20 shadow-2xs flex items-center justify-between gap-4">
+                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50/90 via-cyan-50/70 to-indigo-50/80 border border-blue-200/90 shadow-2xs flex items-center justify-between gap-4">
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-[#4A2C18] text-amber-100 flex items-center justify-center text-base shadow-xs shrink-0">
+                                <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-base shadow-xs shrink-0">
+                                  <i className="fa-solid fa-snowflake"></i>
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
+                                      Cold Beverages
+                                    </h4>
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-300 uppercase tracking-wider">
+                                      Chilled & Blended
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-stone-600 mt-0.5">
+                                    Iced coffees & cold Spanish latte, creamy ice cream shakes, and refreshing sparkling fruit chillers.
+                                  </p>
+                                </div>
+                              </div>
+                              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-200 shrink-0">
+                                {orderedColdItems.length} {orderedColdItems.length === 1 ? 'drink' : 'drinks'}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
+                              {orderedColdItems.map((item, idx) => renderItemCard(item, idx))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 2. Hot Beverages (Maximum 2 categories: Hot Karak Chai, Kashmiri Pink Tea) */}
+                        {hotItems.length > 0 && (
+                          <div className="space-y-4">
+                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-50/95 via-orange-50/80 to-rose-50/90 border border-amber-200/90 shadow-2xs flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-[#C25E34] text-white flex items-center justify-center text-base shadow-xs shrink-0">
                                   <i className="fa-solid fa-mug-hot"></i>
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-2 flex-wrap">
                                     <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
-                                      Coffee
+                                      Hot Beverages
                                     </h4>
                                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider">
-                                      Cold Brew, Latte & Frappes
+                                      Chai & Green Teas
                                     </span>
                                   </div>
                                   <p className="text-xs text-stone-600 mt-0.5">
-                                    Frosty's signature iced cold brews, Spanish latte, and blended mocha frappes.
+                                    Steaming hot Karak Chai, royal Kashmiri Pink Chai with almonds & pistachios, and fresh herbal green teas (Lemon & Cardamom).
                                   </p>
                                 </div>
                               </div>
                               <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
-                                {coffeeItems.length} {coffeeItems.length === 1 ? 'item' : 'items'}
+                                {hotItems.length} {hotItems.length === 1 ? 'drink' : 'drinks'}
                               </span>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
-                              {coffeeItems.map((item, idx) => renderItemCard(item, idx))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 2. Shakes (Shown Second) */}
-                        {shakeItems.length > 0 && (
-                          <div className="space-y-4">
-                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/90 shadow-2xs flex items-center justify-between gap-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-base shadow-xs shrink-0">
-                                  <i className="fa-solid fa-whiskey-glass"></i>
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
-                                      Shakes
-                                    </h4>
-                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-300 uppercase tracking-wider">
-                                      Thick & Creamy Milkshakes
-                                    </span>
-                                  </div>
-                                  <p className="text-xs text-stone-600 mt-0.5">
-                                    Rich and decadent milkshakes blended with real vanilla ice cream, Oreo cookies, and fresh fruits.
-                                  </p>
-                                </div>
-                              </div>
-                              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-200 shrink-0">
-                                {shakeItems.length} {shakeItems.length === 1 ? 'shake' : 'shakes'}
-                              </span>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
-                              {shakeItems.map((item, idx) => renderItemCard(item, idx))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 3. Teas (Shown Third) */}
-                        {teaItems.length > 0 && (
-                          <div className="space-y-4">
-                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-rose-50/90 via-amber-50/80 to-orange-50/90 border border-amber-200/90 shadow-2xs flex items-center justify-between gap-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-[#C25E34] text-white flex items-center justify-center text-base shadow-xs shrink-0">
-                                  <i className="fa-solid fa-mug-saucer"></i>
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
-                                      Teas
-                                    </h4>
-                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider">
-                                      Karak Chai & Kashmiri Pink Tea
-                                    </span>
-                                  </div>
-                                  <p className="text-xs text-stone-600 mt-0.5">
-                                    Steaming hot Karak Chai in Frosty's cups and royal Kashmiri Pink Chai with roasted pistachios & almonds.
-                                  </p>
-                                </div>
-                              </div>
-                              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
-                                {teaItems.length} {teaItems.length === 1 ? 'tea' : 'teas'}
-                              </span>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
-                              {teaItems.map((item, idx) => renderItemCard(item, idx))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 4. Chillers & Sodas (if any) */}
-                        {otherItems.length > 0 && (
-                          <div className="space-y-4">
-                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200/90 shadow-2xs flex items-center justify-between gap-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center text-base shadow-xs shrink-0">
-                                  <i className="fa-solid fa-bottle-water"></i>
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
-                                      Chillers & Sodas
-                                    </h4>
-                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-900 border border-teal-300 uppercase tracking-wider">
-                                      Icy Refreshers
-                                    </span>
-                                  </div>
-                                  <p className="text-xs text-stone-600 mt-0.5">
-                                    Fizzy soda chillers and sparkling ice blends in over 20 fruity syrup flavors.
-                                  </p>
-                                </div>
-                              </div>
-                              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-teal-100 text-teal-900 border border-teal-200 shrink-0">
-                                {otherItems.length} {otherItems.length === 1 ? 'item' : 'items'}
-                              </span>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
-                              {otherItems.map((item, idx) => renderItemCard(item, idx))}
+                              {hotItems.map((item, idx) => renderItemCard(item, idx))}
                             </div>
                           </div>
                         )}
