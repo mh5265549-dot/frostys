@@ -301,12 +301,12 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
   },
   {
     id: 'ice-cream',
-    name: 'ice cream',
+    name: 'desserts',
     icon: 'fa-solid fa-ice-cream',
-    badge: 'Cups & Cones',
-    description: 'Pure cream artisanal ice cream cups, Super Cups, Deluxe Banana Splits, and crispy freshly rolled waffle cones.',
+    badge: 'Ice Cream & Sweets',
+    description: 'Pure cream artisanal ice cream scoops & cones, Super Cups, Sundaes, Deluxe Banana Splits, and traditional Kulfi.',
     filter: (item) => {
-      // ALL and ONLY ice cream items belong in this section
+      // ALL and ONLY dessert / ice cream items belong in this section
       return isIceCreamItem(item);
     },
     type: 'dessert',
