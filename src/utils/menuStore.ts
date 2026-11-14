@@ -21,10 +21,15 @@ export function getStoredMenuItems(): MenuItem[] {
       const missingDefaults = MENU_ITEMS.filter((item) => !existingIds.has(item.id));
       let merged = missingDefaults.length > 0 ? [...parsed, ...missingDefaults] : parsed;
 
-      // Filter out removed items: Qehwa
-      merged = merged.filter((it: MenuItem) => it.id !== 'gt-peshawari-qehwa' && !it.name.toLowerCase().includes('qehwa'));
+      // Filter out removed items: Qehwa & standalone Grill Meal Combo Upgrade
+      merged = merged.filter(
+        (it: MenuItem) =>
+          it.id !== 'gt-peshawari-qehwa' &&
+          !it.name.toLowerCase().includes('qehwa') &&
+          it.id !== 'ff-combo-upgrade'
+      );
 
-      // Always synchronize official updates for shami burger, soft serve, chai, and green teas
+      // Always synchronize official updates for shami burger, other burgers, soft serve, chai, and green teas
       const defaultMap = new Map(MENU_ITEMS.map((m) => [m.id, m]));
       merged = merged.map((it: MenuItem) => {
         const def = defaultMap.get(it.id);
@@ -37,8 +42,20 @@ export function getStoredMenuItems(): MenuItem[] {
         if (it.id === 'waffle-cone-classic' && def) {
           return { ...it, ...def };
         }
-        if (it.id === 'ff-shami-burger' && (it.name !== 'Shami Burger' || it.price !== 350)) {
-          return { ...it, name: 'Shami Burger', price: 350, unit: 'Single Burger (350 PKR)' };
+        if (
+          (it.id === 'ff-shami-burger' ||
+            it.id === 'ff-ground-chicken-burger' ||
+            it.id === 'ff-grilled-chicken-burger') &&
+          def
+        ) {
+          return {
+            ...it,
+            name: def.name,
+            price: def.price,
+            unit: def.unit,
+            comboPrice: 300,
+            description: def.description,
+          };
         }
         if (it.id === 'ff-karak-chai' && def) {
           return { ...it, image: def.image, badge: def.badge, description: def.description, unit: def.unit };

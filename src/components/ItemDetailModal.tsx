@@ -155,7 +155,11 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     item?.category === 'deals' ||
     item?.tags?.some((t) => /deals & platters|platter/i.test(t)) ||
     /deal|platter/i.test(item?.name || '');
-  const comboPrice = item?.comboPrice ?? 300;
+  const isBurgerItem =
+    !!item &&
+    (item.name.toLowerCase().includes('burger') ||
+      item.tags?.some((t) => /^burgers?$/i.test(t)));
+  const comboPrice = isBurgerItem ? 300 : (item?.comboPrice ?? 300);
   const [spiceLevel, setSpiceLevel] = useState<'Mild' | 'Medium' | 'Hot & Spicy'>('Medium');
   const [teaPreference, setTeaPreference] = useState<'Normal' | 'Less Sugar' | 'Kadak (Strong)' | 'Sugar Free'>('Normal');
   const [extraCheese, setExtraCheese] = useState(false);
@@ -310,7 +314,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     if (isSoldOut || isAdded) return;
 
     let standardIndex = selectedSyrups.length;
-    const comboLabel = comboPrice === 200
+    const comboLabel = isBurgerItem
+      ? 'Meal (Fries + Chilled Drink)'
+      : comboPrice === 200
       ? 'Meal Upgrade (Hot Fries + Chilled Drink)'
       : 'Combo Meal (Regular Fries + Chilled Drink)';
 
@@ -587,7 +593,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                           <span className="flex items-center gap-2">
                             <span className="text-base">🍟🥤</span>
                             <span>
-                              {comboPrice === 200
+                              {isBurgerItem
+                                ? 'Make it a Meal (Add Fries + Chilled Drink)'
+                                : comboPrice === 200
                                 ? 'Make it a Meal (Add Hot Fries + Chilled Drink)'
                                 : 'Make it a Combo (Add Regular Fries + Chilled Drink)'}
                             </span>

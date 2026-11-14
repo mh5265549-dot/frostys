@@ -916,10 +916,15 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
+                                    const isBurger =
+                                      item.category !== 'deals' &&
+                                      (item.name.toLowerCase().includes('burger') ||
+                                        (item.tags && item.tags.some((t) => /^burgers?$/i.test(t))));
                                     const needsModal =
                                       (item.variants && item.variants.length > 1) ||
                                       item.category === 'scoops' ||
-                                      item.category === 'sundaes';
+                                      item.category === 'sundaes' ||
+                                      isBurger;
                                     if (needsModal || !onAddToCart) {
                                       onSelectItem(item);
                                     } else {
