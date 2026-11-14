@@ -173,10 +173,12 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
         cat === 'green-teas' ||
         name.includes('chai') ||
         name.includes('tea') ||
+        name.includes('kehwa') ||
+        name.includes('qehwa') ||
         name.includes('coffee') ||
         name.includes('shake') ||
         name.includes('soda') ||
-        tags.some((t) => t.includes('beverage') || t.includes('chai') || t.includes('tea') || t.includes('drink'))
+        tags.some((t) => t.includes('beverage') || t.includes('chai') || t.includes('tea') || t.includes('kehwa') || t.includes('qehwa') || t.includes('drink'))
       ) {
         return false;
       }
@@ -247,7 +249,7 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
     name: 'drinks (hot/cold beverages)',
     icon: 'fa-solid fa-mug-hot',
     badge: 'Hot & Cold',
-    description: 'Iced signature coffees & Spanish latte, thick creamy milkshakes, hot Karak Chai, Kashmiri Pink Tea, green tea (Lemon & Cardamom), and fruit chillers.',
+    description: 'Iced signature coffees & Spanish latte, thick creamy milkshakes, Hot Coffee, Karak Chai, Kashmiri Chai, Green Teas & Peshawari Kehwa, and fruit chillers.',
     filter: (item) => {
       // STRICT RULE: Pure ice cream desserts and non-beverage BBQ deals must NEVER appear in drinks
       if (isIceCreamItem(item)) {
@@ -282,6 +284,7 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
           t.includes('chiller') ||
           t.includes('chai') ||
           t.includes('green tea') ||
+          t.includes('kehwa') ||
           t.includes('qehwa') ||
           t.includes('beverage')
         ) ||
@@ -292,9 +295,13 @@ const MENU_CATEGORY_GROUPS: MenuCategoryGroup[] = [
         name.includes('chai') ||
         name.includes('latte') ||
         name.includes('green tea') ||
+        name.includes('kehwa') ||
         name.includes('qehwa') ||
+        item.id === 'gt-mint-green-tea' ||
         item.id === 'gt-lemon-honey' ||
-        item.id === 'gt-cardamom-mint'
+        item.id === 'gt-cardamom-mint' ||
+        item.id === 'gt-peshawari-kehwa' ||
+        item.id === 'coffee-hot-classic'
       );
     },
     type: 'dessert',
@@ -1154,10 +1161,14 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                         c === 'chai' ||
                         c === 'green-teas' ||
                         n.includes('green tea') ||
+                        n.includes('kehwa') ||
                         n.includes('qehwa') ||
+                        it.id === 'gt-mint-green-tea' ||
                         it.id === 'gt-lemon-honey' ||
                         it.id === 'gt-cardamom-mint' ||
-                        tags.some((t) => t.includes('hot') || t.includes('chai') || t.includes('tea') || t.includes('qehwa'))
+                        it.id === 'gt-peshawari-kehwa' ||
+                        it.id === 'coffee-hot-classic' ||
+                        tags.some((t) => t.includes('hot') || t.includes('chai') || t.includes('tea') || t.includes('kehwa') || t.includes('qehwa'))
                       ) {
                         // Make sure iced teas/coffees are not marked as hot if any exist
                         if (n.includes('iced') || n.includes('cold') || tags.includes('cold')) {
@@ -1252,38 +1263,73 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                           </div>
                         )}
 
-                        {/* 2. Hot Beverages (Maximum 2 categories: Hot Karak Chai, Kashmiri Pink Tea) */}
-                        {hotItems.length > 0 && (
-                          <div className="space-y-4">
-                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-50/95 via-orange-50/80 to-rose-50/90 border border-amber-200/90 shadow-2xs flex items-center justify-between gap-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-[#C25E34] text-white flex items-center justify-center text-base shadow-xs shrink-0">
-                                  <i className="fa-solid fa-mug-hot"></i>
+                        {/* 2. Hot Beverages (Maximum 2 beverage categories: Cold and Hot) */}
+                        {hotItems.length > 0 && (() => {
+                          const isGreenTeaOrKehwa = (it: MenuItem) => {
+                            const n = it.name.toLowerCase();
+                            const c = (it.category || '').toLowerCase();
+                            return (
+                              c === 'green-teas' ||
+                              it.id.startsWith('gt-') ||
+                              n.includes('green tea') ||
+                              n.includes('kehwa') ||
+                              n.includes('qehwa')
+                            );
+                          };
+                          const greenTeaItems = hotItems.filter(isGreenTeaOrKehwa);
+                          const hotCoffeeAndChai = hotItems.filter((it) => !isGreenTeaOrKehwa(it));
+
+                          return (
+                            <div className="space-y-4">
+                              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-50/95 via-orange-50/80 to-rose-50/90 border border-amber-200/90 shadow-2xs flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-xl bg-[#C25E34] text-white flex items-center justify-center text-base shadow-xs shrink-0">
+                                    <i className="fa-solid fa-mug-hot"></i>
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
+                                        Hot Beverages
+                                      </h4>
+                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider">
+                                        Coffee, Chai & Green Teas
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-stone-600 mt-0.5">
+                                      Freshly brewed Hot Coffee, Karak Chai, Kashmiri Chai, plus Mint, Lemon, Cardamom Green Teas & Peshawari Kehwa.
+                                    </p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <h4 className="font-heading font-black text-base sm:text-lg text-stone-900 tracking-tight">
-                                      Hot Beverages
-                                    </h4>
-                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider">
-                                      Chai & Green Teas
+                                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
+                                  {hotItems.length} {hotItems.length === 1 ? 'drink' : 'drinks'}
+                                </span>
+                              </div>
+
+                              {hotCoffeeAndChai.length > 0 && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
+                                  {hotCoffeeAndChai.map((item, idx) => renderItemCard(item, idx))}
+                                </div>
+                              )}
+
+                              {greenTeaItems.length > 0 && (
+                                <div className="pt-2 space-y-3">
+                                  <div className="flex items-center justify-between px-1">
+                                    <h5 className="font-heading font-extrabold text-sm text-emerald-900 flex items-center gap-2">
+                                      <i className="fa-solid fa-leaf text-emerald-600"></i>
+                                      <span>Green Teas & Peshawari Kehwa</span>
+                                    </h5>
+                                    <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                                      Rs. 150 each
                                     </span>
                                   </div>
-                                  <p className="text-xs text-stone-600 mt-0.5">
-                                    Steaming hot Karak Chai, royal Kashmiri Pink Chai with almonds & pistachios, and fresh herbal green teas (Lemon & Cardamom).
-                                  </p>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
+                                    {greenTeaItems.map((item, idx) => renderItemCard(item, idx))}
+                                  </div>
                                 </div>
-                              </div>
-                              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
-                                {hotItems.length} {hotItems.length === 1 ? 'drink' : 'drinks'}
-                              </span>
+                              )}
                             </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
-                              {hotItems.map((item, idx) => renderItemCard(item, idx))}
-                            </div>
-                          </div>
-                        )}
+                          );
+                        })()}
                       </div>
                     );
                   }

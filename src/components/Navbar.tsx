@@ -5,7 +5,6 @@ import { ShopMode } from '../types';
 import { FrostyLogo } from './FrostyLogo';
 import { SlideFillButton } from './SlideFillButton';
 import { useBrandLogo } from '../utils/logoStorage';
-import { LogoUploadModal } from './LogoUploadModal';
 
 interface NavbarProps {
   cartCount: number;
@@ -34,7 +33,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showLogoModal, setShowLogoModal] = useState(false);
   const [status, setStatus] = useState(getStoreStatus());
   const { logoUrl } = useBrandLogo();
 
@@ -91,19 +89,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                     referrerPolicy="no-referrer"
                   />
                 </div>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowLogoModal(true);
-                  }}
-                  className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#1A4B8E] hover:bg-[#153e77] text-white text-[9px] flex items-center justify-center shadow-md border border-white transition-transform hover:scale-110"
-                  title="Upload / Change Logo Image"
-                  aria-label="Upload custom logo"
-                >
-                  <i className="fa-solid fa-camera"></i>
-                </button>
               </div>
             <div>
               <div className="flex items-center gap-1.5">
@@ -261,11 +246,6 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       )}
 
-      {/* Interactive Logo Upload & Customizer Dialog */}
-      <LogoUploadModal
-        isOpen={showLogoModal}
-        onClose={() => setShowLogoModal(false)}
-      />
     </header>
   );
 };

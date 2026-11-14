@@ -31,6 +31,8 @@ import {
 import { RealTimeOrderDispatchHub } from './RealTimeOrderDispatchHub';
 import { RecipeCostManager } from './RecipeCostManager';
 import { DeliveryZonesSettings } from './DeliveryZonesSettings';
+import { LogoUploadModal } from '../LogoUploadModal';
+import { useBrandLogo } from '../../utils/logoStorage';
 
 interface ExecutiveConsoleProps {
   isOpen: boolean;
@@ -180,6 +182,8 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [showDemoHint, setShowDemoHint] = useState(false);
+  const [showLogoModal, setShowLogoModal] = useState(false);
+  const { logoUrl, isCustom } = useBrandLogo();
 
   // Active Tab: matching screenshot's left navigation + Add Product tab
   const [activeTab, setActiveTab] = useState<
@@ -811,10 +815,27 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
             <aside className="w-64 shrink-0 border-r border-[#EDE8DF] bg-[#FAF8F5] p-4 flex flex-col justify-between overflow-y-auto hidden md:flex">
               <div className="space-y-6">
                 
-                {/* Brand Logo and Title */}
+                {/* Brand Logo and Title (with Admin Camera Upload Button) */}
                 <div className="flex items-center gap-3 px-2">
-                  <div className="w-10 h-10 rounded-xl bg-[#1E1915] text-[#D99B26] flex items-center justify-center text-lg font-black shadow-sm shrink-0">
-                    <i className="fa-solid fa-ice-cream"></i>
+                  <div className="relative shrink-0">
+                    <div className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center shadow-sm p-0.5 bg-gradient-to-tr from-[#1A4B8E] via-[#70B9F7] to-[#1A4B8E] border border-white">
+                      <img
+                        src={logoUrl}
+                        alt="Frosty's Logo"
+                        className="w-full h-full object-cover rounded-full"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowLogoModal(true)}
+                      id="btn-admin-logo-camera"
+                      className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#1A4B8E] hover:bg-[#153e77] text-white text-[9px] flex items-center justify-center shadow-md border border-white transition-transform hover:scale-110 cursor-pointer"
+                      title="Upload / Change Store Logo"
+                      aria-label="Upload custom store logo"
+                    >
+                      <i className="fa-solid fa-camera"></i>
+                    </button>
                   </div>
                   <div className="overflow-hidden">
                     <h1 className="font-heading font-black text-sm text-[#1E1915] leading-tight truncate">
@@ -2728,7 +2749,48 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
                     </p>
                   </div>
 
-                  {/* Section 1: Delivery Zones & Store Open/Close */}
+                  {/* Section 1: Store Brand Logo */}
+                  <div className="bg-white p-5 sm:p-6 rounded-3xl border border-[#EDE8DF] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="relative shrink-0">
+                        <div className="w-16 h-16 rounded-full overflow-hidden shadow-md p-0.5 bg-gradient-to-tr from-[#1A4B8E] via-[#70B9F7] to-[#1A4B8E] border border-white">
+                          <img
+                            src={logoUrl}
+                            alt="Current Brand Logo"
+                            className="w-full h-full object-cover rounded-full"
+                            referrerPolicy="no-referrer"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowLogoModal(true)}
+                          className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#1A4B8E] hover:bg-[#153e77] text-white text-[10px] flex items-center justify-center shadow-md border border-white transition-transform hover:scale-110 cursor-pointer"
+                          title="Change Brand Logo"
+                          aria-label="Change brand logo"
+                        >
+                          <i className="fa-solid fa-camera"></i>
+                        </button>
+                      </div>
+                      <div>
+                        <h4 className="font-heading font-black text-base text-[#1E1915]">
+                          Store Brand Logo
+                        </h4>
+                        <p className="text-xs text-[#7A7067] mt-0.5">
+                          {isCustom ? 'Custom uploaded restaurant logo is currently active on the storefront.' : "Using Frosty's official brand emblem across the website."}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowLogoModal(true)}
+                      className="px-4 py-2.5 rounded-xl bg-[#1A4B8E] hover:bg-[#153e77] text-white text-xs font-heading font-black cursor-pointer shadow-xs transition-colors flex items-center gap-2 self-start sm:self-auto shrink-0"
+                    >
+                      <i className="fa-solid fa-camera text-xs"></i>
+                      <span>Upload / Change Logo</span>
+                    </button>
+                  </div>
+
+                  {/* Section 2: Delivery Zones & Store Open/Close */}
                   <DeliveryZonesSettings />
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -2964,6 +3026,12 @@ export const ExecutiveConsole: React.FC<ExecutiveConsoleProps> = ({
 
         </div>
       )}
+
+      {/* Store Brand Logo Upload Modal (Admin Only) */}
+      <LogoUploadModal
+        isOpen={showLogoModal}
+        onClose={() => setShowLogoModal(false)}
+      />
     </div>
   );
 };

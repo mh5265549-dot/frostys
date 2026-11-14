@@ -180,16 +180,28 @@ export const DEFAULT_RECIPE_COSTS: Record<string, { cost: number; breakdown: str
     cost: 180,
     breakdown: 'Paratha, Chicken Seekh Kabab, Sliced Onions, Garlic Mayo Sauce, Wrapper',
   },
-  'gt-peshawari-qehwa': {
+  'ff-golden-crispy-burger': {
+    cost: 210,
+    breakdown: 'Crispy Breaded Chicken Fillet, Sesame Brioche Bun, Cheddar, Lettuce, Sauce, Box',
+  },
+  'coffee-hot-classic': {
+    cost: 140,
+    breakdown: 'Fresh Espresso Beans, Steamed Whole Milk, Microfoam, Hot Serving Cup',
+  },
+  'gt-mint-green-tea': {
     cost: 35,
-    breakdown: 'Authentic Green Tea Leaves, Green Cardamom, Fresh Mint, Rock Candies, Serving Glass',
+    breakdown: 'Organic Green Tea Leaves, Fresh Garden Mint Leaves, Cup',
+  },
+  'gt-peshawari-kehwa': {
+    cost: 35,
+    breakdown: 'Authentic Peshawari Kehwa Leaves, Crushed Cardamom, Serving Cup',
   },
   'gt-cardamom-mint': {
     cost: 40,
-    breakdown: 'Green Tea, Crushed Elaichi Pods, Wild Mint, Glass',
+    breakdown: 'Green Tea, Crushed Elaichi Pods, Glass',
   },
   'gt-lemon-honey': {
-    cost: 45,
+    cost: 40,
     breakdown: 'Green Tea, Fresh Lemon Juice, Pure Natural Honey, Glass',
   },
 

@@ -175,6 +175,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
       const defVar = item.variants && item.variants.length > 0
         ? (item.variants.find((v) => v.price === item.price) || item.variants[0])
         : undefined;
+      setSelectedVariant(defVar);
       const isPistachioKulfa =
         item.id === 'scoop-pistachio-kulfa-special' ||
         item.name.toLowerCase().includes('pistachio') ||

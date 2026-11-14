@@ -21,53 +21,51 @@ export function getStoredMenuItems(): MenuItem[] {
       const missingDefaults = MENU_ITEMS.filter((item) => !existingIds.has(item.id));
       let merged = missingDefaults.length > 0 ? [...parsed, ...missingDefaults] : parsed;
 
-      // Filter out removed items: Qehwa & standalone Grill Meal Combo Upgrade
-      merged = merged.filter(
-        (it: MenuItem) =>
-          it.id !== 'gt-peshawari-qehwa' &&
-          !it.name.toLowerCase().includes('qehwa') &&
-          it.id !== 'ff-combo-upgrade'
-      );
+      // Filter out removed standalone combo upgrade
+      merged = merged.filter((it: MenuItem) => it.id !== 'ff-combo-upgrade');
 
-      // Always synchronize official updates for shami burger, other burgers, soft serve, chai, and green teas
+      // Run one-time catalog sync for updated prices, green teas, soups, and refined badges
       const defaultMap = new Map(MENU_ITEMS.map((m) => [m.id, m]));
+      const needsBadgeAndPriceMigration = !localStorage.getItem('frostys_catalog_sync_v18');
+
       merged = merged.map((it: MenuItem) => {
         const def = defaultMap.get(it.id);
-        if (it.id === 'gt-lemon-honey') {
-          return { ...it, name: 'Lemon', badge: '🍋 Lemon' };
-        }
-        if (it.id === 'gt-cardamom-mint') {
-          return { ...it, name: 'Cardamom', badge: '🌱 Cardamom' };
-        }
-        if (it.id === 'waffle-cone-classic' && def) {
-          return { ...it, ...def };
-        }
-        if (
-          (it.id === 'ff-shami-burger' ||
-            it.id === 'ff-ground-chicken-burger' ||
-            it.id === 'ff-grilled-chicken-burger') &&
-          def
-        ) {
+        if (!def) return it;
+
+        if (needsBadgeAndPriceMigration) {
           return {
             ...it,
             name: def.name,
             price: def.price,
             unit: def.unit,
-            comboPrice: 300,
+            badge: def.badge,
             description: def.description,
+            variants: def.variants,
+            image: def.image,
+            tags: def.tags,
+            isBeverage: def.isBeverage,
+            comboPrice: def.comboPrice,
           };
         }
-        if (it.id === 'ff-karak-chai' && def) {
-          return { ...it, image: def.image, badge: def.badge, description: def.description, unit: def.unit };
-        }
-        if (it.id === 'ff-chicken-fries-supreme' && def) {
-          return { ...it, image: def.image };
-        }
-        if (it.id === 'ff-fries-supreme' && def) {
-          return { ...it, image: def.image };
+
+        if (
+          it.id === 'ff-shami-burger' ||
+          it.id === 'ff-ground-chicken-burger' ||
+          it.id === 'ff-grilled-chicken-burger' ||
+          it.id === 'ff-golden-crispy-burger'
+        ) {
+          return { ...it, comboPrice: 300 };
         }
         return it;
       });
+
+      if (needsBadgeAndPriceMigration) {
+        try {
+          localStorage.setItem('frostys_catalog_sync_v18', '1');
+        } catch {
+          // ignore storage errors
+        }
+      }
 
       saveCustomMenuItems(merged);
       return merged;
